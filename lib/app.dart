@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:venure/view/login_screen.dart';
 import 'package:venure/view/splash_screen.dart';
 
 class App extends StatelessWidget {
@@ -8,9 +9,14 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       initialRoute: '/',
-      routes: {'/': (context) => SplashScreen()},
+      routes: {
+        '/': (context) => SplashScreen(),
+        '/login': (context) => LoginScreen(),
+      },
       debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        fontFamily: 'Dosis'
+      ),
     );
-    
   }
 }
