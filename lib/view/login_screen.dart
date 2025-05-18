@@ -104,7 +104,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       if (emailController.text == "admin@gmail.com" &&
                           passwordController.text == "Admin123") {
                         debugPrint("correct");
-                        // Navigator.pushReplacementNamed(context, '/homeScreen');
+                        Navigator.pushReplacementNamed(context, '/homeScreen');
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
