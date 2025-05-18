@@ -15,7 +15,7 @@ class App extends StatelessWidget {
         '/': (context) => SplashScreen(),
         '/login': (context) => LoginScreen(),
         '/signup': (context) => SignupScreen(),
-        '/homeScreen': (context) => HomeScreen(),
+        '/homeScreen': (context) => Homescreen(),
       },
       debugShowCheckedModeBanner: false,
       theme: ThemeData(fontFamily: 'Dosis'),
