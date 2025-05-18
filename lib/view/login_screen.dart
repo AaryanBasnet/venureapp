@@ -101,8 +101,21 @@ class _LoginScreenState extends State<LoginScreen> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.pushReplacementNamed(context, '/homeScreen');
+                      if (emailController.text == "admin@gmail.com" &&
+                          passwordController.text == "Admin123") {
+                        debugPrint("correct");
+                        // Navigator.pushReplacementNamed(context, '/homeScreen');
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Invalid email or password"),
+                            backgroundColor: Colors.red,
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      }
                     },
+
                     style: ElevatedButton.styleFrom(
                       backgroundColor: primaryColor,
                     ),
