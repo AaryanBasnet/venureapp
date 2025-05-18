@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:venure/view/login_screen.dart';
+import 'package:venure/view/signup_screen.dart';
 import 'package:venure/view/splash_screen.dart';
 
 class App extends StatelessWidget {
@@ -12,11 +13,10 @@ class App extends StatelessWidget {
       routes: {
         '/': (context) => SplashScreen(),
         '/login': (context) => LoginScreen(),
+        '/signup': (context) => SignupScreen(),
       },
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        fontFamily: 'Dosis'
-      ),
+      theme: ThemeData(fontFamily: 'Dosis'),
     );
   }
 }

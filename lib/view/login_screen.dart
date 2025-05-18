@@ -134,7 +134,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         Image.asset("assets/img/google_logo.png"),
                         const SizedBox(width: 20),
                         const Text(
-                          "Login ",
+                          "Login with Google",
                           style: TextStyle(fontSize: 22, color: primaryColor),
                         ),
                       ],
