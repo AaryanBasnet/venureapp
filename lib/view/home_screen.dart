@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:venure/common/category_icon.dart';
 
 class Homescreen extends StatefulWidget {
   const Homescreen({super.key});
@@ -16,6 +17,7 @@ class _HomescreenState extends State<Homescreen> {
   ];
 
   final PageController _pageController = PageController();
+
   int _currentPage = 0;
 
   @override
@@ -24,14 +26,91 @@ class _HomescreenState extends State<Homescreen> {
     super.dispose();
   }
 
+  final Color primaryColor = Color(0xFF8A4FFF);
+  final Color accentColor = Color(0xFFFFD166);
+  final Color backgroundColor = Color(0xFFF4F1FB);
+  final Color textColor = Color(0xFF2D2D2D);
+  final Color lightTextColor = Color(0xFF777777);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              SizedBox(
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+
+          children: [
+            Container(
+              width: double.infinity,
+              height: 210,
+              decoration: BoxDecoration(
+                color: accentColor,
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(15),
+                  bottomRight: Radius.circular(15),
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 50, 16, 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Hello,",
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        CircleAvatar(
+                          backgroundColor: Colors.white,
+                          child: Icon(Icons.notifications),
+                        ),
+                      ],
+                    ),
+
+                    Text(
+                      "Aaryan Basnet!",
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 8,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: const TextField(
+                        decoration: InputDecoration(
+                          hintText: "Search venues...",
+                          border: InputBorder.none,
+                          icon: Icon(Icons.search),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            SizedBox(height: 10),
+
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: SizedBox(
                 height: 300,
                 child: Stack(
                   children: [
@@ -95,42 +174,6 @@ class _HomescreenState extends State<Homescreen> {
                     ),
 
                     Positioned(
-                      top: 20,
-                      right: 16,
-                      child: CircleAvatar(
-                        backgroundColor: Colors.white,
-                        child: Icon(Icons.notifications),
-                      ),
-                    ),
-
-                    Positioned(
-                      top: 20,
-                      left: 16,
-                      right: 70,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(30),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black12,
-                              blurRadius: 8,
-                              offset: Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: const TextField(
-                          decoration: InputDecoration(
-                            hintText: "Search venues...",
-                            border: InputBorder.none,
-                            icon: Icon(Icons.search),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    Positioned(
                       bottom: 10,
 
                       left: 0,
@@ -155,13 +198,53 @@ class _HomescreenState extends State<Homescreen> {
                   ],
                 ),
               ),
+            ),
 
-              Column(children: [
-                 
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Categories",
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
+                  ),
+                  SizedBox(height: 10),
+                  Container(
+                    width: double.infinity,
+                    height: 100,
+
+                    child: ListView(
+                      // This next line does the trick.
+                      scrollDirection: Axis.horizontal,
+                      children: <Widget>[
+                        CategoryIcon(
+                          imgLocation: "assets/img/birthday.png",
+                          eventName: "Birthday",
+                        ),
+                        CategoryIcon(
+                          imgLocation: "assets/img/wedding.png",
+                          eventName: "Wedding",
+                        ),
+                        CategoryIcon(
+                          imgLocation: "assets/img/engagement.png",
+                          eventName: "Engagement",
+                        ),
+                        CategoryIcon(
+                          imgLocation: "assets/img/business.png",
+                          eventName: "Business Event",
+                        ),
+                        CategoryIcon(
+                          imgLocation: "assets/img/graduation.png",
+                          eventName: "Graduation",
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
