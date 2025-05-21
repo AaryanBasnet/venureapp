@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:venure/common/category_icon.dart';
+import 'package:venure/common/venue_card.dart';
 import 'package:venure/common/venure_card.dart';
 
 class Homescreen extends StatefulWidget {
@@ -252,13 +253,25 @@ class _HomescreenState extends State<Homescreen> {
 
   Widget _buildVenureCard() {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: SizedBox(
-        height: 400,
-        child: ListView(
-          scrollDirection: Axis.horizontal,
-          children: const [VenureCard(), VenureCard()],
-        ),
+      padding: const EdgeInsets.all(12.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Our Top Picks",
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
+          ),
+          SizedBox(
+            height: 350,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: 10,
+              itemBuilder: (context, index) {
+                return VenueCard();
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
