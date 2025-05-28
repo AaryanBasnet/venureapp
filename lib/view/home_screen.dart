@@ -129,9 +129,34 @@ class Homescreen extends StatelessWidget {
                 );
               },
             ),
+            Positioned(
+              bottom: 10,
+              left: 0,
+              right: 0,
+              child: _buildPageIndicator(imagePaths, currentPage),
+            ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildPageIndicator(List<String> imagePaths, int currentPage) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(imagePaths.length, (index) {
+        bool isActive = index == currentPage;
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          width: isActive ? 12 : 8,
+          height: isActive ? 12 : 8,
+          decoration: BoxDecoration(
+            color: isActive ? Colors.white : Colors.white54,
+            shape: BoxShape.circle,
+          ),
+        );
+      }),
     );
   }
 
@@ -193,7 +218,7 @@ class Homescreen extends StatelessWidget {
           ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: 6, 
+            itemCount: 6,
             itemBuilder: (context, index) {
               return const Padding(
                 padding: EdgeInsets.only(bottom: 12.0),
