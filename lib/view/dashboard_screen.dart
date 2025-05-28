@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:venure/view/favourites_screen.dart';
 import 'package:venure/view/home_screen.dart';
 import 'package:venure/view/profile_screen.dart';
 
@@ -15,7 +16,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final List<Widget> _pages = const [
     Homescreen(),
     Center(child: Text("chat")),
-    Center(child: Text('Favourite')),
+    FavouritesScreen(),
     ProfileScreen(),
   ];
   @override
