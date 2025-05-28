@@ -20,7 +20,7 @@ class _SignupScreenState extends State<SignupScreen> {
   @override
   Widget build(BuildContext context) {
     const primaryColor = Color(0xFF3B2063);
-    const accentColor = Color(0xFF7E57C2);
+    // const accentColor = Color(0xFF7E57C2);
 
     return Scaffold(
       backgroundColor: Colors.white,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:venure/theme/theme_data.dart';
 import 'package:venure/view/home_screen.dart';
 import 'package:venure/view/login_screen.dart';
 import 'package:venure/view/signup_screen.dart';
@@ -18,7 +19,7 @@ class App extends StatelessWidget {
         '/homeScreen': (context) => Homescreen(),
       },
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(fontFamily: 'Dosis'),
+      theme: getApplicationTheme(),
     );
   }
 }

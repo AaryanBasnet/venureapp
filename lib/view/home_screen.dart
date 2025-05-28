@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+// import 'package:venure/common/bottom_bar_floating.dart';
 import 'package:venure/common/category_icon.dart';
 import 'package:venure/common/venue_card.dart';
-import 'package:venure/common/venure_card.dart';
 
 class Homescreen extends StatefulWidget {
   const Homescreen({super.key});
@@ -17,6 +17,29 @@ class _HomescreenState extends State<Homescreen> {
     'assets/img/bar.jpg',
     'assets/img/hotel.jpg',
   ];
+
+//   final List<TabItem> items = [
+//   TabItem(
+//     icon: Icons.home,
+//     title: 'Home',
+//     key: 'home',
+//   ),
+//   TabItem(
+//     icon: Icons.chat,
+//     title: 'Chat',
+//     key: 'chat',
+//   ),
+//   TabItem(
+//     icon: Icons.favorite,
+//     title: 'Favourites',
+//     key: 'favourites',
+//   ),
+//   TabItem(
+//     icon: Icons.person,
+//     title: 'Profile',
+//     key: 'profile',
+//   ),
+// ];
 
   final PageController _pageController = PageController();
   int _currentPage = 0;
@@ -47,10 +70,37 @@ class _HomescreenState extends State<Homescreen> {
             _buildCategoriesSection(),
             const SizedBox(height: 10),
             _buildVenureCard(),
+            
+          
+
+
+
+           
+           
+
+            
           ],
         ),
       ),
+      bottomNavigationBar: NavigationBar(onDestinationSelected: (int index) {
+        setState(() {
+          _currentPage = index;
+        });
+      },
+      indicatorColor: Colors.amber,
+      selectedIndex: _currentPage,
+      destinations: <Widget>[
+        NavigationDestination(selectedIcon: Icon(Icons.home), icon: Icon(Icons.home_outlined), label: 'Home'),
+        NavigationDestination(icon: Icon(Icons.message_outlined), label: "Chat"),
+        NavigationDestination(icon: Icon(Icons.favorite), label: "Favourite"),
+        NavigationDestination(icon: Icon(Icons.people_rounded), label: "Profile"),
+
+        
+
+      ],
+      ),
     );
+    
   }
 
   Widget _buildTopSection() {
