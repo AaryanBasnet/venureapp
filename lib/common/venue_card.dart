@@ -9,6 +9,7 @@ class VenueCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
+      
       width: 300,
       child: Card(
         elevation: 5,
