@@ -14,8 +14,8 @@ class Homescreen extends StatelessWidget {
       'assets/img/hotel.jpg',
     ];
 
-    final PageController _pageController = PageController();
-    int _currentPage = 0;
+    final PageController _carouselController = PageController();
+    int _currentCarousel = 0;
 
     final Color accentColor = const Color(0xFFFFD166);
 
@@ -25,7 +25,7 @@ class Homescreen extends StatelessWidget {
         children: [
           _buildTopSection(accentColor),
           const SizedBox(height: 10),
-          _buildImageCarousel(imagePaths, _pageController, _currentPage),
+          _buildImageCarousel(imagePaths, _carouselController, _currentCarousel),
           const SizedBox(height: 10),
           _buildCategoriesSection(),
           const SizedBox(height: 10),
@@ -129,36 +129,36 @@ class Homescreen extends StatelessWidget {
                 );
               },
             ),
-            Positioned(
-              bottom: 10,
-              left: 0,
-              right: 0,
-              child: _buildPageIndicator(imagePaths, currentPage),
-            ),
+            // Positioned(
+            //   bottom: 10,
+            //   left: 0,
+            //   right: 0,
+            //   child: _buildPageIndicator(imagePaths, currentPage),
+            // ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildPageIndicator(List<String> imagePaths, int currentPage) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(imagePaths.length, (index) {
-        bool isActive = index == currentPage;
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          margin: const EdgeInsets.symmetric(horizontal: 4),
-          width: isActive ? 12 : 8,
-          height: isActive ? 12 : 8,
-          decoration: BoxDecoration(
-            color: isActive ? Colors.white : Colors.white54,
-            shape: BoxShape.circle,
-          ),
-        );
-      }),
-    );
-  }
+  // Widget _buildPageIndicator(List<String> imagePaths, int currentPage) {
+  //   return Row(
+  //     mainAxisAlignment: MainAxisAlignment.center,
+  //     children: List.generate(imagePaths.length, (index) {
+  //       bool isActive = index == currentPage;
+  //       return AnimatedContainer(
+  //         duration: const Duration(milliseconds: 300),
+  //         margin: const EdgeInsets.symmetric(horizontal: 4),
+  //         width: isActive ? 12 : 8,
+  //         height: isActive ? 12 : 8,
+  //         decoration: BoxDecoration(
+  //           color: isActive ? Colors.white : Colors.white54,
+  //           shape: BoxShape.circle,
+  //         ),
+  //       );
+  //     }),
+  //   );
+  // }
 
   Widget _buildCategoriesSection() {
     return Padding(
