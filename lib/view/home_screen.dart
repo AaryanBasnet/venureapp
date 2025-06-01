@@ -25,10 +25,14 @@ class Homescreen extends StatelessWidget {
         children: [
           _buildTopSection(accentColor),
           const SizedBox(height: 10),
-          _buildImageCarousel(imagePaths, _carouselController, _currentCarousel),
+          _buildImageCarousel(
+            imagePaths,
+            _carouselController,
+            _currentCarousel,
+          ),
           const SizedBox(height: 10),
           _buildCategoriesSection(),
-          const SizedBox(height: 10),
+
           _buildVenueCard(),
         ],
       ),
@@ -162,7 +166,7 @@ class Homescreen extends StatelessWidget {
 
   Widget _buildCategoriesSection() {
     return Padding(
-      padding: const EdgeInsets.all(10.0),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -170,7 +174,7 @@ class Homescreen extends StatelessWidget {
             "Categories",
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 15),
           SizedBox(
             height: 100,
             child: ListView(
@@ -206,25 +210,26 @@ class Homescreen extends StatelessWidget {
 
   Widget _buildVenueCard() {
     return Padding(
-      padding: const EdgeInsets.all(12.0),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
             "Our Top Picks",
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w600,
+              height: 1.2, // helps reduce vertical spacing
+            ),
           ),
-          const SizedBox(height: 10),
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: 6,
-            itemBuilder: (context, index) {
+          const SizedBox(height: 8), // manual control over spacing
+          Column(
+            children: List.generate(6, (index) {
               return const Padding(
                 padding: EdgeInsets.only(bottom: 12.0),
-                child: VenueCard(),
+                child: SizedBox(width: double.infinity, child: VenueCard()),
               );
-            },
+            }),
           ),
         ],
       ),
