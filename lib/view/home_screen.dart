@@ -14,8 +14,8 @@ class Homescreen extends StatelessWidget {
       'assets/img/hotel.jpg',
     ];
 
-    final PageController _carouselController = PageController();
-    int _currentCarousel = 0;
+    final PageController carouselController = PageController();
+    int currentCarousel = 0;
 
     final Color accentColor = const Color(0xFFFFD166);
 
@@ -27,8 +27,8 @@ class Homescreen extends StatelessWidget {
           const SizedBox(height: 10),
           _buildImageCarousel(
             imagePaths,
-            _carouselController,
-            _currentCarousel,
+            carouselController,
+            currentCarousel,
           ),
           const SizedBox(height: 10),
           _buildCategoriesSection(),
@@ -238,7 +238,7 @@ class Homescreen extends StatelessWidget {
 }
 
 class _SearchBar extends StatelessWidget {
-  const _SearchBar({super.key});
+  const _SearchBar();
 
   @override
   Widget build(BuildContext context) {
