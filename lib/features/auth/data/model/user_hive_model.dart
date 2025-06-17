@@ -43,7 +43,7 @@ class UserHiveModel extends Equatable {
    }
 
    UserEntity toEntity() {
-    return UserEntity(userId: userId, fullName: fullName, email: email, phone: phone, password: password)
+    return UserEntity(userId: userId, fullName: fullName, email: email, phone: phone, password: password);
    }
 
    static List<UserHiveModel> fromEntityList(List<UserEntity> userEntityList) {
