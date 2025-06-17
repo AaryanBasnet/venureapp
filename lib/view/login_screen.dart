@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:venure/common/common_text_form_field.dart';
+import 'package:venure/core/common/common_text_form_field.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

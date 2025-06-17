@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:venure/common/category_icon.dart';
-import 'package:venure/common/venue_card.dart';
+import 'package:venure/core/common/category_icon.dart';
+import 'package:venure/core/common/venue_card.dart';
 
 class Homescreen extends StatelessWidget {
   const Homescreen({super.key});
