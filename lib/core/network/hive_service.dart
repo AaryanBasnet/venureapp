@@ -2,6 +2,7 @@ import 'dart:ffi';
 
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:venure/app/constant/hive/hive_table_constant.dart';
 import 'package:venure/features/auth/data/model/user_hive_model.dart';
 
 class HiveService {
@@ -18,7 +19,7 @@ class HiveService {
   Future<void> registerUser(UserHiveModel user) async {
     var box = await Hive.openBox<UserHiveModel>(HiveTableConstant.userBox);
 
-    var newUser = box.put(user.userId, user);
+    var newUser = box.put(user.userId, user); 
 
     return newUser;
   }
