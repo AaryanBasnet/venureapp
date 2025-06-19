@@ -1,45 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 class CommonTextFormField extends StatelessWidget {
   final String label;
   final IconData icon;
   final Color color;
-  final bool obsecure;
   final TextEditingController controller;
-  final ValueChanged<String>? onChanged;
+  final bool obsecure;
+  final Function(String) onChanged;
+  final String? Function(String?)? validator;
 
   const CommonTextFormField({
-    super.key,
+    Key? key,
     required this.label,
     required this.icon,
     required this.color,
-    this.obsecure = false,
     required this.controller,
-    this.onChanged,
-  });
+    this.obsecure = false,
+    required this.onChanged,
+    this.validator,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: TextFormField(
-        controller: controller,
-        obscureText: obsecure,
-        decoration: InputDecoration(
-          labelText: label,
-          prefixIcon: Icon(icon, color: color),
-          filled: true,
-          fillColor: const Color(0xFFF5F5F5),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8.0),
-            borderSide: BorderSide(color: color),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8.0),
-            borderSide: BorderSide(color: color, width: 2),
-          ),
-        ),
-        onChanged: onChanged,
+    return TextFormField(
+      controller: controller,
+      obscureText: obsecure,
+      onChanged: onChanged,
+      validator: validator,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon, color: color),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }
