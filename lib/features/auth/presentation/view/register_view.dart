@@ -121,7 +121,7 @@ class RegisterView extends StatelessWidget {
                                           Navigator.pushReplacement(
                                             context,
                                             MaterialPageRoute(
-                                              builder: (_) => const LoginView(),
+                                              builder: (_) =>  LoginView(),
                                             ),
                                           );
                                         },
@@ -163,7 +163,7 @@ class RegisterView extends StatelessWidget {
                             context.read<RegisterViewModel>().add(
                               NavigateToLoginView(
                                 context: context,
-                                destination: const LoginView(),
+                                destination:  LoginView(),
                               ),
                             );
                           },

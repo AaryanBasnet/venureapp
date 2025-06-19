@@ -9,18 +9,18 @@ class UserLocalRepository implements IUserRepository {
 
   UserLocalRepository({required UserLocalDatasource userLocalDataSource})
     : _userLocalDataSource = userLocalDataSource;
-  // @override
-  // Future<Either<Failure, String>> loginUser(
-  //   String email,
-  //   String password,
-  // ) async {
-  //   try {
-  //     final result = await _userLocalDataSource.loginUser(email, password);
-  //     return Right(result);
-  //   } catch (e) {
-  //     return Left(LocalDatabaseFailure(message: "Login Failed: $e"));
-  //   }
-  // }
+  @override
+  Future<Either<Failure, String>> loginUser(
+    String email,
+    String password,
+  ) async {
+    try {
+      final result = await _userLocalDataSource.loginUser(email, password);
+      return Right(result);
+    } catch (e) {
+      return Left(LocalDataBaseFailure(message: "Login Failed: $e"));
+    }
+  }
 
   @override
   Future<Either<Failure, void>> registerUser(UserEntity user) async {

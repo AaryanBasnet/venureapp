@@ -19,8 +19,19 @@ class HiveService {
   Future<void> registerUser(UserHiveModel user) async {
     var box = await Hive.openBox<UserHiveModel>(HiveTableConstant.userBox);
 
-    var newUser = box.put(user.userId, user); 
+    var newUser = box.put(user.userId, user);
 
     return newUser;
+  }
+
+  //login user
+  Future<UserHiveModel?> loginUser(String email, String password) async {
+    var box = await Hive.openBox(HiveTableConstant.userBox);
+    var user = box.values.firstWhere(
+      (u) => u.email == email && u.password == password,
+      orElse: () => throw Exception('Invalid credentials'),
+    );
+    box.close();
+    return user;
   }
 }
