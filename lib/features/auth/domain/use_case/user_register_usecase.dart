@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
+import 'package:venure/app/use_case/usecase.dart';
 import 'package:venure/core/error/failure.dart';
 import 'package:venure/features/auth/domain/entity/user_entity.dart';
 import 'package:venure/features/auth/domain/repository/user_repository.dart';
