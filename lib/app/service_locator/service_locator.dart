@@ -6,29 +6,36 @@ import 'package:venure/features/auth/domain/use_case/user_login_usecase.dart';
 import 'package:venure/features/auth/domain/use_case/user_register_usecase.dart';
 import 'package:venure/features/auth/presentation/view_model/login_view_model/login_view_model.dart';
 import 'package:venure/features/auth/presentation/view_model/register_view_model.dart';
+import 'package:venure/features/home/presentation/view_model/home_view_model.dart';
 
 final serviceLocator = GetIt.instance;
 Future initDependencies() async {
-  // 👇 Register HiveService FIRST
   serviceLocator.registerLazySingleton<HiveService>(() => HiveService());
 
-  // 👇 Register everything else
-   _initLoginModule();
+  _initLoginModule();
   _initSignupModule();
+  // _initDashboardModule(); 
 }
 
 Future _initSignupModule() async {
-  serviceLocator.registerFactory(() =>
-      UserLocalDatasource(hiveService: serviceLocator<HiveService>()));
-
-  serviceLocator.registerFactory(() => UserLocalRepository(
-      userLocalDataSource: serviceLocator<UserLocalDatasource>()));
-
-  serviceLocator.registerFactory(() =>
-      UserRegisterUsecase(repository: serviceLocator<UserLocalRepository>()));
+  serviceLocator.registerFactory(
+    () => UserLocalDatasource(hiveService: serviceLocator<HiveService>()),
+  );
 
   serviceLocator.registerFactory(
-      () => RegisterViewModel(serviceLocator<UserRegisterUsecase>()));
+    () => UserLocalRepository(
+      userLocalDataSource: serviceLocator<UserLocalDatasource>(),
+    ),
+  );
+
+  serviceLocator.registerFactory(
+    () =>
+        UserRegisterUsecase(repository: serviceLocator<UserLocalRepository>()),
+  );
+
+  serviceLocator.registerFactory(
+    () => RegisterViewModel(serviceLocator<UserRegisterUsecase>()),
+  );
 }
 
 Future _initLoginModule() async {
@@ -39,6 +46,12 @@ Future _initLoginModule() async {
   serviceLocator.registerFactory(
     () => LoginViewModel(serviceLocator<UserLoginUsecase>()),
   );
-  
-
 }
+
+// Future _initDashboardModule() async {
+//   // Register any use cases, repositories or data sources as needed
+//   // serviceLocator.registerFactory(() => HomeRepository());
+//   // serviceLocator.registerFactory(() => HomeUseCase());
+
+//   serviceLocator.registerFactory(() => HomeViewModel());
+// }

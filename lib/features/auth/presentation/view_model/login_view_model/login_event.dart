@@ -12,6 +12,14 @@ class NavigateToSignupView extends LoginEvent {
   NavigateToSignupView({required this.context, required this.destination});
 }
 
+class NavigateToDashboardView extends LoginEvent {
+  final BuildContext context;
+  final Widget destination;
+
+  NavigateToDashboardView({required this.context, required this.destination});
+  
+}
+
 class LoginIntoSystemEvent extends LoginEvent {
   final BuildContext context;
   final String email;

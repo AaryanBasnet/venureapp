@@ -1,6 +1,3 @@
-
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venure/app/service_locator/service_locator.dart';
@@ -10,12 +7,17 @@ import 'package:venure/features/auth/presentation/view/register_view.dart';
 import 'package:venure/features/auth/presentation/view_model/login_view_model/login_event.dart';
 import 'package:venure/features/auth/presentation/view_model/login_view_model/login_state.dart';
 import 'package:venure/features/auth/presentation/view_model/register_view_model.dart';
+import 'package:venure/features/home/presentation/view/home_view.dart';
+import 'package:venure/features/home/presentation/view_model/home_view_model.dart';
+import 'package:venure/view/home_screen.dart';
+
 class LoginViewModel extends Bloc<LoginEvent, LoginState> {
   final UserLoginUsecase _loginUsecase;
-  
+
   LoginViewModel(this._loginUsecase) : super(LoginState.initial()) {
     on<NavigateToSignupView>(_onNavigateToSignupView);
     on<LoginIntoSystemEvent>(_onLoginWithEmailAndPassword);
+    on<NavigateToDashboardView>(_onNavigateToDashboardView);
   }
 
   void _onNavigateToSignupView(
@@ -26,10 +28,11 @@ class LoginViewModel extends Bloc<LoginEvent, LoginState> {
       Navigator.push(
         event.context,
         MaterialPageRoute(
-          builder: (context) => BlocProvider.value(
-            value: serviceLocator<RegisterViewModel>(),
-            child: RegisterView(),
-          ),
+          builder:
+              (context) => BlocProvider.value(
+                value: serviceLocator<RegisterViewModel>(),
+                child: RegisterView(),
+              ),
         ),
       );
     }
@@ -40,7 +43,7 @@ class LoginViewModel extends Bloc<LoginEvent, LoginState> {
     Emitter<LoginState> emit,
   ) async {
     emit(state.copyWith(isLoading: true));
-    
+
     final result = await _loginUsecase(
       LoginUserParams(email: event.email, password: event.password),
     );
@@ -57,8 +60,12 @@ class LoginViewModel extends Bloc<LoginEvent, LoginState> {
       },
       (token) {
         emit(state.copyWith(isLoading: false, isSuccess: true));
+        Navigator.pushReplacement(
+          event.context,
+          MaterialPageRoute(builder: (_) => Homescreen()),
+        );
 
-      //to navigate to dashboard
+        //to navigate to dashboard
         // Navigator.pushReplacementNamed(event.context, '/dashboard');
 
         // add(SomeNextEvent());
@@ -66,5 +73,23 @@ class LoginViewModel extends Bloc<LoginEvent, LoginState> {
         // If no further action needed here, just remove the empty add()
       },
     );
+  }
+
+  void _onNavigateToDashboardView(
+    NavigateToDashboardView event,
+    Emitter<LoginState> emit,
+  ) {
+    if (event.context.mounted) {
+      Navigator.push(
+        event.context,
+        MaterialPageRoute(
+          builder:
+              (context) => BlocProvider.value(
+                value: serviceLocator<HomeViewModel>(),
+                child: Homescreen(),
+              ),
+        ),
+      );
+    }
   }
 }
