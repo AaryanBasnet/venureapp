@@ -13,7 +13,6 @@ class RegisterView extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController phoneNumberController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
- 
 
   final _formKey = GlobalKey<FormState>();
 
@@ -64,6 +63,8 @@ class RegisterView extends StatelessWidget {
                       validator:
                           (value) => value!.isEmpty ? 'Enter full name' : null,
                     ),
+                    const SizedBox(height: 20),
+
                     CommonTextFormField(
                       label: "Email",
                       icon: Icons.email,
@@ -76,6 +77,8 @@ class RegisterView extends StatelessWidget {
                                   ? null
                                   : 'Enter a valid email',
                     ),
+                    const SizedBox(height: 20),
+
                     CommonTextFormField(
                       label: "Phone Number",
                       icon: Icons.phone,
@@ -88,6 +91,8 @@ class RegisterView extends StatelessWidget {
                                   ? 'Enter valid phone number'
                                   : null,
                     ),
+                    const SizedBox(height: 20),
+
                     CommonTextFormField(
                       label: "Password",
                       icon: Icons.lock,
@@ -99,9 +104,8 @@ class RegisterView extends StatelessWidget {
                           (value) =>
                               value!.length < 6 ? 'Password too short' : null,
                     ),
-                    
+                    const SizedBox(height: 20),
 
-                    const SizedBox(height: 30),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -121,7 +125,7 @@ class RegisterView extends StatelessWidget {
                                           Navigator.pushReplacement(
                                             context,
                                             MaterialPageRoute(
-                                              builder: (_) =>  LoginView(),
+                                              builder: (_) => LoginView(),
                                             ),
                                           );
                                         },
@@ -163,7 +167,7 @@ class RegisterView extends StatelessWidget {
                             context.read<RegisterViewModel>().add(
                               NavigateToLoginView(
                                 context: context,
-                                destination:  LoginView(),
+                                destination: LoginView(),
                               ),
                             );
                           },
@@ -189,5 +193,3 @@ class RegisterView extends StatelessWidget {
     );
   }
 }
-
-

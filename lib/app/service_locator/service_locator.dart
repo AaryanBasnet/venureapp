@@ -39,5 +39,6 @@ Future _initLoginModule() async {
   serviceLocator.registerFactory(
     () => LoginViewModel(serviceLocator<UserLoginUsecase>()),
   );
+  
 
 }

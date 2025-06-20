@@ -195,13 +195,14 @@ class LoginView extends StatelessWidget {
                     children: [
                       const Text("Don't have an account? "),
                       TextButton(
-                        onPressed:
-                            () => context.read<LoginViewModel>().add(
-                              NavigateToSignupView(
-                                context: context,
-                                destination: RegisterView(),
-                              ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => RegisterView(),
                             ),
+                          );
+                        },
                         child: const Text(
                           "Sign Up!",
                           style: TextStyle(
