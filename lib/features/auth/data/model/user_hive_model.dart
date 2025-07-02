@@ -12,7 +12,7 @@ class UserHiveModel extends Equatable {
   final String? userId;
 
   @HiveField(1)
-  final String fullName;
+  final String name;
 
   @HiveField(2)
   final String email;
@@ -25,7 +25,7 @@ class UserHiveModel extends Equatable {
 
    UserHiveModel({
    String? userId,
-    required this.fullName,
+    required this.name,
     required this.email,
     required this.phone,
     required this.password,
@@ -33,17 +33,17 @@ class UserHiveModel extends Equatable {
 
   const UserHiveModel.initial()
    : userId = '',
-   fullName ='',
+   name ='',
    email = '',
    phone = '',
    password = '';
 
    factory UserHiveModel.fromEntity(UserEntity userEntity) {
-    return UserHiveModel(fullName: userEntity.fullName, email: userEntity.email, phone: userEntity.phone, password: userEntity.password);
+    return UserHiveModel(name: userEntity.name, email: userEntity.email, phone: userEntity.phone, password: userEntity.password);
    }
 
    UserEntity toEntity() {
-    return UserEntity(userId: userId, fullName: fullName, email: email, phone: phone, password: password);
+    return UserEntity(userId: userId, name: name, email: email, phone: phone, password: password);
    }
 
    static List<UserHiveModel> fromEntityList(List<UserEntity> userEntityList) {
@@ -54,7 +54,7 @@ class UserHiveModel extends Equatable {
    
      @override
      // TODO: implement props
-     List<Object?> get props => [userId, fullName, email, phone, password];
+     List<Object?> get props => [userId, name, email, phone, password];
 
 
 }

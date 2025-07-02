@@ -6,6 +6,6 @@ import 'package:venure/core/network/hive_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initDependencies();
-  await serviceLocator<HiveService>().init(); 
+  // await serviceLocator<HiveService>().init(); 
   runApp(const App());
 }

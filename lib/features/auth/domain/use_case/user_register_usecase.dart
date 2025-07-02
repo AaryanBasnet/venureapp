@@ -6,27 +6,27 @@ import 'package:venure/features/auth/domain/entity/user_entity.dart';
 import 'package:venure/features/auth/domain/repository/user_repository.dart';
 
 class RegisterUserParams extends Equatable {
-  final String fullName;
+  final String name;
   final String email;
   final String phone;
   final String password;
 
   const RegisterUserParams({
-    required this.fullName,
+    required this.name,
     required this.email,
     required this.phone,
     required this.password,
   });
 
   const RegisterUserParams.initial({
-    required this.fullName,
+    required this.name,
   required this.email,
     required this.phone,
     required this.password,
   });
 
   @override
-  List<Object?> get props => [fullName,  email, phone, password];
+  List<Object?> get props => [name,  email, phone, password];
 }
 
 class UserRegisterUsecase
@@ -38,7 +38,7 @@ class UserRegisterUsecase
   @override
   Future<Either<Failure, void>> call(RegisterUserParams params) async {
     var user = UserEntity(
-      fullName: params.fullName,
+      name: params.name,
  
       email: params.email,
       phone: params.phone,

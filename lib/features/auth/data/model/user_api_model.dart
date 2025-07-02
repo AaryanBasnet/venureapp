@@ -9,14 +9,14 @@ part 'user_api_model.g.dart';
 class UserApiModel extends Equatable {
   @JsonKey(name: '_id')
   final String? userId;
-  final String fullName;
+  final String name;
   final String email;
   final String phone;
   final String password;
 
   const UserApiModel({
     this.userId,
-    required this.fullName,
+    required this.name,
     required this.email,
     required this.phone,
     required this.password,
@@ -31,7 +31,7 @@ class UserApiModel extends Equatable {
     return UserEntity(
       userId: userId,
 
-      fullName: fullName,
+      name: name,
 
       email: email,
 
@@ -43,7 +43,7 @@ class UserApiModel extends Equatable {
 
   factory UserApiModel.fromEntity(UserEntity userEntity) {
     final user = UserApiModel(
-      fullName: userEntity.fullName,
+      name: userEntity.name,
 
       phone: userEntity.phone,
 
@@ -56,5 +56,5 @@ class UserApiModel extends Equatable {
   }
 
   @override
-  List<Object?> get props => [userId, fullName, phone, email, password];
+  List<Object?> get props => [userId, name, phone, email, password];
 }

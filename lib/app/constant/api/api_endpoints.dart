@@ -5,7 +5,7 @@ class ApiEndpoints {
 
   static const receiveTimeout = Duration(seconds: 1000);
 
-  static const String serverAddress = "http://10.0.2.2:3000";
+  static const String serverAddress = "http://10.0.2.2:5050";
 
   static const String baseUrl = "$serverAddress/api";
 

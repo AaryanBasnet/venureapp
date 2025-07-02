@@ -39,7 +39,7 @@ RegisterViewModel(this._userRegisterUsecase) : super(RegisterState.initial()){
 
     final result = await _userRegisterUsecase(
       RegisterUserParams(
-        fullName: event.fullName,
+        name: event.name,
         phone: event.phone,
         email: event.email,
         password: event.password,

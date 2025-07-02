@@ -9,7 +9,7 @@ import 'package:venure/features/auth/presentation/view_model/register_view_model
 class RegisterView extends StatelessWidget {
   RegisterView({super.key});
 
-  final TextEditingController fullNameController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController phoneNumberController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -58,7 +58,7 @@ class RegisterView extends StatelessWidget {
                       label: "Full Name",
                       icon: Icons.person,
                       color: primaryColor,
-                      controller: fullNameController,
+                      controller: nameController,
                       onChanged: (_) {},
                       validator:
                           (value) => value!.isEmpty ? 'Enter full name' : null,
@@ -116,7 +116,7 @@ class RegisterView extends StatelessWidget {
                                   if (_formKey.currentState!.validate()) {
                                     context.read<RegisterViewModel>().add(
                                       RegisterUserEvent(
-                                        fullName: fullNameController.text,
+                                        name: nameController.text,
                                         phone: phoneNumberController.text,
                                         email: emailController.text,
                                         password: passwordController.text,
