@@ -4,13 +4,11 @@ import 'package:venure/features/auth/presentation/view/login_view.dart';
 
 class SplashViewModel {
   void navigateAfterDelay(BuildContext context) {
-    Future.delayed(const Duration(seconds: 6), () {
+    Future.delayed(const Duration(seconds: 4), () {
       if (context.mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (_) =>  LoginView(), 
-          ),
+          MaterialPageRoute(builder: (_) => LoginView()),
         );
       }
     });
