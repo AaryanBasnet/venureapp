@@ -16,22 +16,22 @@ class _HomescreenState extends State<Homescreen> {
     {
       'image': 'assets/img/club.jpg',
       'title': 'Luxury Club Experience',
-      'subtitle': 'Premium nightlife destination'
+      'subtitle': 'Premium nightlife destination',
     },
     {
       'image': 'assets/img/banquet1.jpg',
       'title': 'Grand Ballroom',
-      'subtitle': 'Elegant celebration spaces'
+      'subtitle': 'Elegant celebration spaces',
     },
     {
       'image': 'assets/img/bar.jpg',
       'title': 'Exclusive Lounge',
-      'subtitle': 'Sophisticated cocktail bar'
+      'subtitle': 'Sophisticated cocktail bar',
     },
     {
       'image': 'assets/img/hotel.jpg',
       'title': 'Boutique Hotel',
-      'subtitle': 'Luxury accommodation'
+      'subtitle': 'Luxury accommodation',
     },
   ];
 
@@ -65,11 +65,11 @@ class _HomescreenState extends State<Homescreen> {
     return Scaffold(
       backgroundColor: pearlWhite,
       extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        systemOverlayStyle: SystemUiOverlayStyle.light,
-      ),
+      // appBar: AppBar(
+      //   backgroundColor: Colors.transparent,
+      //   elevation: 0,
+      //   systemOverlayStyle: SystemUiOverlayStyle.light,
+      // ),
       body: CustomScrollView(
         slivers: [
           _buildPremiumHeader(),
@@ -94,7 +94,7 @@ class _HomescreenState extends State<Homescreen> {
 
   Widget _buildPremiumHeader() {
     return SliverAppBar(
-      expandedHeight: 280,
+      expandedHeight: 250,
       floating: false,
       pinned: true,
       backgroundColor: Colors.transparent,
@@ -130,9 +130,8 @@ class _HomescreenState extends State<Homescreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildHeaderTopRow(),
-                    const SizedBox(height: 8),
                     const Text(
-                      "Aaryan Basnet",
+                      "John Wick",
                       style: TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.w300,
@@ -215,11 +214,7 @@ class _HomescreenState extends State<Homescreen> {
             fontWeight: FontWeight.w400,
           ),
           border: InputBorder.none,
-          icon: Icon(
-            Icons.search_rounded,
-            color: primaryGold,
-            size: 24,
-          ),
+          icon: Icon(Icons.search_rounded, color: primaryGold, size: 24),
           suffixIcon: Container(
             margin: const EdgeInsets.all(8),
             padding: const EdgeInsets.all(8),
@@ -227,11 +222,7 @@ class _HomescreenState extends State<Homescreen> {
               color: primaryGold,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(
-              Icons.tune_rounded,
-              color: pearlWhite,
-              size: 20,
-            ),
+            child: const Icon(Icons.tune_rounded, color: pearlWhite, size: 20),
           ),
         ),
       ),
@@ -292,19 +283,13 @@ class _HomescreenState extends State<Homescreen> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Image.asset(
-              venue['image']!,
-              fit: BoxFit.cover,
-            ),
+            Image.asset(venue['image']!, fit: BoxFit.cover),
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.transparent,
-                    Colors.black.withOpacity(0.7),
-                  ],
+                  colors: [Colors.transparent, Colors.black.withOpacity(0.7)],
                 ),
               ),
             ),
@@ -341,7 +326,10 @@ class _HomescreenState extends State<Homescreen> {
               top: 24,
               right: 24,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: primaryGold,
                   borderRadius: BorderRadius.circular(12),
@@ -383,11 +371,31 @@ class _HomescreenState extends State<Homescreen> {
 
   Widget _buildCategoriesSection() {
     final categories = [
-      {'icon': Icons.cake_outlined, 'name': 'Birthday', 'color': const Color(0xFFFF6B6B)},
-      {'icon': Icons.favorite_outline, 'name': 'Wedding', 'color': const Color(0xFFFF8E53)},
-      {'icon': Icons.celebration_outlined, 'name': 'Engagement', 'color': const Color(0xFF4ECDC4)},
-      {'icon': Icons.business_outlined, 'name': 'Business', 'color': const Color(0xFF45B7D1)},
-      {'icon': Icons.school_outlined, 'name': 'Graduation', 'color': const Color(0xFF96CEB4)},
+      {
+        'icon': Icons.cake_outlined,
+        'name': 'Birthday',
+        'color': const Color(0xFFFF6B6B),
+      },
+      {
+        'icon': Icons.favorite_outline,
+        'name': 'Wedding',
+        'color': const Color(0xFFFF8E53),
+      },
+      {
+        'icon': Icons.celebration_outlined,
+        'name': 'Engagement',
+        'color': const Color(0xFF4ECDC4),
+      },
+      {
+        'icon': Icons.business_outlined,
+        'name': 'Business',
+        'color': const Color(0xFF45B7D1),
+      },
+      {
+        'icon': Icons.school_outlined,
+        'name': 'Graduation',
+        'color': const Color(0xFF96CEB4),
+      },
     ];
 
     return Column(
@@ -506,11 +514,36 @@ class _HomescreenState extends State<Homescreen> {
 
   Widget _buildVenueCard(int index) {
     final venues = [
-      {'name': 'The Grand Palace', 'location': 'Kathmandu', 'rating': '4.9', 'price': '\$200'},
-      {'name': 'Royal Gardens', 'location': 'Lalitpur', 'rating': '4.8', 'price': '\$180'},
-      {'name': 'Elite Banquet', 'location': 'Bhaktapur', 'rating': '4.7', 'price': '\$150'},
-      {'name': 'Luxury Lounge', 'location': 'Pokhara', 'rating': '4.6', 'price': '\$120'},
-      {'name': 'Premium Hall', 'location': 'Chitwan', 'rating': '4.5', 'price': '\$100'},
+      {
+        'name': 'The Grand Palace',
+        'location': 'Kathmandu',
+        'rating': '4.9',
+        'price': '\$200',
+      },
+      {
+        'name': 'Royal Gardens',
+        'location': 'Lalitpur',
+        'rating': '4.8',
+        'price': '\$180',
+      },
+      {
+        'name': 'Elite Banquet',
+        'location': 'Bhaktapur',
+        'rating': '4.7',
+        'price': '\$150',
+      },
+      {
+        'name': 'Luxury Lounge',
+        'location': 'Pokhara',
+        'rating': '4.6',
+        'price': '\$120',
+      },
+      {
+        'name': 'Premium Hall',
+        'location': 'Chitwan',
+        'rating': '4.5',
+        'price': '\$100',
+      },
     ];
 
     final venue = venues[index % venues.length];
@@ -540,7 +573,9 @@ class _HomescreenState extends State<Homescreen> {
                 topRight: Radius.circular(20),
               ),
               image: DecorationImage(
-                image: AssetImage(featuredVenues[index % featuredVenues.length]['image']!),
+                image: AssetImage(
+                  featuredVenues[index % featuredVenues.length]['image']!,
+                ),
                 fit: BoxFit.cover,
               ),
             ),
@@ -583,18 +618,11 @@ class _HomescreenState extends State<Homescreen> {
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    Icon(
-                      Icons.location_on_outlined,
-                      size: 16,
-                      color: warmGray,
-                    ),
+                    Icon(Icons.location_on_outlined, size: 16, color: warmGray),
                     const SizedBox(width: 4),
                     Text(
                       venue['location']!,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: warmGray,
-                      ),
+                      style: TextStyle(fontSize: 14, color: warmGray),
                     ),
                   ],
                 ),
@@ -604,11 +632,7 @@ class _HomescreenState extends State<Homescreen> {
                   children: [
                     Row(
                       children: [
-                        Icon(
-                          Icons.star,
-                          size: 16,
-                          color: primaryGold,
-                        ),
+                        Icon(Icons.star, size: 16, color: primaryGold),
                         const SizedBox(width: 4),
                         Text(
                           venue['rating']!,

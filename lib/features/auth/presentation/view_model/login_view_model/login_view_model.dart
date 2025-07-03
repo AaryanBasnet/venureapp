@@ -60,9 +60,10 @@ class LoginViewModel extends Bloc<LoginEvent, LoginState> {
       },
       (token) {
         emit(state.copyWith(isLoading: false, isSuccess: true));
-        Navigator.pushReplacement(
+        Navigator.pushAndRemoveUntil(
           event.context,
           MaterialPageRoute(builder: (_) => Homescreen()),
+          (route) => false,
         );
 
         //to navigate to dashboard

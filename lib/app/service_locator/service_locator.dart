@@ -1,12 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:venure/core/network/api_service.dart';
-// import 'package:venure/core/network/hive_service.dart'; // Removed: Not using local storage
-// import 'package:venure/features/auth/data/data_source/local_data_source/user_local_datasource.dart'; // Removed: Not using local storage
+// import 'package:venure/core/network/hive_service.dart'; // 
+// import 'package:venure/features/auth/data/data_source/local_data_source/user_local_datasource.dart'; 
 import 'package:venure/features/auth/data/data_source/remote_data_source/user_remote_data_source.dart';
-// import 'package:venure/features/auth/data/repository/local_repository/user_local_repository.dart'; // Removed: Not using local storage
+// import 'package:venure/features/auth/data/repository/local_repository/user_local_repository.dart'; 
 import 'package:venure/features/auth/data/repository/remote_repository/user_remote_repository.dart';
-// import 'package:venure/features/auth/domain/repository/user_repository.dart'; // Potentially removed if you only have one concrete repo
+// import 'package:venure/features/auth/domain/repository/user_repository.dart'; // 
 import 'package:venure/features/auth/domain/use_case/user_login_usecase.dart';
 import 'package:venure/features/auth/domain/use_case/user_register_usecase.dart';
 import 'package:venure/features/auth/presentation/view_model/login_view_model/login_view_model.dart';
@@ -15,7 +15,7 @@ import 'package:venure/features/auth/presentation/view_model/register_view_model
 final serviceLocator = GetIt.instance;
 
 Future<void> initDependencies() async {
-  // serviceLocator.registerLazySingleton<HiveService>(() => HiveService()); // Removed: Not using local storage
+  // serviceLocator.registerLazySingleton<HiveService>(() => HiveService()); 
   _initApiService();
   _initAuthModule();
 }
