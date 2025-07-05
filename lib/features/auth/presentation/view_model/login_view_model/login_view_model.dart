@@ -7,7 +7,7 @@ import 'package:venure/features/auth/presentation/view/register_view.dart';
 import 'package:venure/features/auth/presentation/view_model/login_view_model/login_event.dart';
 import 'package:venure/features/auth/presentation/view_model/login_view_model/login_state.dart';
 import 'package:venure/features/auth/presentation/view_model/register_view_model.dart';
-import 'package:venure/features/home/presentation/view/home_view.dart';
+import 'package:venure/features/home/presentation/view/home_screen_view.dart';
 import 'package:venure/features/home/presentation/view_model/home_view_model.dart';
 import 'package:venure/view/home_screen.dart';
 
@@ -62,7 +62,7 @@ class LoginViewModel extends Bloc<LoginEvent, LoginState> {
         emit(state.copyWith(isLoading: false, isSuccess: true));
         Navigator.pushAndRemoveUntil(
           event.context,
-          MaterialPageRoute(builder: (_) => Homescreen()),
+          MaterialPageRoute(builder: (_) => HomeScreenView()),
           (route) => false,
         );
 
@@ -86,8 +86,8 @@ class LoginViewModel extends Bloc<LoginEvent, LoginState> {
         MaterialPageRoute(
           builder:
               (context) => BlocProvider.value(
-                value: serviceLocator<HomeViewModel>(),
-                child: Homescreen(),
+                value: serviceLocator<HomeScreenBloc>(),
+                child: HomeScreenView(),
               ),
         ),
       );

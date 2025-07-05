@@ -11,6 +11,12 @@ import 'package:venure/features/auth/domain/use_case/user_login_usecase.dart';
 import 'package:venure/features/auth/domain/use_case/user_register_usecase.dart';
 import 'package:venure/features/auth/presentation/view_model/login_view_model/login_view_model.dart';
 import 'package:venure/features/auth/presentation/view_model/register_view_model.dart';
+import 'package:venure/features/home/data/data_source/ivenue_data_source.dart';
+import 'package:venure/features/home/data/data_source/remote_data_source/venue_remote_datasource.dart';
+import 'package:venure/features/home/data/repository/remote_repository/venue_remote_repository.dart';
+import 'package:venure/features/home/domain/repository/venue_repository.dart';
+import 'package:venure/features/home/domain/use_case/get_all_venues_use_case.dart';
+import 'package:venure/features/home/presentation/view_model/home_view_model.dart';
 
 final serviceLocator = GetIt.instance;
 
@@ -18,6 +24,8 @@ Future<void> initDependencies() async {
   // serviceLocator.registerLazySingleton<HiveService>(() => HiveService()); 
   _initApiService();
   _initAuthModule();
+  _initHomeModule();
+  
 }
 
 Future<void> _initApiService() async {
@@ -69,3 +77,37 @@ Future<void> _initAuthModule() async {
 
 //   serviceLocator.registerFactory(() => HomeViewModel());
 // }
+Future<void> _initHomeModule() async {
+  // Register ApiService (should be registered once in app initialization)
+  if (!serviceLocator.isRegistered<ApiService>()) {
+    serviceLocator.registerLazySingleton(() => ApiService(Dio()));
+  }
+
+  // Register Data Source
+  if (!serviceLocator.isRegistered<VenueRemoteDataSource>()) {
+    serviceLocator.registerLazySingleton(
+      () => VenueRemoteDataSource(apiService: serviceLocator<ApiService>()),
+    );
+  }
+
+  // Register Repository - use IVenueRepository interface
+  if (!serviceLocator.isRegistered<IVenueRepository>()) {
+    serviceLocator.registerLazySingleton<IVenueRepository>(
+      () => VenueRemoteRepository(remoteDataSource: serviceLocator<VenueRemoteDataSource>()),
+    );
+  }
+
+  // Register Use Case
+  if (!serviceLocator.isRegistered<GetAllVenuesUseCase>()) {
+    serviceLocator.registerLazySingleton(
+      () => GetAllVenuesUseCase(serviceLocator<IVenueRepository>()),
+    );
+  }
+
+  // Register Bloc / ViewModel
+  if (!serviceLocator.isRegistered<HomeScreenBloc>()) {
+    serviceLocator.registerFactory(
+      () => HomeScreenBloc(getAllVenuesUseCase: serviceLocator<GetAllVenuesUseCase>()),
+    );
+  }
+}
