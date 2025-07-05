@@ -16,13 +16,13 @@ class LoginUserParams extends Equatable {
   List<Object?> get props => [email, password];
 }
 
-class UserLoginUsecase implements UseCaseWithParams<String, LoginUserParams> {
+class UserLoginUsecase implements UseCaseWithParams<Map<String, dynamic>, LoginUserParams> {
   final IUserRepository repository;
 
   UserLoginUsecase({required this.repository});
 
   @override
-  Future<Either<Failure, String>> call(LoginUserParams params) async {
+  Future<Either<Failure, Map<String, dynamic>>> call(LoginUserParams params) async {
     return await repository.loginUser(params.email, params.password);
   }
 }

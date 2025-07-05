@@ -10,28 +10,33 @@ class UserRemoteDataSource implements IUserDataSource {
 
   UserRemoteDataSource({required ApiService apiService})
       : _apiService = apiService;
+@override
+Future<Map<String, dynamic>> loginUser(String email, String password) async {
+  try {
+    final response = await _apiService.dio.post(
+      ApiEndpoints.login,
+      data: {'email': email, 'password': password},
+    );
 
-  @override
-  Future<String> loginUser(String email, String password) async {
-    try {
-      final response = await _apiService.dio.post(
-        ApiEndpoints.login,
-        data: {'email': email, 'password': password},
-      );
+    if (response.statusCode == 200) {
+      // Full JSON body like: { success, message, token, userData }
+      final Map<String, dynamic> responseData = response.data;
 
-      if (response.statusCode == 200) {
-        final str = response.data['token'];
-        return str;
+      // Optionally validate structure
+      if (responseData.containsKey('token') && responseData.containsKey('userData')) {
+        return responseData;
       } else {
-        throw Exception(response.statusMessage);
+        throw Exception('Missing token or userData in response');
       }
-    } on DioException catch (e) {
-      throw Exception('Failed to login: ${e.response?.data?['message'] ?? e.message}');
-    } catch (e) {
-      throw Exception('Failed to login: $e');
+    } else {
+      throw Exception('Login failed: ${response.statusMessage}');
     }
+  } on DioException catch (e) {
+    throw Exception('Failed to login: ${e.response?.data?['message'] ?? e.message}');
+  } catch (e) {
+    throw Exception('Failed to login: $e');
   }
-
+}
   @override
   Future<void> registerUser(UserEntity userData) async {
     try {

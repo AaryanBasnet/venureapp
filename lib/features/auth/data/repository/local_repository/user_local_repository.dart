@@ -10,7 +10,7 @@ class UserLocalRepository implements IUserRepository {
   UserLocalRepository({required UserLocalDatasource userLocalDataSource})
     : _userLocalDataSource = userLocalDataSource;
   @override
-  Future<Either<Failure, String>> loginUser(
+  Future<Either<Failure, Map<String, dynamic>>> loginUser(
     String email,
     String password,
   ) async {

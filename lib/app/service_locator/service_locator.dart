@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:venure/app/constant/shared_pref/local_storage_service.dart';
 import 'package:venure/core/network/api_service.dart';
 // import 'package:venure/core/network/hive_service.dart'; // 
 // import 'package:venure/features/auth/data/data_source/local_data_source/user_local_datasource.dart'; 
@@ -10,7 +11,7 @@ import 'package:venure/features/auth/data/repository/remote_repository/user_remo
 import 'package:venure/features/auth/domain/use_case/user_login_usecase.dart';
 import 'package:venure/features/auth/domain/use_case/user_register_usecase.dart';
 import 'package:venure/features/auth/presentation/view_model/login_view_model/login_view_model.dart';
-import 'package:venure/features/auth/presentation/view_model/register_view_model.dart';
+import 'package:venure/features/auth/presentation/view_model/register_view_model/register_view_model.dart';
 import 'package:venure/features/home/data/data_source/ivenue_data_source.dart';
 import 'package:venure/features/home/data/data_source/remote_data_source/venue_remote_datasource.dart';
 import 'package:venure/features/home/data/repository/remote_repository/venue_remote_repository.dart';
@@ -25,6 +26,7 @@ Future<void> initDependencies() async {
   _initApiService();
   _initAuthModule();
   _initHomeModule();
+  _localStorageService();
   
 }
 
@@ -110,4 +112,9 @@ Future<void> _initHomeModule() async {
       () => HomeScreenBloc(getAllVenuesUseCase: serviceLocator<GetAllVenuesUseCase>()),
     );
   }
+}
+
+Future<void> _localStorageService() async{
+   final localStorageService = await LocalStorageService.getInstance();
+  serviceLocator.registerSingleton<LocalStorageService>(localStorageService);
 }
