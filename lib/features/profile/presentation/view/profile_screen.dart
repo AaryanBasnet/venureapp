@@ -1,21 +1,35 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:venure/app/constant/shared_pref/local_storage_service.dart';
-import 'package:venure/app/service_locator/service_locator.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:venure/features/profile/presentation/view_model/profile_event.dart';
+import 'package:venure/features/profile/presentation/view_model/profile_state.dart';
+import 'package:venure/features/profile/presentation/view_model/profile_view_model.dart';
 
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => ProfileViewModel()..add(LoadUserProfile()),
+      child: const _ProfileScreenContent(),
+    );
+  }
 }
 
-class _ProfileScreenState extends State<ProfileScreen>
+class _ProfileScreenContent extends StatefulWidget {
+  const _ProfileScreenContent();
+
+  @override
+  State<_ProfileScreenContent> createState() => _ProfileScreenContentState();
+}
+
+class _ProfileScreenContentState extends State<_ProfileScreenContent>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-  final localstorage = serviceLocator<LocalStorageService>();
 
   @override
   void initState() {
@@ -24,14 +38,12 @@ class _ProfileScreenState extends State<ProfileScreen>
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _animationController,
         curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
       ),
     );
-
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.3),
       end: Offset.zero,
@@ -41,7 +53,6 @@ class _ProfileScreenState extends State<ProfileScreen>
         curve: const Interval(0.2, 1.0, curve: Curves.easeOutCubic),
       ),
     );
-
     _animationController.forward();
   }
 
@@ -108,10 +119,7 @@ class _ProfileScreenState extends State<ProfileScreen>
       ),
       actions: [
         IconButton(
-          onPressed: () {
-            HapticFeedback.lightImpact();
-            // Handle settings
-          },
+          onPressed: () => HapticFeedback.lightImpact(),
           icon: const Icon(
             Icons.settings_outlined,
             color: Color(0xFF1C1C1E),
@@ -123,117 +131,101 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   Widget _buildProfileHeader() {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 20,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Stack(
-            children: [
-              Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF1C1C1E), Color(0xFF48484A)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  border: Border.all(color: Colors.white, width: 4),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.person_rounded,
-                  size: 50,
-                  color: Colors.white,
-                ),
+    return BlocBuilder<ProfileViewModel, ProfileState>(
+      builder: (context, state) {
+        return Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.02),
+                blurRadius: 20,
+                offset: const Offset(0, 4),
               ),
-              Positioned(
-                bottom: 0,
-                right: 0,
-                child: GestureDetector(
-                  onTap: () {
-                    HapticFeedback.lightImpact();
-                    // Handle profile picture change
-                  },
-                  child: Container(
-                    width: 32,
-                    height: 32,
+            ],
+          ),
+          child: Column(
+            children: [
+              Stack(
+                children: [
+                  Container(
+                    width: 100,
+                    height: 100,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1C1C1E),
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF1C1C1E), Color(0xFF48484A)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      border: Border.all(color: Colors.white, width: 4),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 20,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
                     ),
                     child: const Icon(
-                      Icons.camera_alt_outlined,
-                      size: 16,
+                      Icons.person_rounded,
+                      size: 50,
                       color: Colors.white,
                     ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              if (state.isLoggedIn) ...[
+                Text(
+                  state.name ?? '',
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF1C1C1E),
+                    letterSpacing: -0.3,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  state.email ?? '',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w400,
+                    color: Color(0xFF8E8E93),
+                    letterSpacing: 0.1,
+                  ),
+                ),
+              ],
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1C1C1E).withOpacity(0.06),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Text(
+                  'Premium Member',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF1C1C1E),
+                    letterSpacing: 0.2,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          if (localstorage.isLoggedIn)
-            Text(
-              localstorage.name.toString(),
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF1C1C1E),
-                letterSpacing: -0.3,
-              ),
-            ),
-
-          const SizedBox(height: 4),
-          const Text(
-            'alexandra.smith@venure.com',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w400,
-              color: Color(0xFF8E8E93),
-              letterSpacing: 0.1,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1C1C1E).withOpacity(0.06),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: const Text(
-              'Premium Member',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF1C1C1E),
-                letterSpacing: 0.2,
-              ),
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
+
 
   Widget _buildStatsSection() {
     return Container(
@@ -366,7 +358,9 @@ class _ProfileScreenState extends State<ProfileScreen>
       _ProfileMenuItem(
         icon: Icons.logout_outlined,
         title: 'Sign Out',
-        onTap: () {},
+        onTap: () {
+          context.read<ProfileViewModel>().add(LogoutUser(context));
+        },
         isDestructive: true,
       ),
     ]);
@@ -507,3 +501,5 @@ class _ProfileMenuItem {
     this.isDestructive = false,
   });
 }
+
+

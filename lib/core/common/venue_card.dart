@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:venure/core/utils/url_utils.dart';
 import 'package:venure/features/home/domain/entity/venue_entity.dart';
@@ -365,7 +364,7 @@ class VenueCard extends StatelessWidget {
               ),
               const SizedBox(height: 2),
               Text(
-                '₹${venue.pricePerHour.toStringAsFixed(0)}',
+                'Nrs.${venue.pricePerHour.toStringAsFixed(0)}',
                 style: const TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w700,
@@ -374,7 +373,7 @@ class VenueCard extends StatelessWidget {
                 ),
               ),
               Text(
-                'per hour',
+                '/per hour',
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.grey[600],
