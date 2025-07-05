@@ -2,24 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venure/core/common/common_text_form_field.dart';
 import 'package:venure/features/auth/presentation/view/login_view.dart';
-import 'package:venure/features/auth/presentation/view_model/register_event.dart';
-import 'package:venure/features/auth/presentation/view_model/register_state.dart';
-import 'package:venure/features/auth/presentation/view_model/register_view_model.dart';
+import 'package:venure/features/auth/presentation/view/login_wrapper.dart';
+import 'package:venure/features/auth/presentation/view_model/register_view_model/register_event.dart';
+import 'package:venure/features/auth/presentation/view_model/register_view_model/register_state.dart';
+import 'package:venure/features/auth/presentation/view_model/register_view_model/register_view_model.dart';
 
 class RegisterView extends StatelessWidget {
-  RegisterView({super.key});
-
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController phoneNumberController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-
-  final _formKey = GlobalKey<FormState>();
+  const RegisterView({super.key});
 
   static const primaryColor = Color(0xFF3B2063);
 
   @override
   Widget build(BuildContext context) {
+    final TextEditingController nameController = TextEditingController();
+    final TextEditingController emailController = TextEditingController();
+    final TextEditingController phoneNumberController = TextEditingController();
+    final TextEditingController passwordController = TextEditingController();
+    final _formKey = GlobalKey<FormState>();
+
     return BlocBuilder<RegisterViewModel, RegisterState>(
       builder: (context, state) {
         return Scaffold(
@@ -53,7 +53,6 @@ class RegisterView extends StatelessWidget {
                       style: TextStyle(fontSize: 16, color: Colors.black54),
                     ),
                     const SizedBox(height: 30),
-
                     CommonTextFormField(
                       label: "Full Name",
                       icon: Icons.person,
@@ -64,7 +63,6 @@ class RegisterView extends StatelessWidget {
                           (value) => value!.isEmpty ? 'Enter full name' : null,
                     ),
                     const SizedBox(height: 20),
-
                     CommonTextFormField(
                       label: "Email",
                       icon: Icons.email,
@@ -78,7 +76,6 @@ class RegisterView extends StatelessWidget {
                                   : 'Enter a valid email',
                     ),
                     const SizedBox(height: 20),
-
                     CommonTextFormField(
                       label: "Phone Number",
                       icon: Icons.phone,
@@ -92,7 +89,6 @@ class RegisterView extends StatelessWidget {
                                   : null,
                     ),
                     const SizedBox(height: 20),
-
                     CommonTextFormField(
                       label: "Password",
                       icon: Icons.lock,
@@ -105,7 +101,6 @@ class RegisterView extends StatelessWidget {
                               value!.length < 6 ? 'Password too short' : null,
                     ),
                     const SizedBox(height: 20),
-
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -122,10 +117,9 @@ class RegisterView extends StatelessWidget {
                                         password: passwordController.text,
                                         context: context,
                                         onSuccess: () {
-                                          Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (_) => LoginView(),
+                                          context.read<RegisterViewModel>().add(
+                                            NavigateToLoginView(
+                                              context: context,
                                             ),
                                           );
                                         },
@@ -156,7 +150,6 @@ class RegisterView extends StatelessWidget {
                                 ),
                       ),
                     ),
-
                     const SizedBox(height: 20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -165,10 +158,7 @@ class RegisterView extends StatelessWidget {
                         TextButton(
                           onPressed: () {
                             context.read<RegisterViewModel>().add(
-                              NavigateToLoginView(
-                                context: context,
-                                destination: LoginView(),
-                              ),
+                              NavigateToLoginView(context: context),
                             );
                           },
                           child: const Text(

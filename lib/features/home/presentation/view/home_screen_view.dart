@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:venure/app/service_locator/service_locator.dart';
 import 'package:venure/core/common/venue_card.dart';
-import 'package:venure/features/home/domain/entity/venue_entity.dart';
-import 'package:venure/features/home/presentation/view_model/home_screen_event.dart';
 import 'package:venure/features/home/presentation/view_model/home_screen_state.dart';
 import 'package:venure/features/home/presentation/view_model/home_view_model.dart';
 
@@ -14,35 +11,31 @@ class HomeScreenView extends StatelessWidget {
   static const Color deepPurple = Color(0xFF1A0B2E);
   static const Color richBlack = Color(0xFF0F0F0F);
   static const Color pearlWhite = Color(0xFFFFFDF7);
-  static const Color silverGray = Color(0xFFC0C0C0);
   static const Color warmGray = Color(0xFF8B8B8B);
   static const Color luxuryGradientStart = Color(0xFF2D1B69);
   static const Color luxuryGradientEnd = Color(0xFF11998E);
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => serviceLocator<HomeScreenBloc>()..add(LoadVenues()),
-      child: Scaffold(
-        backgroundColor: pearlWhite,
-        body: CustomScrollView(
-          slivers: [
-            _buildPremiumHeader(),
-            SliverToBoxAdapter(
-              child: Column(
-                children: [
-                  const SizedBox(height: 20),
-                  _buildFeaturedCarousel(),
-                  const SizedBox(height: 40),
-                  _buildCategoriesSection(),
-                  const SizedBox(height: 40),
-                  _buildTopPicksSection(),
-                  const SizedBox(height: 100), // For padding if needed
-                ],
-              ),
+    return Scaffold(
+      backgroundColor: pearlWhite,
+      body: CustomScrollView(
+        slivers: [
+          _buildPremiumHeader(),
+          SliverToBoxAdapter(
+            child: Column(
+              children: [
+                const SizedBox(height: 20),
+                _buildFeaturedCarousel(),
+                const SizedBox(height: 40),
+                _buildCategoriesSection(),
+                const SizedBox(height: 40),
+                _buildTopPicksSection(context),
+                const SizedBox(height: 100),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -161,7 +154,6 @@ class HomeScreenView extends StatelessWidget {
   }
 
   Widget _buildFeaturedCarousel() {
-    // You can replace featuredVenues with data from bloc or static if you want
     final featuredVenues = [
       {
         'image': 'assets/img/bar.jpg',
@@ -174,9 +166,6 @@ class HomeScreenView extends StatelessWidget {
         'subtitle': 'Lalitpur, Nepal',
       },
     ];
-
-    PageController pageController = PageController();
-    int currentPage = 0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -197,12 +186,7 @@ class HomeScreenView extends StatelessWidget {
         SizedBox(
           height: 320,
           child: PageView.builder(
-            controller: pageController,
             itemCount: featuredVenues.length,
-            onPageChanged: (index) {
-              currentPage = index;
-              // you could use a state management or Stateful widget to update indicator
-            },
             itemBuilder: (context, index) {
               final venue = featuredVenues[index];
               return Container(
@@ -392,7 +376,7 @@ class HomeScreenView extends StatelessWidget {
     );
   }
 
-  Widget _buildTopPicksSection() {
+  Widget _buildTopPicksSection(BuildContext context) {
     return BlocBuilder<HomeScreenBloc, HomeScreenState>(
       builder: (context, state) {
         if (state is HomeScreenLoading) {

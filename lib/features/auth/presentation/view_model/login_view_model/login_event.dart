@@ -7,9 +7,8 @@ sealed class LoginEvent {}
 
 class NavigateToSignupView extends LoginEvent {
   final BuildContext context;
-  final Widget destination;
 
-  NavigateToSignupView({required this.context, required this.destination});
+  NavigateToSignupView({required this.context});
 }
 
 class NavigateToDashboardView extends LoginEvent {
