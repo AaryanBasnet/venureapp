@@ -12,21 +12,21 @@ class RegisterViewModel extends Bloc<RegisterEvent, RegisterState> {
 
   RegisterViewModel(this._userRegisterUsecase)
     : super(RegisterState.initial()) {
-    on<NavigateToLoginView>(_onNavigateToLoginView);
+    // on<NavigateToLoginView>(_onNavigateToLoginView);
     on<RegisterUserEvent>(_onRegisterUser);
   }
 
-  void _onNavigateToLoginView(
-    NavigateToLoginView event,
-    Emitter<RegisterState> emit,
-  ) {
-    if (event.context.mounted) {
-      Navigator.push(
-        event.context,
-        MaterialPageRoute(builder: (_) => LoginWrapper()),
-      );
-    }
-  }
+  // void _onNavigateToLoginView(
+  //   NavigateToLoginView event,
+  //   Emitter<RegisterState> emit,
+  // ) {
+  //   if (event.context.mounted) {
+  //     Navigator.push(
+  //       event.context,
+  //       MaterialPageRoute(builder: (_) => LoginWrapper()),
+  //     );
+  //   }
+  // }
 
   Future<void> _onRegisterUser(
     RegisterUserEvent event,
@@ -46,18 +46,11 @@ class RegisterViewModel extends Bloc<RegisterEvent, RegisterState> {
     result.fold(
       (l) {
         emit(state.copyWith(isLoading: false, isSuccess: false));
-        showMySnackBar(
-          context: event.context,
-          message: l.message,
-          color: Colors.red,
-        );
+        
       },
       (r) {
         emit(state.copyWith(isLoading: false, isSuccess: true));
-        showMySnackBar(
-          context: event.context,
-          message: "Registration Successful",
-        );
+        
         event.onSuccess();
       },
     );
