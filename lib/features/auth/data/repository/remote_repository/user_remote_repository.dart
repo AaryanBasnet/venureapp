@@ -1,10 +1,9 @@
-
-
 import 'package:dartz/dartz.dart';
 import 'package:venure/core/error/failure.dart';
 import 'package:venure/features/auth/data/data_source/remote_data_source/user_remote_data_source.dart';
 import 'package:venure/features/auth/domain/entity/user_entity.dart';
 import 'package:venure/features/auth/domain/repository/user_repository.dart';
+
 class UserRemoteRepository implements IUserRepository {
   final UserRemoteDataSource _userRemoteDataSource;
 
@@ -12,14 +11,15 @@ class UserRemoteRepository implements IUserRepository {
     : _userRemoteDataSource = userRemoteDataSource;
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> loginUser(
+  Future<Either<Failure, UserEntity>> loginUser(
     String email,
     String password,
   ) async {
     try {
-      // Assuming remote data source returns Map<String, dynamic> of full JSON
       final loginResponse = await _userRemoteDataSource.loginUser(email, password);
-      return Right(loginResponse);
+      // loginResponse is Map<String, dynamic> (raw JSON), convert to UserEntity
+      final userEntity = UserEntity.fromJson(loginResponse);
+      return Right(userEntity);
     } catch (e) {
       return Left(ApiFailure(message: e.toString()));
     }

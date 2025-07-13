@@ -12,6 +12,8 @@ UserApiModel _$UserApiModelFromJson(Map<String, dynamic> json) => UserApiModel(
       email: json['email'] as String,
       phone: json['phone'] as String,
       password: json['password'] as String,
+      token: json['token'] as String,
+      role: json['role'] as String,
     );
 
 Map<String, dynamic> _$UserApiModelToJson(UserApiModel instance) =>
@@ -21,4 +23,6 @@ Map<String, dynamic> _$UserApiModelToJson(UserApiModel instance) =>
       'email': instance.email,
       'phone': instance.phone,
       'password': instance.password,
+      'token': instance.token,
+      'role': instance.role,
     };

@@ -1,5 +1,5 @@
-
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:venure/features/auth/domain/entity/user_entity.dart';
 
 class LocalStorageService {
   final SharedPreferences _prefs;
@@ -12,16 +12,13 @@ class LocalStorageService {
     return LocalStorageService(prefs);
   }
 
-  // Save login data
-  Future<void> saveLoginData(Map<String, dynamic> json) async {
-    final token = json['token'];
-    final userData = json['userData'];
-
-    await _prefs.setString('token', token);
-    await _prefs.setString('userId', userData['id']);
-    await _prefs.setString('name', userData['name']);
-    await _prefs.setString('email', userData['email']);
-    await _prefs.setString('role', userData['role']);
+  // Save login data from UserEntity
+  Future<void> saveUser(UserEntity user) async {
+    await _prefs.setString('token', user.token);
+    await _prefs.setString('userId', user.userId ?? '');
+    await _prefs.setString('name', user.name);
+    await _prefs.setString('email', user.email);
+    await _prefs.setString('role', user.role);
   }
 
   // Getters

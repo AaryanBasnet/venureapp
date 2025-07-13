@@ -1,8 +1,7 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venure/core/common/common_text_form_field.dart';
-import 'package:venure/features/auth/presentation/view/login_view.dart';
-import 'package:venure/features/auth/presentation/view/login_wrapper.dart';
 import 'package:venure/features/auth/presentation/view_model/register_view_model/register_event.dart';
 import 'package:venure/features/auth/presentation/view_model/register_view_model/register_state.dart';
 import 'package:venure/features/auth/presentation/view_model/register_view_model/register_view_model.dart';
@@ -14,10 +13,10 @@ class RegisterView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextEditingController nameController = TextEditingController();
-    final TextEditingController emailController = TextEditingController();
-    final TextEditingController phoneNumberController = TextEditingController();
-    final TextEditingController passwordController = TextEditingController();
+    final nameController = TextEditingController();
+    final emailController = TextEditingController();
+    final phoneNumberController = TextEditingController();
+    final passwordController = TextEditingController();
     final _formKey = GlobalKey<FormState>();
 
     return BlocBuilder<RegisterViewModel, RegisterState>(
@@ -58,9 +57,9 @@ class RegisterView extends StatelessWidget {
                       icon: Icons.person,
                       color: primaryColor,
                       controller: nameController,
+                      validator: (value) =>
+                          value!.isEmpty ? 'Enter full name' : null,
                       onChanged: (_) {},
-                      validator:
-                          (value) => value!.isEmpty ? 'Enter full name' : null,
                     ),
                     const SizedBox(height: 20),
                     CommonTextFormField(
@@ -68,12 +67,10 @@ class RegisterView extends StatelessWidget {
                       icon: Icons.email,
                       color: primaryColor,
                       controller: emailController,
+                      validator: (value) => value!.contains('@')
+                          ? null
+                          : 'Enter a valid email',
                       onChanged: (_) {},
-                      validator:
-                          (value) =>
-                              value!.contains('@')
-                                  ? null
-                                  : 'Enter a valid email',
                     ),
                     const SizedBox(height: 20),
                     CommonTextFormField(
@@ -81,12 +78,10 @@ class RegisterView extends StatelessWidget {
                       icon: Icons.phone,
                       color: primaryColor,
                       controller: phoneNumberController,
+                      validator: (value) => value!.length < 10
+                          ? 'Enter valid phone number'
+                          : null,
                       onChanged: (_) {},
-                      validator:
-                          (value) =>
-                              value!.length < 10
-                                  ? 'Enter valid phone number'
-                                  : null,
                     ),
                     const SizedBox(height: 20),
                     CommonTextFormField(
@@ -95,38 +90,30 @@ class RegisterView extends StatelessWidget {
                       color: primaryColor,
                       controller: passwordController,
                       obsecure: true,
+                      validator: (value) =>
+                          value!.length < 6 ? 'Password too short' : null,
                       onChanged: (_) {},
-                      validator:
-                          (value) =>
-                              value!.length < 6 ? 'Password too short' : null,
                     ),
                     const SizedBox(height: 20),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed:
-                            state.isLoading
-                                ? null
-                                : () {
-                                  if (_formKey.currentState!.validate()) {
-                                    context.read<RegisterViewModel>().add(
-                                      RegisterUserEvent(
-                                        name: nameController.text,
-                                        phone: phoneNumberController.text,
-                                        email: emailController.text,
-                                        password: passwordController.text,
-                                        context: context,
-                                        onSuccess: () {
-                                          context.read<RegisterViewModel>().add(
-                                            NavigateToLoginView(
-                                              context: context,
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    );
-                                  }
-                                },
+                        onPressed: state.isLoading
+                            ? null
+                            : () {
+                                if (_formKey.currentState!.validate()) {
+                                  context.read<RegisterViewModel>().add(
+                                        RegisterUserEvent(
+                                          name: nameController.text,
+                                          phone: phoneNumberController.text,
+                                          email: emailController.text,
+                                          password: passwordController.text,
+                                          context: context,
+                                          onSuccess: () {},
+                                        ),
+                                      );
+                                }
+                              },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: primaryColor,
                           padding: const EdgeInsets.symmetric(vertical: 16),
@@ -135,43 +122,50 @@ class RegisterView extends StatelessWidget {
                           ),
                           elevation: 5,
                         ),
-                        child:
-                            state.isLoading
-                                ? const CircularProgressIndicator(
+                        child: state.isLoading
+                            ? const CircularProgressIndicator(
+                                color: Colors.white,
+                              )
+                            : const Text(
+                                "Sign Up",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
                                   color: Colors.white,
-                                )
-                                : const Text(
-                                  "Sign Up",
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
                                 ),
+                              ),
                       ),
                     ),
                     const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text("Already have an account? "),
-                        TextButton(
-                          onPressed: () {
-                            context.read<RegisterViewModel>().add(
-                              NavigateToLoginView(context: context),
-                            );
-                          },
-                          child: const Text(
-                            "Log In!",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              decoration: TextDecoration.underline,
-                              fontSize: 18,
-                              color: primaryColor,
+                    Center(
+                      child: GestureDetector(
+                        key: const Key('login_navigator'), // For test
+                        onTap: () {
+                          Navigator.of(context).pushNamed('/login');
+                        },
+                        child: Text.rich(
+                          TextSpan(
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.black87,
                             ),
+                            children: [
+                              const TextSpan(
+                                text: 'Already have an account? ',
+                              ),
+                              TextSpan(
+                                text: 'Log In!',
+                                style: const TextStyle(
+                                  color: primaryColor,
+                                  fontWeight: FontWeight.bold,
+                                  decoration: TextDecoration.underline,
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
+                      ),
                     ),
                   ],
                 ),
