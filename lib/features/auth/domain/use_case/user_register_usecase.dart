@@ -20,13 +20,13 @@ class RegisterUserParams extends Equatable {
 
   const RegisterUserParams.initial({
     required this.name,
-  required this.email,
+    required this.email,
     required this.phone,
     required this.password,
   });
 
   @override
-  List<Object?> get props => [name,  email, phone, password];
+  List<Object?> get props => [name, email, phone, password];
 }
 
 class UserRegisterUsecase
@@ -39,10 +39,12 @@ class UserRegisterUsecase
   Future<Either<Failure, void>> call(RegisterUserParams params) async {
     var user = UserEntity(
       name: params.name,
- 
+
       email: params.email,
       phone: params.phone,
       password: params.password,
+      token: '',
+      role: '',
     );
     return await repository.registerUser(user);
   }
