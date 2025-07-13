@@ -7,18 +7,23 @@ abstract class HomeScreenState extends Equatable {
   @override
   List<Object> get props => [];
 }
+
 class HomeScreenInitial extends HomeScreenState {}
 
 class HomeScreenLoading extends HomeScreenState {}
 
 class HomeScreenLoaded extends HomeScreenState {
   final List<Venue> venues;
+  final List<String> favoriteVenueIds;
 
-  HomeScreenLoaded(this.venues);
+  const HomeScreenLoaded(this.venues, {this.favoriteVenueIds = const []});
+
+  @override
+  List<Object> get props => [venues, favoriteVenueIds];
 }
 
 class HomeScreenError extends HomeScreenState {
   final String error;
 
-  HomeScreenError(this.error);
+  const HomeScreenError(this.error);
 }

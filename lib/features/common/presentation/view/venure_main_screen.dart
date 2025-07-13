@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:venure/features/chat/presentation/view/chat_screen_view.dart';
 import 'package:venure/features/common/presentation/view_model/navigation_cubit.dart';
 import 'package:venure/features/home/presentation/view/home_screen_wrapper.dart';
 import 'package:venure/features/profile/presentation/view/profile_screen.dart';
@@ -21,7 +22,8 @@ class _VenureMainScreenState extends State<VenureMainScreen>
 
   final List<Widget> _screens = const [
     HomeScreenWrapper(),
-    Placeholder(), // ChatScreenView(),
+
+    ChatScreenView(chatName: 'Sarah Chen'), // ChatScreenView(),
     Placeholder(), // FavouritesScreenView(),
     ProfileScreen(), // ProfileScreenView(),
   ];

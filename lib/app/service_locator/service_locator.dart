@@ -2,12 +2,12 @@ import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:venure/app/constant/shared_pref/local_storage_service.dart';
 import 'package:venure/core/network/api_service.dart';
-// import 'package:venure/core/network/hive_service.dart'; // 
-// import 'package:venure/features/auth/data/data_source/local_data_source/user_local_datasource.dart'; 
+// import 'package:venure/core/network/hive_service.dart'; //
+// import 'package:venure/features/auth/data/data_source/local_data_source/user_local_datasource.dart';
 import 'package:venure/features/auth/data/data_source/remote_data_source/user_remote_data_source.dart';
-// import 'package:venure/features/auth/data/repository/local_repository/user_local_repository.dart'; 
+// import 'package:venure/features/auth/data/repository/local_repository/user_local_repository.dart';
 import 'package:venure/features/auth/data/repository/remote_repository/user_remote_repository.dart';
-// import 'package:venure/features/auth/domain/repository/user_repository.dart'; // 
+// import 'package:venure/features/auth/domain/repository/user_repository.dart'; //
 import 'package:venure/features/auth/domain/use_case/user_login_usecase.dart';
 import 'package:venure/features/auth/domain/use_case/user_register_usecase.dart';
 import 'package:venure/features/auth/presentation/view_model/login_view_model/login_view_model.dart';
@@ -16,18 +16,19 @@ import 'package:venure/features/home/data/data_source/ivenue_data_source.dart';
 import 'package:venure/features/home/data/data_source/remote_data_source/venue_remote_datasource.dart';
 import 'package:venure/features/home/data/repository/remote_repository/venue_remote_repository.dart';
 import 'package:venure/features/home/domain/repository/venue_repository.dart';
+import 'package:venure/features/home/domain/use_case/get_%20favorites_usecase.dart';
 import 'package:venure/features/home/domain/use_case/get_all_venues_use_case.dart';
+import 'package:venure/features/home/domain/use_case/toggle_favorite_usecase.dart';
 import 'package:venure/features/home/presentation/view_model/home_view_model.dart';
 
 final serviceLocator = GetIt.instance;
 
 Future<void> initDependencies() async {
-  // serviceLocator.registerLazySingleton<HiveService>(() => HiveService()); 
+  // serviceLocator.registerLazySingleton<HiveService>(() => HiveService());
   _initApiService();
   _initAuthModule();
   _initHomeModule();
   _localStorageService();
-  
 }
 
 Future<void> _initApiService() async {
@@ -46,7 +47,8 @@ Future<void> _initAuthModule() async {
   // Repositories
   serviceLocator.registerFactory<UserRemoteRepository>(
     () => UserRemoteRepository(
-        userRemoteDataSource: serviceLocator<UserRemoteDataSource>()),
+      userRemoteDataSource: serviceLocator<UserRemoteDataSource>(),
+    ),
   );
   // serviceLocator.registerFactory<UserLocalRepository>( // Removed: Not using local storage
   //   () => UserLocalRepository(
@@ -55,7 +57,8 @@ Future<void> _initAuthModule() async {
 
   // Use Cases
   serviceLocator.registerFactory<UserRegisterUsecase>(
-    () => UserRegisterUsecase(repository: serviceLocator<UserRemoteRepository>()),
+    () =>
+        UserRegisterUsecase(repository: serviceLocator<UserRemoteRepository>()),
   );
 
   serviceLocator.registerFactory<UserLoginUsecase>(
@@ -95,7 +98,9 @@ Future<void> _initHomeModule() async {
   // Register Repository - use IVenueRepository interface
   if (!serviceLocator.isRegistered<IVenueRepository>()) {
     serviceLocator.registerLazySingleton<IVenueRepository>(
-      () => VenueRemoteRepository(remoteDataSource: serviceLocator<VenueRemoteDataSource>()),
+      () => VenueRemoteRepository(
+        remoteDataSource: serviceLocator<VenueRemoteDataSource>(),
+      ),
     );
   }
 
@@ -106,15 +111,31 @@ Future<void> _initHomeModule() async {
     );
   }
 
+  serviceLocator.registerLazySingleton<GetFavoritesUseCase>(
+    () => GetFavoritesUseCase(serviceLocator<IVenueRepository>()),
+  );
+
+  serviceLocator.registerLazySingleton<ToggleFavoriteUseCase>(
+    () => ToggleFavoriteUseCase(serviceLocator<IVenueRepository>()),
+  );
+
   // Register Bloc / ViewModel
-  if (!serviceLocator.isRegistered<HomeScreenBloc>()) {
-    serviceLocator.registerFactory(
-      () => HomeScreenBloc(getAllVenuesUseCase: serviceLocator<GetAllVenuesUseCase>()),
-    );
-  }
+
+  serviceLocator.registerFactory(
+    () => HomeScreenBloc(
+      getAllVenuesUseCase: serviceLocator<GetAllVenuesUseCase>(),
+      getFavoritesUseCase: serviceLocator<GetFavoritesUseCase>(),
+      toggleFavoriteUseCase: serviceLocator<ToggleFavoriteUseCase>(),
+    ),
+  );
+  // if (!serviceLocator.isRegistered<HomeScreenBloc>()) {
+  //   serviceLocator.registerFactory(
+  //     () => HomeScreenBloc(getAllVenuesUseCase: serviceLocator<GetAllVenuesUseCase>()),
+  //   );
+  // }
 }
 
-Future<void> _localStorageService() async{
-   final localStorageService = await LocalStorageService.getInstance();
+Future<void> _localStorageService() async {
+  final localStorageService = await LocalStorageService.getInstance();
   serviceLocator.registerSingleton<LocalStorageService>(localStorageService);
 }

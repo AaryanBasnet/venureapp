@@ -4,8 +4,15 @@ import 'package:venure/features/home/domain/entity/venue_entity.dart';
 
 class VenueCard extends StatelessWidget {
   final Venue venue;
+  final bool isFavorite;
+  final VoidCallback onFavoriteToggle;
 
-  const VenueCard({required this.venue, super.key});
+  const VenueCard({
+    required this.venue,
+    super.key,
+    required this.isFavorite,
+    required this.onFavoriteToggle,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -208,10 +215,20 @@ class VenueCard extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.red.withOpacity(0.1),
+            color:
+                isFavorite
+                    ? Colors.red.withOpacity(0.3)
+                    : Colors.red.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: const Icon(Icons.favorite_border, color: Colors.red, size: 24),
+          child: GestureDetector(
+            onTap: onFavoriteToggle,
+            child: Icon(
+              isFavorite ? Icons.favorite : Icons.favorite_border,
+              color: Colors.red,
+              size: 24,
+            ),
+          ),
         ),
       ],
     );

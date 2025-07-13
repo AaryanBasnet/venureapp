@@ -9,10 +9,16 @@ class DioErrorInterceptor extends Interceptor {
       final statusCode = err.response?.statusCode ?? 0;
 
       if (statusCode >= 300) {
-        errorMessage =
-            err.response?.data['message']?.toString() ??
-            err.response?.statusMessage ??
-            'Unknown error';
+        final messageData = err.response?.data['message'];
+
+        if (messageData is String) {
+          errorMessage = messageData;
+        } else if (messageData is Map) {
+          // Convert the map to a string or extract meaningful info
+          errorMessage = messageData.toString();
+        } else {
+          errorMessage = err.response?.statusMessage ?? 'Unknown error';
+        }
       } else {
         errorMessage = 'Something went wrong';
       }
@@ -22,11 +28,8 @@ class DioErrorInterceptor extends Interceptor {
 
     final customError = DioException(
       requestOptions: err.requestOptions,
-
       response: err.response,
-
       error: errorMessage,
-
       type: err.type,
     );
 

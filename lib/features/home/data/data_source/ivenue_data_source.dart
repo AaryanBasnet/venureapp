@@ -6,4 +6,9 @@ abstract interface class IVenueDataSource {
   Future<Venue> addVenue(Venue venue);
   Future<Venue> updateVenue(Venue venue);
   Future<void> deleteVenue(String id);
+
+  // Favorites related methods
+  Future<List<String>> getFavoriteVenueIds();
+  Future<bool> toggleFavoriteVenue(String venueId);
+  Future<List<Venue>> getFavoriteVenues();
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venure/core/common/venue_card.dart';
+import 'package:venure/features/home/presentation/view_model/home_screen_event.dart';
 import 'package:venure/features/home/presentation/view_model/home_screen_state.dart';
 import 'package:venure/features/home/presentation/view_model/home_view_model.dart';
 
@@ -410,7 +411,18 @@ class HomeScreenView extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 itemCount: venues.length,
                 itemBuilder: (context, index) {
-                  return VenueCard(venue: venues[index]);
+                  final venue = venues[index];
+                  final isFavorite = state.favoriteVenueIds.contains(venue.id);
+                  return VenueCard(
+                    key: ValueKey(venue.id),
+                    venue: venue,
+                    isFavorite: isFavorite,
+                    onFavoriteToggle: () {
+                      context.read<HomeScreenBloc>().add(
+                        ToggleFavoriteVenue(venue.id),
+                      );
+                    },
+                  );
                 },
               ),
             ],

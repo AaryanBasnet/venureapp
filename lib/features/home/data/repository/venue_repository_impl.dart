@@ -1,33 +1,37 @@
 // import 'package:dartz/dartz.dart';
 // import 'package:venure/core/error/failure.dart';
-// import 'package:venure/features/home/data/repository/local_repository/venue_local_repository.dart';
-// import 'package:venure/features/home/data/repository/remote_repository/venue_remote_repository.dart';
-
+// import 'package:venure/features/home/data/data_source/ivenue_data_source.dart';
+// import 'package:venure/features/home/data/data_source/local_data_source/venue_local_datasource.dart';
+// import 'package:venure/features/home/data/data_source/remote_data_source/venue_remote_datasource.dart';
 // import 'package:venure/features/home/domain/entity/venue_entity.dart';
 // import 'package:venure/features/home/domain/repository/venue_repository.dart';
 
 // class VenueRepositoryImpl implements IVenueRepository {
-//   final VenueRemoteRepository remoteRepo;
-//   final VenueLocalRepository localRepo;
+//   final VenueRemoteDataSource remoteDataSource;
+//   final VenueLocalDataSource localDataSource;
 
 //   VenueRepositoryImpl({
-//     required this.remoteRepo,
-//     required this.localRepo,
+//     required this.remoteDataSource,
+//     required this.localDataSource,
 //   });
 
 //   @override
 //   Future<Either<Failure, List<Venue>>> getAllVenues() async {
 //     try {
-//       final venues = await remoteRepo.getAllVenues();
-//       for (final venue in venues) {
-//         await localRepo.addVenue(venue); // cache locally
+//       final remoteVenues = await remoteDataSource.getAllVenues();
+
+//       // Cache to local DB for offline support
+//       for (var venue in remoteVenues) {
+//         await localDataSource.addVenue(venue);
 //       }
-//       return Right(venues);
+
+//       return Right(remoteVenues);
 //     } catch (e) {
+//       // Fallback to local cache if remote fails
 //       try {
-//         final cached = await localRepo.getAllVenues();
-//         return Right(cached);
-//       } catch (_) {
+//         final localVenues = await localDataSource.getAllVenues();
+//         return Right(localVenues);
+//       } catch (localError) {
 //         return Left(ApiFailure(message: e.toString()));
 //       }
 //     }
@@ -36,13 +40,14 @@
 //   @override
 //   Future<Either<Failure, Venue>> getVenueById(String id) async {
 //     try {
-//       final venue = await remoteRepo.getVenueById(id);
+//       final venue = await remoteDataSource.getVenueById(id);
+//       await localDataSource.updateVenue(venue);
 //       return Right(venue);
 //     } catch (e) {
 //       try {
-//         final cached = await localRepo.getVenueById(id);
-//         return Right(cached);
-//       } catch (_) {
+//         final venue = await localDataSource.getVenueById(id);
+//         return Right(venue);
+//       } catch (localError) {
 //         return Left(ApiFailure(message: e.toString()));
 //       }
 //     }
@@ -51,9 +56,9 @@
 //   @override
 //   Future<Either<Failure, Venue>> addVenue(Venue venue) async {
 //     try {
-//       final created = await remoteRepo.addVenue(venue);
-//       await localRepo.addVenue(created);
-//       return Right(created);
+//       final newVenue = await remoteDataSource.addVenue(venue);
+//       await localDataSource.addVenue(newVenue);
+//       return Right(newVenue);
 //     } catch (e) {
 //       return Left(ApiFailure(message: e.toString()));
 //     }
@@ -62,9 +67,9 @@
 //   @override
 //   Future<Either<Failure, Venue>> updateVenue(Venue venue) async {
 //     try {
-//       final updated = await remoteRepo.updateVenue(venue);
-//       await localRepo.updateVenue(updated);
-//       return Right(updated);
+//       final updatedVenue = await remoteDataSource.updateVenue(venue);
+//       await localDataSource.updateVenue(updatedVenue);
+//       return Right(updatedVenue);
 //     } catch (e) {
 //       return Left(ApiFailure(message: e.toString()));
 //     }
@@ -73,9 +78,41 @@
 //   @override
 //   Future<Either<Failure, void>> deleteVenue(String id) async {
 //     try {
-//       await remoteRepo.deleteVenue(id);
-//       await localRepo.deleteVenue(id);
+//       await remoteDataSource.deleteVenue(id);
+//       await localDataSource.deleteVenue(id);
 //       return const Right(null);
+//     } catch (e) {
+//       return Left(ApiFailure(message: e.toString()));
+//     }
+//   }
+
+//   // Add favorites methods (assuming you updated IVenueRepository):
+
+//   @override
+//   Future<Either<Failure, List<String>>> getFavorites() async {
+//     try {
+//       final favorites = await remoteDataSource.getFavoriteVenueIds();
+//       await localDataSource.saveFavorites(favorites);
+//       return Right(favorites);
+//     } catch (e) {
+//       // fallback to local if remote fails
+//       try {
+//         final localFavorites = await localDataSource.getFavoriteVenueIds();
+//         return Right(localFavorites);
+//       } catch (localError) {
+//         return Left(ApiFailure(message: e.toString()));
+//       }
+//     }
+//   }
+
+//   @override
+//   Future<Either<Failure, bool>> toggleFavorite(String venueId) async {
+//     try {
+//       final toggled = await remoteDataSource.toggleFavoriteVenue(venueId);
+//       if (toggled) {
+//         await localDataSource.toggleFavoriteVenue(venueId);
+//       }
+//       return Right(toggled);
 //     } catch (e) {
 //       return Left(ApiFailure(message: e.toString()));
 //     }

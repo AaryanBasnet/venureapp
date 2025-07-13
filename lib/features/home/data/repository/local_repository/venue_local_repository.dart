@@ -1,6 +1,5 @@
 import 'package:dartz/dartz.dart';
 import 'package:venure/core/error/failure.dart';
-import 'package:venure/features/home/data/data_source/ivenue_data_source.dart';
 import 'package:venure/features/home/data/data_source/local_data_source/venue_local_datasource.dart';
 import 'package:venure/features/home/domain/entity/venue_entity.dart';
 import 'package:venure/features/home/domain/repository/venue_repository.dart';
@@ -59,4 +58,36 @@ class VenueLocalRepository implements IVenueRepository {
       return Left(LocalDataBaseFailure(message: e.toString()));
     }
   }
+
+  // Favorites
+
+  @override
+  Future<Either<Failure, List<String>>> getFavorites() async {
+    try {
+      final favorites = await localDataSource.getFavoriteVenueIds();
+      return Right(favorites);
+    } catch (e) {
+      return Left(LocalDataBaseFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> toggleFavorite(String venueId) async {
+    try {
+      final toggled = await localDataSource.toggleFavoriteVenue(venueId);
+      return Right(toggled);
+    } catch (e) {
+      return Left(LocalDataBaseFailure(message: e.toString()));
+    }
+  }
+
+  @override
+Future<Either<Failure, List<Venue>>> getFavoriteVenues() async {
+  try {
+    final venues = await localDataSource.getFavoriteVenues();
+    return Right(venues);
+  } catch (e) {
+    return Left(LocalDataBaseFailure(message: e.toString()));
+  }
+}
 }

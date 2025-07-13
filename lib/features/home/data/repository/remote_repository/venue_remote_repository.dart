@@ -1,6 +1,5 @@
 import 'package:dartz/dartz.dart';
 import 'package:venure/core/error/failure.dart';
-import 'package:venure/features/home/data/data_source/ivenue_data_source.dart';
 import 'package:venure/features/home/data/data_source/remote_data_source/venue_remote_datasource.dart';
 import 'package:venure/features/home/domain/entity/venue_entity.dart';
 import 'package:venure/features/home/domain/repository/venue_repository.dart';
@@ -59,4 +58,38 @@ class VenueRemoteRepository implements IVenueRepository {
       return Left(ApiFailure(message: e.toString()));
     }
   }
+
+  // Favorites
+
+  @override
+Future<Either<Failure, List<String>>> getFavorites() async {
+  try {
+    final ids = await remoteDataSource.getFavoriteVenueIds();
+    return Right(ids);
+  } catch (e) {
+    return Left(ApiFailure(message: e.toString()));
+  }
+}
+
+@override
+Future<Either<Failure, bool>> toggleFavorite(String venueId) async {
+  try {
+    final result = await remoteDataSource.toggleFavoriteVenue(venueId);
+    return Right(result);
+  } catch (e) {
+    return Left(ApiFailure(message: e.toString()));
+  }
+}
+
+@override
+Future<Either<Failure, List<Venue>>> getFavoriteVenues() async {
+  try {
+    final venues = await remoteDataSource.getFavoriteVenues();
+    return Right(venues);
+  } catch (e) {
+    return Left(ApiFailure(message: e.toString()));
+  }
+}
+
+
 }

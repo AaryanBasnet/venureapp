@@ -17,5 +17,12 @@ class ApiEndpoints {
 
   static const String login = "/auth/login";
 
+  //user
+
   static const String getApprovedVenues = "/user/venues/getApprovedVenues";
+
+  static const String toggleFavorite = '/user/favorites'; // POST /:venueId
+  static const String getFavoriteVenues = '/user/favorites'; // GET /
+static const String getFavoriteVenuesList = "/user/favorites";
+
 }

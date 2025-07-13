@@ -8,4 +8,12 @@ abstract interface class IVenueRepository {
   Future<Either<Failure, Venue>> addVenue(Venue venue);
   Future<Either<Failure, Venue>> updateVenue(Venue venue);
   Future<Either<Failure, void>> deleteVenue(String id);
+
+  // Favorites
+  Future<Either<Failure, List<String>>>
+  getFavorites(); // returns list of favorite venue IDs
+  Future<Either<Failure, bool>> toggleFavorite(
+    String venueId,
+  ); // returns new favorite status (true if favorited)
+  Future<Either<Failure, List<Venue>>> getFavoriteVenues(); // <-- Only this needed for Favorite Page}
 }

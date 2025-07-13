@@ -7,7 +7,7 @@ import 'package:venure/features/auth/data/model/user_hive_model.dart';
 import 'package:venure/features/home/data/model/venue_model.dart';
 
 class HiveService {
-    static const String venueBoxName = 'venuesBox';
+  static const String venueBoxName = 'venuesBox';
   Future<void> init() async {
     var directory = await getApplicationDocumentsDirectory();
     var path = '${directory.path}venure.db';
@@ -36,6 +36,7 @@ class HiveService {
     box.close();
     return user;
   }
+
   Future<void> saveVenue(VenueModel venue) async {
     final box = await Hive.openBox<VenueModel>(venueBoxName);
     await box.put(venue.id, venue);
@@ -70,4 +71,30 @@ class HiveService {
     await box.clear();
   }
 
+  //for favorites section
+  Future<List<String>> getFavoriteVenueIds() async {
+    var box = await Hive.openBox(HiveTableConstant.favoritesBox);
+    return box.get('favoritesList', defaultValue: <String>[])!.cast<String>();
+  }
+
+  Future<void> saveFavoriteVenueIds(List<String> ids) async {
+    var box = await Hive.openBox(HiveTableConstant.favoritesBox);
+    await box.put('favoritesList', ids);
+  }
+
+  Future<bool> toggleFavoriteVenue(String venueId) async {
+    final box = await Hive.openBox(HiveTableConstant.favoritesBox);
+    final List<String> current =
+        box.get('favoritesList', defaultValue: <String>[])!.cast<String>();
+
+    if (current.contains(venueId)) {
+      current.remove(venueId);
+    } else {
+      current.add(venueId);
+    }
+
+    await box.put('favoritesList', current);
+
+    return current.contains(venueId);
+  }
 }
