@@ -16,7 +16,7 @@ void main() async {
     databaseFactory = databaseFactoryFfi;
   }
 
-    await HiveService().init();
+  await HiveService.instance.init();
 
   await initDependencies();
 

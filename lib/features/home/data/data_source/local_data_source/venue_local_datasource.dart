@@ -19,7 +19,7 @@ class VenueLocalDataSource implements IVenueDataSource {
   @override
   Future<Venue> getVenueById(String id) async {
     final model = await _hiveService.getVenueById(id);
-    return model.toEntity();
+    return model!.toEntity();
   }
 
   @override

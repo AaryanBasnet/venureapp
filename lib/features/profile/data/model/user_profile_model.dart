@@ -1,14 +1,30 @@
-import 'package:equatable/equatable.dart';
+import 'package:hive/hive.dart';
+import 'package:venure/app/constant/hive/hive_table_constant.dart';
+import 'package:venure/features/profile/domain/entity/user_profile_entity.dart';
 
-class UserProfileModel extends Equatable {
+part 'user_profile_model.g.dart';
+
+@HiveType(typeId: HiveTableConstant.userTableId)
+class UserProfileModel extends HiveObject {
+  @HiveField(0)
   final String id;
+  
+  @HiveField(1)
   final String name;
+  
+  @HiveField(2)
   final String email;
+  
+  @HiveField(3)
   final String phone;
+  
+  @HiveField(4)
   final String address;
+  
+  @HiveField(5)
   final String avatar;
 
-  const UserProfileModel({
+  UserProfileModel({
     required this.id,
     required this.name,
     required this.email,
@@ -22,12 +38,20 @@ class UserProfileModel extends Equatable {
       id: json['_id'],
       name: json['name'],
       email: json['email'],
-      phone: json['phone'] ?? '',
-      address: json['address'] ?? '',
-      avatar: json['avatar'] ?? '',
+      phone: json['phone'],
+      address: json['address'],
+      avatar: json['avatar'],
     );
   }
 
-  @override
-  List<Object?> get props => [id, name, email, phone, address, avatar];
+  UserProfileEntity toEntity() {
+    return UserProfileEntity(
+      id: id,
+      name: name,
+      email: email,
+      phone: phone,
+      address: address,
+      avatar: avatar,
+    );
+  }
 }
