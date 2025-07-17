@@ -1,63 +1,77 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venure/app/constant/shared_pref/local_storage_service.dart';
-import 'package:venure/app/service_locator/service_locator.dart';
-import 'package:venure/features/auth/presentation/view/login_wrapper.dart';
-import 'package:venure/features/profile/presentation/view_model/profile_event.dart';
-import 'package:venure/features/profile/presentation/view_model/profile_state.dart';
+import 'package:venure/features/profile/data/data_source/remote_data_source/profile_remote_data_source.dart';
+import 'package:venure/features/profile/data/model/user_profile_model.dart';
+import 'profile_event.dart';
+import 'profile_state.dart';
 
 class ProfileViewModel extends Bloc<ProfileEvent, ProfileState> {
-  final LocalStorageService _storageService =
-      serviceLocator<LocalStorageService>();
+  final ProfileRemoteDataSource remoteDataSource;
+  final LocalStorageService _storageService;
 
-  ProfileViewModel() : super(ProfileState.initial()) {
+  ProfileViewModel({
+    required this.remoteDataSource,
+    required LocalStorageService storageService,
+  }) : _storageService = storageService,
+       super(ProfileState.initial()) {
     on<LoadUserProfile>(_onLoadUserProfile);
-    on<LogoutUser>(_onLogoutUser);
+    on<UpdateUserProfile>(_onUpdateUserProfile);
   }
 
-  void _onLoadUserProfile(
+  Future<void> _onLoadUserProfile(
     LoadUserProfile event,
     Emitter<ProfileState> emit,
   ) async {
-    emit(state.copyWith(isLoading: true));
+    emit(state.copyWith(isLoading: true, error: null));
 
-    final isLoggedIn = _storageService.isLoggedIn;
+    try {
+      final token = _storageService.token;
+      if (token == null || token.isEmpty) {
+        emit(state.copyWith(isLoading: false, isLoggedIn: false));
+        return;
+      }
 
-    if (isLoggedIn) {
+      final profileResponse = await remoteDataSource.getUserProfile(token);
+      final userData = profileResponse['user'];
+
       emit(
         state.copyWith(
-          name: _storageService.name,
-          email: _storageService.email,
+          name: userData['name'],
+          email: userData['email'],
+          phone: userData['phone'],
+          address: userData['address'],
+          avatar: userData['avatar'],
           isLoggedIn: true,
           isLoading: false,
         ),
       );
-    } else {
-      emit(state.copyWith(isLoading: false));
+    } catch (e) {
+      emit(state.copyWith(isLoading: false, error: e.toString()));
     }
   }
 
-  void _onLogoutUser(LogoutUser event, Emitter<ProfileState> emit) async {
-    await _storageService.clearLoginData();
-    if (event.context.mounted) {
-      Navigator.push(
-        event.context,
-        MaterialPageRoute(builder: (_) => const LoginWrapper()),
+  Future<void> _onUpdateUserProfile(
+    UpdateUserProfile event,
+    Emitter<ProfileState> emit,
+  ) async {
+    emit(state.copyWith(isLoading: true, error: null));
+    try {
+      final token = _storageService.token;
+      if (token == null || token.isEmpty) throw Exception('No token found');
+
+      await remoteDataSource.updateUserProfile(
+        token: token,
+        name: event.name,
+        phone: event.phone,
+        address: event.address,
+        avatarFile: event.avatarFile,
       );
+
+      // Refresh profile after update
+      add(LoadUserProfile());
+    } catch (e) {
+      emit(state.copyWith(isLoading: false, error: e.toString()));
     }
   }
 }
-
-// void _navigateToDashboard(
-//     NavigateToDashboardView event,
-//     Emitter<LoginState> emit,
-//   ) {
-//     if (event.context.mounted) {
-//       Navigator.push(
-//         event.context,
-//         MaterialPageRoute(builder: (_) => const HomeScreenWrapper()),
-//       );
-//     }
-//   }
-// }
