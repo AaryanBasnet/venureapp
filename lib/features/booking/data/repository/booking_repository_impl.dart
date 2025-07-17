@@ -1,5 +1,5 @@
-import 'package:venure/features/booking/data/data_source/local_data_source/local_data_source.dart';
-import 'package:venure/features/booking/data/data_source/remote_data_source/remote_data_source.dart';
+import 'package:venure/features/booking/data/data_source/local_data_source/booking_local_data_source.dart';
+import 'package:venure/features/booking/data/data_source/remote_data_source/booking_remote_data_source.dart';
 import 'package:venure/features/booking/domain/entity/booking.dart';
 import 'package:venure/features/booking/domain/repository/booking_repository.dart';
 
