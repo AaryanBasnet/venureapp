@@ -44,6 +44,10 @@ class LoginViewModel extends Bloc<LoginEvent, LoginState> {
         final localStorage = serviceLocator<LocalStorageService>();
         await localStorage.saveUser(userEntity);
 
+         // ✅ DEBUG CHECK: Print what was saved in SharedPreferences
+    
+  
+
         // Navigator.pushAndRemoveUntil(
         //   event.context,
         //   MaterialPageRoute(

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:venure/core/utils/url_utils.dart';
 import 'package:venure/features/home/domain/entity/venue_entity.dart';
@@ -7,11 +8,14 @@ class VenueCard extends StatelessWidget {
   final bool isFavorite;
   final VoidCallback onFavoriteToggle;
 
+  final VoidCallback onBookNow; 
+
   const VenueCard({
     required this.venue,
     super.key,
     required this.isFavorite,
     required this.onFavoriteToggle,
+    required this.onBookNow, 
   });
 
   @override
@@ -88,14 +92,20 @@ class VenueCard extends StatelessWidget {
             ),
             child:
                 venue.venueImages.isNotEmpty
-                    ? Image.network(
-                      UrlUtils.buildFullUrl(venue.venueImages.first.url),
+                    ? CachedNetworkImage(
+                      imageUrl: UrlUtils.buildFullUrl(
+                        venue.venueImages.first.url,
+                      ),
                       width: double.infinity,
                       height: 240,
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return _buildPlaceholderImage();
-                      },
+                      placeholder:
+                          (context, url) => Container(
+                            color: Colors.grey[300],
+                            child: const Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                          ),
                     )
                     : _buildPlaceholderImage(),
           ),
@@ -402,9 +412,7 @@ class VenueCard extends StatelessWidget {
         ),
         const SizedBox(width: 16),
         ElevatedButton(
-          onPressed: () {
-            // Navigate to venue detail or booking
-          },
+          onPressed: onBookNow,
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.black87,
             foregroundColor: Colors.white,
