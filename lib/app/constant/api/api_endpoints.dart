@@ -31,4 +31,9 @@ class ApiEndpoints {
   static const String cancelBooking = "/bookings"; // PUT /:id/cancel
   static const String updateBooking =
       "/bookings"; // PUT /:id/approve or other updates
+
+  //profile
+
+  static const String getUserProfile = "/user/profile";
+  static const String updateUserProfile = "/user/profile";
 }

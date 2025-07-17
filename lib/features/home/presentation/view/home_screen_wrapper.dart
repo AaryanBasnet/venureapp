@@ -8,6 +8,6 @@ class HomeScreenWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const HomeScreenView(); // Use the existing bloc from parent
+    return const HomeScreenView(); 
   }
 }

@@ -26,6 +26,8 @@ import 'package:venure/features/home/domain/use_case/get_%20favorites_usecase.da
 import 'package:venure/features/home/domain/use_case/get_all_venues_use_case.dart';
 import 'package:venure/features/home/domain/use_case/toggle_favorite_usecase.dart';
 import 'package:venure/features/home/presentation/view_model/home_view_model.dart';
+import 'package:venure/features/profile/data/data_source/remote_data_source/profile_remote_data_source.dart';
+import 'package:venure/features/profile/presentation/view_model/profile_view_model.dart';
 
 final serviceLocator = GetIt.instance;
 
@@ -35,6 +37,7 @@ Future<void> initDependencies() async {
   _initAuthModule();
   _initHomeModule();
   _initBookingModule();
+  _initProfileModule();
   _localStorageService();
 }
 
@@ -185,6 +188,23 @@ Future<void> _initBookingModule() async {
     () => BookingViewModel(
       createBookingUseCase: serviceLocator<CreateBookingUseCase>(),
       localStorage: serviceLocator<LocalStorageService>(),
+    ),
+  );
+}
+
+Future<void> _initProfileModule() async {
+  // Register Data Source
+  if (!serviceLocator.isRegistered<ProfileRemoteDataSource>()) {
+    serviceLocator.registerLazySingleton<ProfileRemoteDataSource>(
+      () => ProfileRemoteDataSource(apiService: serviceLocator<ApiService>()),
+    );
+  }
+
+  // Register ViewModel
+  serviceLocator.registerFactory<ProfileViewModel>(
+    () => ProfileViewModel(
+      remoteDataSource: serviceLocator<ProfileRemoteDataSource>(),
+      storageService: serviceLocator<LocalStorageService>(),
     ),
   );
 }

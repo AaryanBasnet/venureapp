@@ -10,6 +10,7 @@ import 'package:venure/features/home/presentation/view/home_screen_wrapper.dart'
 import 'package:venure/features/home/presentation/view_model/home_screen_event.dart';
 import 'package:venure/features/home/presentation/view_model/home_view_model.dart';
 import 'package:venure/features/profile/presentation/view/profile_screen.dart';
+import 'package:venure/features/profile/presentation/view/profile_screen_wrapper.dart';
 // import other screen views like ChatScreenView, FavouritesScreenView, etc.
 
 class VenureMainScreen extends StatefulWidget {
@@ -27,10 +28,10 @@ class _VenureMainScreenState extends State<VenureMainScreen>
 
   final List<Widget> _screens = const [
     HomeScreenWrapper(),
+    Placeholder(),
 
-   
     FavoritesPage(), // FavouritesScreenView(),
-    ProfileScreen(), // ProfileScreenView(),
+    ProfileScreenWrapper(), // ProfileScreenView(),
   ];
 
   @override
