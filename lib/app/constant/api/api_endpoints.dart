@@ -23,6 +23,12 @@ class ApiEndpoints {
 
   static const String toggleFavorite = '/user/favorites'; // POST /:venueId
   static const String getFavoriteVenues = '/user/favorites'; // GET /
-static const String getFavoriteVenuesList = "/user/favorites";
+  static const String getFavoriteVenuesList = "/user/favorites";
 
+  //booking
+  static const String getBookingsForCustomer = "/bookings/my-bookings";
+  static const String createBooking = "/bookings/createBooking";
+  static const String cancelBooking = "/bookings"; // PUT /:id/cancel
+  static const String updateBooking =
+      "/bookings"; // PUT /:id/approve or other updates
 }

@@ -6,4 +6,7 @@ class HiveTableConstant {
 
   static const String favoritesBox = "favorites";
   static const int favoritesTableId = 2;
+
+   static const int bookingTableId = 3;
+  static const String bookingsBox = "bookings";
 }

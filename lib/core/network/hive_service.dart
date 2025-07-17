@@ -4,6 +4,7 @@ import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:venure/app/constant/hive/hive_table_constant.dart';
 import 'package:venure/features/auth/data/model/user_hive_model.dart';
+import 'package:venure/features/booking/data/model/booking_hive_model.dart';
 import 'package:venure/features/home/data/model/venue_model.dart';
 
 class HiveService {
@@ -15,6 +16,7 @@ class HiveService {
     Hive.init(path);
 
     Hive.registerAdapter(UserHiveModelAdapter());
+      Hive.registerAdapter(BookingHiveModelAdapter());  // Register booking adapter
   }
 
   //register user
@@ -97,4 +99,41 @@ class HiveService {
 
     return current.contains(venueId);
   }
+
+
+  // Booking Box Name (add at class level)
+  static const String bookingBoxName = HiveTableConstant.bookingsBox;
+
+  // Save or update booking
+  Future<void> saveBooking(BookingHiveModel booking) async {
+    final box = await Hive.openBox<BookingHiveModel>(bookingBoxName);
+    await box.put(booking.id, booking);
+  }
+
+  // Delete booking
+  Future<void> deleteBooking(String id) async {
+    final box = await Hive.openBox<BookingHiveModel>(bookingBoxName);
+    await box.delete(id);
+  }
+
+  // Get booking by id
+  Future<BookingHiveModel?> getBookingById(String id) async {
+    final box = await Hive.openBox<BookingHiveModel>(bookingBoxName);
+    return box.get(id);
+  }
+
+  // Get all bookings cached locally
+  Future<List<BookingHiveModel>> getAllBookings() async {
+    final box = await Hive.openBox<BookingHiveModel>(bookingBoxName);
+    return box.values.toList();
+  }
+
+  // Clear all cached bookings
+  Future<void> clearAllBookings() async {
+    final box = await Hive.openBox<BookingHiveModel>(bookingBoxName);
+    await box.clear();
+  }
+
+  
 }
+
