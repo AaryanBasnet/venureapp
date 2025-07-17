@@ -9,34 +9,39 @@ class UserRemoteDataSource implements IUserDataSource {
   final ApiService _apiService;
 
   UserRemoteDataSource({required ApiService apiService})
-      : _apiService = apiService;
-@override
-Future<Map<String, dynamic>> loginUser(String email, String password) async {
-  try {
-    final response = await _apiService.dio.post(
-      ApiEndpoints.login,
-      data: {'email': email, 'password': password},
-    );
+    : _apiService = apiService;
+    
+  @override
+  Future<Map<String, dynamic>> loginUser(String email, String password) async {
+    try {
+      final response = await _apiService.dio.post(
+        ApiEndpoints.login,
+        data: {'email': email, 'password': password},
+      );
 
-    if (response.statusCode == 200) {
-      // Full JSON body like: { success, message, token, userData }
-      final Map<String, dynamic> responseData = response.data;
+      if (response.statusCode == 200) {
+        // Full JSON body like: { success, message, token, userData }
+        final Map<String, dynamic> responseData = response.data;
 
-      // Optionally validate structure
-      if (responseData.containsKey('token') && responseData.containsKey('userData')) {
-        return responseData;
+        // Optionally validate structure
+        if (responseData.containsKey('token') &&
+            responseData.containsKey('userData')) {
+          return responseData;
+        } else {
+          throw Exception('Missing token or userData in response');
+        }
       } else {
-        throw Exception('Missing token or userData in response');
+        throw Exception('Login failed: ${response.statusMessage}');
       }
-    } else {
-      throw Exception('Login failed: ${response.statusMessage}');
+    } on DioException catch (e) {
+      throw Exception(
+        'Failed to login: ${e.response?.data?['message'] ?? e.message}',
+      );
+    } catch (e) {
+      throw Exception('Failed to login: $e');
     }
-  } on DioException catch (e) {
-    throw Exception('Failed to login: ${e.response?.data?['message'] ?? e.message}');
-  } catch (e) {
-    throw Exception('Failed to login: $e');
   }
-}
+
   @override
   Future<void> registerUser(UserEntity userData) async {
     try {
@@ -48,14 +53,16 @@ Future<Map<String, dynamic>> loginUser(String email, String password) async {
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        
         return;
       } else {
-        throw Exception('Failed to register: ${response.statusMessage ?? 'Unknown error'}');
+        throw Exception(
+          'Failed to register: ${response.statusMessage ?? 'Unknown error'}',
+        );
       }
     } on DioException catch (e) {
- 
-      throw Exception('Failed to register: ${e.response?.data?['message'] ?? e.message}');
+      throw Exception(
+        'Failed to register: ${e.response?.data?['message'] ?? e.message}',
+      );
     } catch (e) {
       throw Exception('Failed to register: $e');
     }

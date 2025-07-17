@@ -15,7 +15,7 @@ class LocalStorageService {
   // Save login data from UserEntity
   Future<void> saveUser(UserEntity user) async {
     await _prefs.setString('token', user.token);
-    await _prefs.setString('userId', user.userId ?? '');
+    await _prefs.setString('userId', user.userId ?? "");
     await _prefs.setString('name', user.name);
     await _prefs.setString('email', user.email);
     await _prefs.setString('role', user.role);

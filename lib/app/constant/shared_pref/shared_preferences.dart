@@ -1,14 +1,24 @@
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:venure/app/constant/shared_pref/local_storage_service.dart';
+import 'package:venure/features/auth/domain/entity/user_entity.dart';
 
 Future<void> storeLoginData(Map<String, dynamic> json) async {
-  final prefs = await SharedPreferences.getInstance();
-
-  final token = json['token'];
   final userData = json['userData'];
+  final token = json['token'];
 
-  await prefs.setString('token', token);
-  await prefs.setString('userId', userData['id']);
-  await prefs.setString('name', userData['name']);
-  await prefs.setString('email', userData['email']);
-  await prefs.setString('role', userData['role']);
+  final user = UserEntity(
+    userId: userData['_id'] ?? userData['id'], // ✅ Handles both _id and id
+    name: userData['name'],
+    email: userData['email'],
+    phone: '',       // Backend didn't send phone
+    password: '',    // Not storing password
+    token: token,
+    role: userData['role'],
+  );
+
+  final localStorage = await LocalStorageService.getInstance();
+  print('UserEntity userId: ${user.userId}');
+  await localStorage.saveUser(user);
+    print('Stored userId: ${localStorage.userId}');
+
 }

@@ -16,9 +16,17 @@ class UserRemoteRepository implements IUserRepository {
     String password,
   ) async {
     try {
-      final loginResponse = await _userRemoteDataSource.loginUser(email, password);
-      // loginResponse is Map<String, dynamic> (raw JSON), convert to UserEntity
-      final userEntity = UserEntity.fromJson(loginResponse);
+      final loginResponse = await _userRemoteDataSource.loginUser(
+        email,
+        password,
+      );
+      // Extract userData map and token string separately from loginResponse
+      final Map<String, dynamic> userData = loginResponse['userData'];
+      userData['token'] = loginResponse['token']; // merge token into userData
+
+      // Now pass the nested userData + token map to UserEntity.fromJson
+      final userEntity = UserEntity.fromJson(userData);
+
       return Right(userEntity);
     } catch (e) {
       return Left(ApiFailure(message: e.toString()));

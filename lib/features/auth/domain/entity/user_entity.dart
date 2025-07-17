@@ -16,12 +16,12 @@ class UserEntity extends Equatable {
     required this.phone,
     required this.password,
     required this.token,
-    required this.role, 
+    required this.role,
   });
 
   factory UserEntity.fromJson(Map<String, dynamic> json) {
     return UserEntity(
-      userId: json['id'] as String?,
+      userId: json['_id']?.toString() ?? json['id']?.toString(),
       name: json['name'] as String? ?? '',
       email: json['email'] as String? ?? '',
       phone: json['phone'] as String? ?? '',
@@ -41,5 +41,13 @@ class UserEntity extends Equatable {
   };
 
   @override
-  List<Object?> get props => [userId, name, email, phone, password, token, role];
+  List<Object?> get props => [
+    userId,
+    name,
+    email,
+    phone,
+    password,
+    token,
+    role,
+  ];
 }
