@@ -1,9 +1,14 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:venure/app/service_locator/service_locator.dart';
+
 import 'package:venure/features/chat/presentation/view/chat_screen_view.dart';
 import 'package:venure/features/common/presentation/view_model/navigation_cubit.dart';
+import 'package:venure/features/common/presentation/view/favorites_page.dart';
 import 'package:venure/features/home/presentation/view/home_screen_wrapper.dart';
+import 'package:venure/features/home/presentation/view_model/home_screen_event.dart';
+import 'package:venure/features/home/presentation/view_model/home_view_model.dart';
 import 'package:venure/features/profile/presentation/view/profile_screen.dart';
 // import other screen views like ChatScreenView, FavouritesScreenView, etc.
 
@@ -23,8 +28,8 @@ class _VenureMainScreenState extends State<VenureMainScreen>
   final List<Widget> _screens = const [
     HomeScreenWrapper(),
 
-    ChatScreenView(chatName: 'Sarah Chen'), // ChatScreenView(),
-    Placeholder(), // FavouritesScreenView(),
+   
+    FavoritesPage(), // FavouritesScreenView(),
     ProfileScreen(), // ProfileScreenView(),
   ];
 
@@ -66,12 +71,16 @@ class _VenureMainScreenState extends State<VenureMainScreen>
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => NavigationCubit(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => NavigationCubit()),
+        BlocProvider(
+          create: (_) => serviceLocator<HomeScreenBloc>()..add(LoadVenues()),
+        ),
+      ],
       child: BlocBuilder<NavigationCubit, int>(
         builder: (context, selectedIndex) {
           return Scaffold(
-            backgroundColor: const Color(0xFFFAFAFA),
             body: PageView(
               controller: _pageController,
               physics: const NeverScrollableScrollPhysics(),

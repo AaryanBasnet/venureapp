@@ -12,6 +12,12 @@ import 'package:venure/features/auth/domain/use_case/user_login_usecase.dart';
 import 'package:venure/features/auth/domain/use_case/user_register_usecase.dart';
 import 'package:venure/features/auth/presentation/view_model/login_view_model/login_view_model.dart';
 import 'package:venure/features/auth/presentation/view_model/register_view_model/register_view_model.dart';
+import 'package:venure/features/booking/data/data_source/local_data_source/booking_local_data_source.dart';
+import 'package:venure/features/booking/data/data_source/remote_data_source/booking_remote_data_source.dart';
+import 'package:venure/features/booking/data/repository/booking_repository_impl.dart';
+import 'package:venure/features/booking/domain/repository/booking_repository.dart';
+import 'package:venure/features/booking/domain/use_case/create_booking_usecase.dart';
+import 'package:venure/features/booking/presentation/view_model/booking_view_model.dart';
 import 'package:venure/features/home/data/data_source/ivenue_data_source.dart';
 import 'package:venure/features/home/data/data_source/remote_data_source/venue_remote_datasource.dart';
 import 'package:venure/features/home/data/repository/remote_repository/venue_remote_repository.dart';
@@ -28,6 +34,7 @@ Future<void> initDependencies() async {
   _initApiService();
   _initAuthModule();
   _initHomeModule();
+  _initBookingModule();
   _localStorageService();
 }
 
@@ -61,13 +68,12 @@ Future<void> _initAuthModule() async {
         UserRegisterUsecase(repository: serviceLocator<UserRemoteRepository>()),
   );
 
- serviceLocator.registerFactory<UserLoginUsecase>(
-  () => UserLoginUsecase(
-    repository: serviceLocator<UserRemoteRepository>(),
-    localStorageService: serviceLocator<LocalStorageService>(),
-  ),
-);
-
+  serviceLocator.registerFactory<UserLoginUsecase>(
+    () => UserLoginUsecase(
+      repository: serviceLocator<UserRemoteRepository>(),
+      localStorageService: serviceLocator<LocalStorageService>(),
+    ),
+  );
 
   // View Models
   serviceLocator.registerFactory<RegisterViewModel>(
@@ -142,4 +148,43 @@ Future<void> _initHomeModule() async {
 Future<void> _localStorageService() async {
   final localStorageService = await LocalStorageService.getInstance();
   serviceLocator.registerSingleton<LocalStorageService>(localStorageService);
+}
+
+Future<void> _initBookingModule() async {
+  // Register Remote Data Source
+  if (!serviceLocator.isRegistered<BookingRemoteDataSource>()) {
+    serviceLocator.registerLazySingleton(
+      () => BookingRemoteDataSource(serviceLocator<ApiService>()),
+    );
+  }
+
+  // Register Local Data Source
+  if (!serviceLocator.isRegistered<BookingLocalDataSource>()) {
+    serviceLocator.registerLazySingleton(() => BookingLocalDataSource());
+  }
+
+  // Register Repository
+  if (!serviceLocator.isRegistered<BookingRepository>()) {
+    serviceLocator.registerLazySingleton<BookingRepository>(
+      () => BookingRepositoryImpl(
+        remoteDataSource: serviceLocator<BookingRemoteDataSource>(),
+        localDataSource: serviceLocator<BookingLocalDataSource>(),
+      ),
+    );
+  }
+
+  // Register Use Case
+  if (!serviceLocator.isRegistered<CreateBookingUseCase>()) {
+    serviceLocator.registerLazySingleton(
+      () => CreateBookingUseCase(serviceLocator<BookingRepository>()),
+    );
+  }
+
+  // Register ViewModel
+  serviceLocator.registerFactory<BookingViewModel>(
+    () => BookingViewModel(
+      createBookingUseCase: serviceLocator<CreateBookingUseCase>(),
+      localStorage: serviceLocator<LocalStorageService>(),
+    ),
+  );
 }
