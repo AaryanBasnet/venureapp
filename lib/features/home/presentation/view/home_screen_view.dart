@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:venure/app/service_locator/service_locator.dart';
 import 'package:venure/core/common/venue_card.dart';
 import 'package:venure/features/booking/presentation/view/main_booking_page.dart';
+import 'package:venure/features/common/presentation/view/venue_details_page.dart';
+import 'package:venure/features/common/presentation/view_model/venue_details_bloc.dart';
+import 'package:venure/features/common/presentation/view_model/venue_details_event.dart';
 import 'package:venure/features/home/presentation/view_model/home_screen_event.dart';
 import 'package:venure/features/home/presentation/view_model/home_screen_state.dart';
 import 'package:venure/features/home/presentation/view_model/home_view_model.dart';
@@ -430,10 +434,22 @@ class HomeScreenView extends StatelessWidget {
                           builder:
                               (_) => MainBookingPage(
                                 venueName: venue.venueName,
-                                 venueId: venue.id,
-                                onSubmit: (bookingData) {
-                                  // Handle booking submission (e.g. show success message, pop)
-                                },
+                                venueId: venue.id,
+                                onSubmit: (bookingData) {},
+                              ),
+                        ),
+                      );
+                    },
+                    onDetailsPage: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder:
+                              (_) => BlocProvider(
+                                create:
+                                    (_) =>
+                                        serviceLocator<VenueDetailsBloc>()
+                                          ..add(LoadVenueDetails(venue.id)),
+                                child: VenueDetailsPage(venueId: venue.id),
                               ),
                         ),
                       );

@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venure/app/constant/shared_pref/local_storage_service.dart';
+import 'package:venure/features/auth/presentation/view/login_wrapper.dart';
 import 'package:venure/features/profile/data/data_source/remote_data_source/profile_remote_data_source.dart';
 import 'package:venure/features/profile/data/model/user_profile_model.dart';
 import 'profile_event.dart';
@@ -17,6 +19,7 @@ class ProfileViewModel extends Bloc<ProfileEvent, ProfileState> {
        super(ProfileState.initial()) {
     on<LoadUserProfile>(_onLoadUserProfile);
     on<UpdateUserProfile>(_onUpdateUserProfile);
+    on<LogoutUser>(_onLogoutUser);
   }
 
   Future<void> _onLoadUserProfile(
@@ -74,4 +77,15 @@ class ProfileViewModel extends Bloc<ProfileEvent, ProfileState> {
       emit(state.copyWith(isLoading: false, error: e.toString()));
     }
   }
+
+   void _onLogoutUser(LogoutUser event, Emitter<ProfileState> emit) async {
+    await _storageService.clearLoginData();
+    if (event.context.mounted) {
+      Navigator.push(
+        event.context,
+        MaterialPageRoute(builder: (_) => const LoginWrapper()),
+      );
+    }
+  }
 }
+

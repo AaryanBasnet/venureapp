@@ -10,8 +10,8 @@ import 'package:venure/features/home/presentation/view/home_screen_wrapper.dart'
 import 'package:venure/features/home/presentation/view_model/home_screen_event.dart';
 import 'package:venure/features/home/presentation/view_model/home_view_model.dart';
 import 'package:venure/features/profile/presentation/view/profile_screen.dart';
-import 'package:venure/features/profile/presentation/view/profile_screen_wrapper.dart';
-// import other screen views like ChatScreenView, FavouritesScreenView, etc.
+import 'package:venure/features/profile/presentation/view_model/profile_view_model.dart';
+import 'package:venure/features/profile/presentation/view_model/profile_event.dart';
 
 class VenureMainScreen extends StatefulWidget {
   const VenureMainScreen({super.key});
@@ -26,13 +26,7 @@ class _VenureMainScreenState extends State<VenureMainScreen>
   late AnimationController _selectionController;
   late Animation<double> _selectionAnimation;
 
-  final List<Widget> _screens = const [
-    HomeScreenWrapper(),
-    Placeholder(),
-
-    FavoritesPage(), // FavouritesScreenView(),
-    ProfileScreenWrapper(), // ProfileScreenView(),
-  ];
+  late final List<Widget> _screens;
 
   @override
   void initState() {
@@ -42,11 +36,24 @@ class _VenureMainScreenState extends State<VenureMainScreen>
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
-
     _selectionAnimation = CurvedAnimation(
       parent: _selectionController,
       curve: Curves.easeInOutQuart,
     );
+
+    _screens = [
+      const HomeScreenWrapper(),
+      const Placeholder(), // Replace with ChatScreenView() when ready
+      const FavoritesPage(),
+      BlocProvider(
+        create:
+            (_) => ProfileViewModel(
+              remoteDataSource: serviceLocator(),
+              storageService: serviceLocator(),
+            )..add(LoadUserProfile()),
+        child: const ProfileScreen(),
+      ),
+    ];
   }
 
   @override
@@ -137,7 +144,6 @@ class _VenureMainScreenState extends State<VenureMainScreen>
       ),
       child: Stack(
         children: [
-          // Elegant selection indicator
           AnimatedPositioned(
             duration: const Duration(milliseconds: 350),
             curve: Curves.easeInOutCubic,
@@ -154,8 +160,6 @@ class _VenureMainScreenState extends State<VenureMainScreen>
               ),
             ),
           ),
-
-          // Navigation items
           SafeArea(
             top: false,
             child: Padding(
@@ -262,3 +266,4 @@ class _BottomNavItem {
     required this.label,
   });
 }
+ 

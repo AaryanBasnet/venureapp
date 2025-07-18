@@ -24,8 +24,10 @@ class VenueRemoteDataSource implements IVenueDataSource {
   @override
   Future<Venue> getVenueById(String id) async {
     try {
-      final response = await apiService.dio.get('/venues/$id');
-      return VenueModel.fromJson(response.data).toEntity();
+      final response = await apiService.get(ApiEndpoints.getVenueById(id));
+      // Extract nested data from response
+      final venueJson = response.data['data'];
+      return VenueModel.fromJson(venueJson).toEntity();
     } catch (e) {
       throw Exception('Failed to fetch venue: $e');
     }
@@ -104,25 +106,27 @@ class VenueRemoteDataSource implements IVenueDataSource {
       throw Exception("Failed to toggle favorite");
     }
   }
+
   @override
-Future<List<Venue>> getFavoriteVenues() async {
-  try {
-    final response = await apiService.get(
-      ApiEndpoints.getFavoriteVenuesList,
-      requiresAuth: true,
-    );
+  Future<List<Venue>> getFavoriteVenues() async {
+    try {
+      final response = await apiService.get(
+        ApiEndpoints.getFavoriteVenuesList,
+        requiresAuth: true,
+      );
 
-    final data = response.data;
+      final data = response.data;
 
-    if (data['success'] == true && data['venues'] is List) {
-      final venuesList = data['venues'] as List;
-      return venuesList.map((e) => VenueModel.fromJson(e).toEntity()).toList();
-    } else {
-      throw Exception(data['msg'] ?? 'Failed to fetch favorite venues');
+      if (data['success'] == true && data['venues'] is List) {
+        final venuesList = data['venues'] as List;
+        return venuesList
+            .map((e) => VenueModel.fromJson(e).toEntity())
+            .toList();
+      } else {
+        throw Exception(data['msg'] ?? 'Failed to fetch favorite venues');
+      }
+    } catch (e) {
+      throw Exception('Failed to fetch favorite venues: $e');
     }
-  } catch (e) {
-    throw Exception('Failed to fetch favorite venues: $e');
   }
-}
-
 }
