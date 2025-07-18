@@ -2,20 +2,23 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:venure/core/utils/url_utils.dart';
 import 'package:venure/features/home/domain/entity/venue_entity.dart';
+import 'package:venure/features/common/presentation/view/venue_details_page.dart';
 
 class VenueCard extends StatelessWidget {
   final Venue venue;
   final bool isFavorite;
   final VoidCallback onFavoriteToggle;
 
-  final VoidCallback onBookNow; 
+  final VoidCallback onBookNow;
+  final VoidCallback onDetailsPage;
 
   const VenueCard({
     required this.venue,
     super.key,
     required this.isFavorite,
     required this.onFavoriteToggle,
-    required this.onBookNow, 
+    required this.onBookNow,
+    required this.onDetailsPage,
   });
 
   @override
@@ -411,25 +414,56 @@ class VenueCard extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 16),
-        ElevatedButton(
-          onPressed: onBookNow,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.black87,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+        Column(
+          children: [
+            ElevatedButton(
+              onPressed: onBookNow,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.black87,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                elevation: 0,
+              ),
+              child: const Text(
+                'Book Now',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.5,
+                ),
+              ),
             ),
-            elevation: 0,
-          ),
-          child: const Text(
-            'Book Now',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.5,
+            const SizedBox(height: 8),
+            ElevatedButton(
+              onPressed: onDetailsPage,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.grey[300],
+                foregroundColor: Colors.black87,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                elevation: 0,
+              ),
+              child: const Text(
+                'Venue Details',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.5,
+                ),
+              ),
             ),
-          ),
+          ],
         ),
       ],
     );
