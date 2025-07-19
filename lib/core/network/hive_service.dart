@@ -5,6 +5,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:venure/app/constant/hive/hive_table_constant.dart';
 import 'package:venure/features/auth/data/model/user_hive_model.dart';
 import 'package:venure/features/booking/data/model/booking_hive_model.dart';
+import 'package:venure/features/chat/data/model/chat_model.dart';
 import 'package:venure/features/home/data/model/venue_model.dart';
 
 class HiveService {
@@ -16,6 +17,7 @@ class HiveService {
   late Box<String> _favoritesBox;
   late Box<BookingHiveModel> _bookingBox;
   late Box<VenueModel> _venueBox;
+  late Box<ChatModel> _chatBox;
 
   Future<void> init() async {
     final directory = await getApplicationDocumentsDirectory();
@@ -31,6 +33,14 @@ class HiveService {
     if (!Hive.isAdapterRegistered(VenueModelAdapter().typeId)) {
       Hive.registerAdapter(VenueModelAdapter());
     }
+
+   if (!Hive.isAdapterRegistered(ChatModelAdapter().typeId)) {
+  Hive.registerAdapter(ChatModelAdapter());
+}
+if (!Hive.isAdapterRegistered(ParticipantAdapter().typeId)) {
+  Hive.registerAdapter(ParticipantAdapter());
+}
+    _chatBox = await Hive.openBox<ChatModel>(HiveTableConstant.chatBoxName);
 
     // Open all boxes once and cache references
     _userBox = await Hive.openBox<UserHiveModel>(HiveTableConstant.userBox);
@@ -139,4 +149,28 @@ class HiveService {
   Future<void> clearAllBookings() async {
     await _bookingBox.clear();
   }
+
+
+  // Chat Methods
+Future<void> saveChat(ChatModel chat) async {
+  await _chatBox.put(chat.id, chat);
+}
+
+Future<ChatModel?> getChatById(String id) async {
+  return Future.value(_chatBox.get(id));
+}
+
+
+List<ChatModel> getAllChats() {
+  return _chatBox.values.toList();
+}
+
+Future<void> clearAllChats() async {
+  await _chatBox.clear();
+}
+
+Future<void> deleteChat(String id) async {
+  await _chatBox.delete(id);
+}
+
 }

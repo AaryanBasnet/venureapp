@@ -20,7 +20,7 @@ class ApiEndpoints {
   //user
 
   static const String getApprovedVenues = "/user/venues/getApprovedVenues";
-
+  static String getVenueById(String id) => "/user/venues/$id";
   static const String toggleFavorite = '/user/favorites'; // POST /:venueId
   static const String getFavoriteVenues = '/user/favorites'; // GET /
   static const String getFavoriteVenuesList = "/user/favorites";
@@ -36,4 +36,10 @@ class ApiEndpoints {
 
   static const String getUserProfile = "/user/profile";
   static const String updateUserProfile = "/user/profile";
+
+  // Chat
+  static const String getUserChats = "/chats";
+  static const String getOrCreateChat = "/chats";
+  static String getMessages(String chatId) => "/messages/$chatId";
+  static const String sendMessage = "/messages";
 }

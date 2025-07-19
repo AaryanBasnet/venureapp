@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:venure/app/constant/shared_pref/local_storage_service.dart';
 import 'package:venure/core/network/api_service.dart';
+import 'package:venure/core/network/search_venue_service.dart';
+import 'package:venure/core/network/socket_service.dart';
 // import 'package:venure/core/network/hive_service.dart'; //
 // import 'package:venure/features/auth/data/data_source/local_data_source/user_local_datasource.dart';
 import 'package:venure/features/auth/data/data_source/remote_data_source/user_remote_data_source.dart';
@@ -18,97 +20,106 @@ import 'package:venure/features/booking/data/repository/booking_repository_impl.
 import 'package:venure/features/booking/domain/repository/booking_repository.dart';
 import 'package:venure/features/booking/domain/use_case/create_booking_usecase.dart';
 import 'package:venure/features/booking/presentation/view_model/booking_view_model.dart';
+import 'package:venure/features/chat/data/data_source/local_data_source/chat_local_data_source.dart';
+import 'package:venure/features/chat/data/data_source/remote_data_source/chat_api_service.dart';
+import 'package:venure/features/chat/data/data_source/remote_data_source/chat_remote_data_source.dart';
+import 'package:venure/features/chat/data/data_source/repository/chat_repository_impl.dart';
+import 'package:venure/features/chat/domain/repository/i_chat_repository.dart';
+import 'package:venure/features/chat/domain/use_case/get_chat_usecase.dart';
+import 'package:venure/features/chat/domain/use_case/get_or_create_chat_usecase.dart';
+import 'package:venure/features/chat/presentation/view_model/chat_list_bloc.dart';
+import 'package:venure/features/chat/presentation/view_model/chat_message_bloc.dart';
+import 'package:venure/features/common/presentation/view_model/venue_details_bloc.dart';
 import 'package:venure/features/home/data/data_source/ivenue_data_source.dart';
 import 'package:venure/features/home/data/data_source/remote_data_source/venue_remote_datasource.dart';
 import 'package:venure/features/home/data/repository/remote_repository/venue_remote_repository.dart';
 import 'package:venure/features/home/domain/repository/venue_repository.dart';
 import 'package:venure/features/home/domain/use_case/get_%20favorites_usecase.dart';
 import 'package:venure/features/home/domain/use_case/get_all_venues_use_case.dart';
+import 'package:venure/features/home/domain/use_case/search_venue_usecase.dart';
 import 'package:venure/features/home/domain/use_case/toggle_favorite_usecase.dart';
 import 'package:venure/features/home/presentation/view_model/home_view_model.dart';
+import 'package:venure/features/home/presentation/view_model/search_bloc.dart';
 import 'package:venure/features/profile/data/data_source/remote_data_source/profile_remote_data_source.dart';
 import 'package:venure/features/profile/presentation/view_model/profile_view_model.dart';
 
 final serviceLocator = GetIt.instance;
 
 Future<void> initDependencies() async {
-  // serviceLocator.registerLazySingleton<HiveService>(() => HiveService());
-  _initApiService();
-  _initAuthModule();
-  _initHomeModule();
-  _initBookingModule();
-  _initProfileModule();
-  _localStorageService();
+  await _initCoreServices();
+  await _initAuthModule();
+  await _initHomeModule();
+  await _initSearchModule();
+  await _initBookingModule();
+  await _initProfileModule();
+  await _initChatModule();
+  await _initLocalStorageService();
 }
 
-Future<void> _initApiService() async {
-  serviceLocator.registerLazySingleton(() => ApiService(Dio()));
-}
-
-Future<void> _initAuthModule() async {
-  // Data Sources
-  serviceLocator.registerFactory<UserRemoteDataSource>(
-    () => UserRemoteDataSource(apiService: serviceLocator<ApiService>()),
-  );
-  // serviceLocator.registerFactory<UserLocalDatasource>( // Removed: Not using local storage
-  //   () => UserLocalDatasource(hiveService: serviceLocator<HiveService>()),
-  // );
-
-  // Repositories
-  serviceLocator.registerFactory<UserRemoteRepository>(
-    () => UserRemoteRepository(
-      userRemoteDataSource: serviceLocator<UserRemoteDataSource>(),
-    ),
-  );
-  // serviceLocator.registerFactory<UserLocalRepository>( // Removed: Not using local storage
-  //   () => UserLocalRepository(
-  //       userLocalDataSource: serviceLocator<UserLocalDatasource>()),
-  // );
-
-  // Use Cases
-  serviceLocator.registerFactory<UserRegisterUsecase>(
-    () =>
-        UserRegisterUsecase(repository: serviceLocator<UserRemoteRepository>()),
-  );
-
-  serviceLocator.registerFactory<UserLoginUsecase>(
-    () => UserLoginUsecase(
-      repository: serviceLocator<UserRemoteRepository>(),
-      localStorageService: serviceLocator<LocalStorageService>(),
-    ),
-  );
-
-  // View Models
-  serviceLocator.registerFactory<RegisterViewModel>(
-    () => RegisterViewModel(serviceLocator<UserRegisterUsecase>()),
-  );
-
-  serviceLocator.registerFactory<LoginViewModel>(
-    () => LoginViewModel(serviceLocator<UserLoginUsecase>()),
-  );
-}
-
-// Future _initDashboardModule() async {
-//   // Register any use cases, repositories or data sources as needed
-//   // serviceLocator.registerFactory(() => HomeRepository());
-//   // serviceLocator.registerFactory(() => HomeUseCase());
-
-//   serviceLocator.registerFactory(() => HomeViewModel());
-// }
-Future<void> _initHomeModule() async {
-  // Register ApiService (should be registered once in app initialization)
+Future<void> _initCoreServices() async {
+  // Register ApiService once for all modules
   if (!serviceLocator.isRegistered<ApiService>()) {
     serviceLocator.registerLazySingleton(() => ApiService(Dio()));
   }
 
-  // Register Data Source
+  // Socket service shared by chat and other modules
+  if (!serviceLocator.isRegistered<SocketService>()) {
+    serviceLocator.registerLazySingleton(() => SocketService());
+  }
+}
+
+Future<void> _initAuthModule() async {
+  if (!serviceLocator.isRegistered<UserRemoteDataSource>()) {
+    serviceLocator.registerFactory(
+      () => UserRemoteDataSource(apiService: serviceLocator<ApiService>()),
+    );
+  }
+
+  if (!serviceLocator.isRegistered<UserRemoteRepository>()) {
+    serviceLocator.registerFactory(
+      () => UserRemoteRepository(
+        userRemoteDataSource: serviceLocator<UserRemoteDataSource>(),
+      ),
+    );
+  }
+
+  if (!serviceLocator.isRegistered<UserRegisterUsecase>()) {
+    serviceLocator.registerFactory(
+      () => UserRegisterUsecase(
+        repository: serviceLocator<UserRemoteRepository>(),
+      ),
+    );
+  }
+
+  if (!serviceLocator.isRegistered<UserLoginUsecase>()) {
+    serviceLocator.registerFactory(
+      () => UserLoginUsecase(
+        repository: serviceLocator<UserRemoteRepository>(),
+        localStorageService: serviceLocator<LocalStorageService>(),
+      ),
+    );
+  }
+
+  if (!serviceLocator.isRegistered<RegisterViewModel>()) {
+    serviceLocator.registerFactory(
+      () => RegisterViewModel(serviceLocator<UserRegisterUsecase>()),
+    );
+  }
+
+  if (!serviceLocator.isRegistered<LoginViewModel>()) {
+    serviceLocator.registerFactory(
+      () => LoginViewModel(serviceLocator<UserLoginUsecase>()),
+    );
+  }
+}
+
+Future<void> _initHomeModule() async {
   if (!serviceLocator.isRegistered<VenueRemoteDataSource>()) {
     serviceLocator.registerLazySingleton(
       () => VenueRemoteDataSource(apiService: serviceLocator<ApiService>()),
     );
   }
 
-  // Register Repository - use IVenueRepository interface
   if (!serviceLocator.isRegistered<IVenueRepository>()) {
     serviceLocator.registerLazySingleton<IVenueRepository>(
       () => VenueRemoteRepository(
@@ -117,56 +128,71 @@ Future<void> _initHomeModule() async {
     );
   }
 
-  // Register Use Case
   if (!serviceLocator.isRegistered<GetAllVenuesUseCase>()) {
     serviceLocator.registerLazySingleton(
       () => GetAllVenuesUseCase(serviceLocator<IVenueRepository>()),
     );
   }
 
-  serviceLocator.registerLazySingleton<GetFavoritesUseCase>(
-    () => GetFavoritesUseCase(serviceLocator<IVenueRepository>()),
-  );
+  if (!serviceLocator.isRegistered<GetFavoritesUseCase>()) {
+    serviceLocator.registerLazySingleton(
+      () => GetFavoritesUseCase(serviceLocator<IVenueRepository>()),
+    );
+  }
 
-  serviceLocator.registerLazySingleton<ToggleFavoriteUseCase>(
-    () => ToggleFavoriteUseCase(serviceLocator<IVenueRepository>()),
-  );
+  if (!serviceLocator.isRegistered<ToggleFavoriteUseCase>()) {
+    serviceLocator.registerLazySingleton(
+      () => ToggleFavoriteUseCase(serviceLocator<IVenueRepository>()),
+    );
+  }
 
-  // Register Bloc / ViewModel
+  if (!serviceLocator.isRegistered<HomeScreenBloc>()) {
+    serviceLocator.registerFactory(
+      () => HomeScreenBloc(
+        getAllVenuesUseCase: serviceLocator<GetAllVenuesUseCase>(),
+        getFavoritesUseCase: serviceLocator<GetFavoritesUseCase>(),
+        toggleFavoriteUseCase: serviceLocator<ToggleFavoriteUseCase>(),
+      ),
+    );
+  }
 
-  serviceLocator.registerFactory(
-    () => HomeScreenBloc(
-      getAllVenuesUseCase: serviceLocator<GetAllVenuesUseCase>(),
-      getFavoritesUseCase: serviceLocator<GetFavoritesUseCase>(),
-      toggleFavoriteUseCase: serviceLocator<ToggleFavoriteUseCase>(),
-    ),
-  );
-  // if (!serviceLocator.isRegistered<HomeScreenBloc>()) {
-  //   serviceLocator.registerFactory(
-  //     () => HomeScreenBloc(getAllVenuesUseCase: serviceLocator<GetAllVenuesUseCase>()),
-  //   );
-  // }
+  if (!serviceLocator.isRegistered<VenueDetailsBloc>()) {
+    serviceLocator.registerFactory(
+      () =>
+          VenueDetailsBloc(venueRepository: serviceLocator<IVenueRepository>()),
+    );
+  }
 }
 
-Future<void> _localStorageService() async {
-  final localStorageService = await LocalStorageService.getInstance();
-  serviceLocator.registerSingleton<LocalStorageService>(localStorageService);
+Future<void> _initSearchModule() async {
+  if (!serviceLocator.isRegistered<SearchVenuesUseCase>()) {
+    serviceLocator.registerLazySingleton(
+      () => SearchVenuesUseCase(serviceLocator<IVenueRepository>()),
+    );
+  }
+
+  if (!serviceLocator.isRegistered<SearchBloc>()) {
+    serviceLocator.registerFactory(
+      () => SearchBloc(
+        searchVenuesUseCase: serviceLocator<SearchVenuesUseCase>(),
+        getFavoritesUseCase: serviceLocator<GetFavoritesUseCase>(),
+        toggleFavoriteUseCase: serviceLocator<ToggleFavoriteUseCase>(),
+      ),
+    );
+  }
 }
 
 Future<void> _initBookingModule() async {
-  // Register Remote Data Source
   if (!serviceLocator.isRegistered<BookingRemoteDataSource>()) {
     serviceLocator.registerLazySingleton(
       () => BookingRemoteDataSource(serviceLocator<ApiService>()),
     );
   }
 
-  // Register Local Data Source
   if (!serviceLocator.isRegistered<BookingLocalDataSource>()) {
     serviceLocator.registerLazySingleton(() => BookingLocalDataSource());
   }
 
-  // Register Repository
   if (!serviceLocator.isRegistered<BookingRepository>()) {
     serviceLocator.registerLazySingleton<BookingRepository>(
       () => BookingRepositoryImpl(
@@ -176,35 +202,104 @@ Future<void> _initBookingModule() async {
     );
   }
 
-  // Register Use Case
   if (!serviceLocator.isRegistered<CreateBookingUseCase>()) {
     serviceLocator.registerLazySingleton(
       () => CreateBookingUseCase(serviceLocator<BookingRepository>()),
     );
   }
 
-  // Register ViewModel
-  serviceLocator.registerFactory<BookingViewModel>(
-    () => BookingViewModel(
-      createBookingUseCase: serviceLocator<CreateBookingUseCase>(),
-      localStorage: serviceLocator<LocalStorageService>(),
-    ),
-  );
+  if (!serviceLocator.isRegistered<BookingViewModel>()) {
+    serviceLocator.registerFactory(
+      () => BookingViewModel(
+        createBookingUseCase: serviceLocator<CreateBookingUseCase>(),
+        localStorage: serviceLocator<LocalStorageService>(),
+      ),
+    );
+  }
 }
 
 Future<void> _initProfileModule() async {
-  // Register Data Source
   if (!serviceLocator.isRegistered<ProfileRemoteDataSource>()) {
-    serviceLocator.registerLazySingleton<ProfileRemoteDataSource>(
+    serviceLocator.registerLazySingleton(
       () => ProfileRemoteDataSource(apiService: serviceLocator<ApiService>()),
     );
   }
 
-  // Register ViewModel
-  serviceLocator.registerFactory<ProfileViewModel>(
-    () => ProfileViewModel(
-      remoteDataSource: serviceLocator<ProfileRemoteDataSource>(),
-      storageService: serviceLocator<LocalStorageService>(),
-    ),
-  );
+  if (!serviceLocator.isRegistered<ProfileViewModel>()) {
+    serviceLocator.registerFactory(
+      () => ProfileViewModel(
+        remoteDataSource: serviceLocator<ProfileRemoteDataSource>(),
+        storageService: serviceLocator<LocalStorageService>(),
+      ),
+    );
+  }
+}
+
+Future<void> _initChatModule() async {
+  if (!serviceLocator.isRegistered<ChatApiService>()) {
+    serviceLocator.registerLazySingleton(
+      () => ChatApiService(apiService: serviceLocator<ApiService>()),
+    );
+  }
+
+  if (!serviceLocator.isRegistered<ChatRemoteDataSource>()) {
+    serviceLocator.registerLazySingleton<ChatRemoteDataSource>(
+      () => ChatRemoteDataSourceImpl(
+        chatApiService: serviceLocator<ChatApiService>(),
+      ),
+    );
+  }
+  if (!serviceLocator.isRegistered<ChatLocalDataSource>()) {
+    serviceLocator.registerLazySingleton<ChatLocalDataSource>(
+      () => ChatLocalDataSourceImpl(),
+    );
+  }
+  if (!serviceLocator.isRegistered<IChatRepository>()) {
+    serviceLocator.registerLazySingleton<IChatRepository>(
+      () => ChatRepositoryImpl(
+        apiService: serviceLocator<ApiService>(),
+        remoteDataSource: serviceLocator<ChatRemoteDataSource>(),
+        localDataSource: serviceLocator<ChatLocalDataSource>(),
+      ),
+    );
+  }
+
+  if (!serviceLocator.isRegistered<GetUserChatsUseCase>()) {
+    serviceLocator.registerLazySingleton(
+      () => GetUserChatsUseCase(serviceLocator<IChatRepository>()),
+    );
+  }
+
+  if (!serviceLocator.isRegistered<GetOrCreateChatUseCase>()) {
+    serviceLocator.registerLazySingleton(
+      () => GetOrCreateChatUseCase(serviceLocator<IChatRepository>()),
+    );
+  }
+
+  if (!serviceLocator.isRegistered<ChatListBloc>()) {
+    serviceLocator.registerFactory(
+      () => ChatListBloc(
+        getUserChatsUseCase: serviceLocator<GetUserChatsUseCase>(),
+        getOrCreateChatUseCase: serviceLocator<GetOrCreateChatUseCase>(),
+        currentUserId: serviceLocator<LocalStorageService>().userId ?? '',
+      ),
+    );
+  }
+
+  if (!serviceLocator.isRegistered<ChatMessagesBloc>()) {
+    serviceLocator.registerFactory(
+      () => ChatMessagesBloc(
+        chatRepository: serviceLocator<IChatRepository>(),
+        socketService: serviceLocator<SocketService>(),
+        currentUserId: serviceLocator<LocalStorageService>().userId ?? '',
+      ),
+    );
+  }
+}
+
+Future<void> _initLocalStorageService() async {
+  if (!serviceLocator.isRegistered<LocalStorageService>()) {
+    final localStorageService = await LocalStorageService.getInstance();
+    serviceLocator.registerSingleton<LocalStorageService>(localStorageService);
+  }
 }
