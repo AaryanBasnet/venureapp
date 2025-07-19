@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:venure/core/utils/secure_action_handler.dart';
 import 'package:venure/features/booking/presentation/view_model/booking_event.dart';
 import 'package:venure/features/booking/presentation/view_model/booking_state.dart';
 import 'package:venure/features/booking/presentation/view_model/booking_view_model.dart';
@@ -27,7 +28,7 @@ class MainBookingPage extends StatelessWidget {
       create:
           (_) =>
               serviceLocator<BookingViewModel>()..add(
-                BookingNext({
+                BookingInit({
                   'venue': venueId, // ✅ Preload venue ID into formData
                 }),
               ),
@@ -36,6 +37,8 @@ class MainBookingPage extends StatelessWidget {
         body: BlocConsumer<BookingViewModel, BookingState>(
           listener: (context, state) {
             if (state.isSuccess) {
+              print(state.formData);
+
               onSubmit(state.formData);
               context.read<BookingViewModel>().add(BookingReset());
               Navigator.pop(
@@ -44,6 +47,9 @@ class MainBookingPage extends StatelessWidget {
             }
 
             if (state.errorMessage.isNotEmpty) {
+              // Show error message if any
+              print('[DEBUG] Booking error: ${state.errorMessage}');
+              print(state.formData);
               ScaffoldMessenger.of(
                 context,
               ).showSnackBar(SnackBar(content: Text(state.errorMessage)));
@@ -74,15 +80,22 @@ class MainBookingPage extends StatelessWidget {
               case 2:
                 return PaymentPage(
                   initialData: state.formData,
-                  onNext: (data) {
-                    final bloc = context.read<BookingViewModel>();
-                    bloc.add(BookingNext(data)); // update form data
-                    bloc.add(BookingSubmit()); // submit booking
-                  },
+                  onNext:
+                      (data) => context.read<BookingViewModel>().add(
+                        BookingNext(data),
+                      ),
                   onBack:
                       () => context.read<BookingViewModel>().add(BookingBack()),
-                  onSubmit:
-                      () {}, // You can remove this if unused in PaymentPage
+                  onSubmit: () async {
+                    final isVerified = await SecureActionHandler.verify(
+                      context,
+                      reason: 'Please confirm your identity to submit booking',
+                    );
+
+                    if (isVerified) {
+                      context.read<BookingViewModel>().add(BookingSubmit());
+                    }
+                  },
                 );
 
               default:

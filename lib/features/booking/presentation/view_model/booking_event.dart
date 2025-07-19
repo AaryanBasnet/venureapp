@@ -1,5 +1,11 @@
 abstract class BookingEvent {}
 
+class BookingInit extends BookingEvent {
+  final Map<String, dynamic> initialData;
+
+  BookingInit(this.initialData);
+}
+
 class BookingNext extends BookingEvent {
   final Map<String, dynamic> data;
 

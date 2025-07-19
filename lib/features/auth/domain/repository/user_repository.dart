@@ -5,4 +5,5 @@ import 'package:venure/features/auth/domain/entity/user_entity.dart';
 abstract class IUserRepository {
   Future<Either<Failure, UserEntity>> loginUser(String email, String password);
   Future<Either<Failure, void>> registerUser(UserEntity user);
+  Future<Either<Failure, bool>> verifyPassword(String userId, String password);
 }

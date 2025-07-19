@@ -12,6 +12,7 @@ import 'package:venure/features/auth/data/repository/remote_repository/user_remo
 // import 'package:venure/features/auth/domain/repository/user_repository.dart'; //
 import 'package:venure/features/auth/domain/use_case/user_login_usecase.dart';
 import 'package:venure/features/auth/domain/use_case/user_register_usecase.dart';
+import 'package:venure/features/auth/domain/use_case/verify_password_usecase.dart';
 import 'package:venure/features/auth/presentation/view_model/login_view_model/login_view_model.dart';
 import 'package:venure/features/auth/presentation/view_model/register_view_model/register_view_model.dart';
 import 'package:venure/features/booking/data/data_source/local_data_source/booking_local_data_source.dart';
@@ -97,6 +98,12 @@ Future<void> _initAuthModule() async {
         repository: serviceLocator<UserRemoteRepository>(),
         localStorageService: serviceLocator<LocalStorageService>(),
       ),
+    );
+  }
+
+  if (!serviceLocator.isRegistered<VerifyPasswordUsecase>()) {
+    serviceLocator.registerFactory(
+      () => VerifyPasswordUsecase(serviceLocator<UserRemoteRepository>()),
     );
   }
 

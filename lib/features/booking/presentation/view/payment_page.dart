@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:venure/core/utils/secure_action_handler.dart';
+import 'package:venure/features/booking/presentation/view_model/booking_event.dart';
+import 'package:venure/features/booking/presentation/view_model/booking_view_model.dart';
 
 class PaymentPage extends StatefulWidget {
   final Map<String, dynamic> initialData;
@@ -69,31 +73,41 @@ class _PaymentPageState extends State<PaymentPage> {
             TextFormField(
               decoration: const InputDecoration(labelText: 'Contact Name *'),
               initialValue: _contactName,
-              validator: (val) =>
-                  val == null || val.isEmpty ? 'Enter contact name' : null,
+              validator:
+                  (val) =>
+                      val == null || val.isEmpty ? 'Enter contact name' : null,
               onSaved: (val) => _contactName = val ?? '',
             ),
             TextFormField(
               decoration: const InputDecoration(labelText: 'Phone Number *'),
               initialValue: _phoneNumber,
               keyboardType: TextInputType.phone,
-              validator: (val) =>
-                  val == null || val.isEmpty ? 'Enter phone number' : null,
+              validator:
+                  (val) =>
+                      val == null || val.isEmpty ? 'Enter phone number' : null,
               onSaved: (val) => _phoneNumber = val ?? '',
             ),
             const SizedBox(height: 20),
-            const Text('Payment Details', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text(
+              'Payment Details',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             TextFormField(
               decoration: const InputDecoration(labelText: 'Card Number *'),
               initialValue: _cardNumber,
               keyboardType: TextInputType.number,
               maxLength: 16,
-              validator: (val) =>
-                  val == null || val.length != 16 ? 'Enter valid card number' : null,
+              validator:
+                  (val) =>
+                      val == null || val.length != 16
+                          ? 'Enter valid card number'
+                          : null,
               onSaved: (val) => _cardNumber = val ?? '',
             ),
             TextFormField(
-              decoration: const InputDecoration(labelText: 'Expiry Date (MM/YY) *'),
+              decoration: const InputDecoration(
+                labelText: 'Expiry Date (MM/YY) *',
+              ),
               initialValue: _expiryDate,
               maxLength: 5,
               validator: (val) {
@@ -110,15 +124,19 @@ class _PaymentPageState extends State<PaymentPage> {
               initialValue: _cvv,
               maxLength: 3,
               keyboardType: TextInputType.number,
-              validator: (val) =>
-                  val == null || val.length != 3 ? 'Enter valid CVV' : null,
+              validator:
+                  (val) =>
+                      val == null || val.length != 3 ? 'Enter valid CVV' : null,
               onSaved: (val) => _cvv = val ?? '',
             ),
             TextFormField(
               decoration: const InputDecoration(labelText: 'Cardholder Name *'),
               initialValue: _cardholderName,
-              validator: (val) =>
-                  val == null || val.isEmpty ? 'Enter cardholder name' : null,
+              validator:
+                  (val) =>
+                      val == null || val.isEmpty
+                          ? 'Enter cardholder name'
+                          : null,
               onSaved: (val) => _cardholderName = val ?? '',
             ),
             const SizedBox(height: 24),
@@ -126,7 +144,28 @@ class _PaymentPageState extends State<PaymentPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 TextButton(onPressed: widget.onBack, child: const Text('Back')),
-                ElevatedButton(onPressed: _submit, child: const Text('Confirm')),
+                ElevatedButton(
+                  onPressed: () {
+                    if (_formKey.currentState?.validate() != true) return;
+                    _formKey.currentState?.save();
+
+                    // 🔁 First save data to bloc
+                    widget.onNext({
+                      'paymentDetails': {
+                        'cardNumber': _cardNumber,
+                        'expiryDate': _expiryDate,
+                        'cvv': _cvv,
+                        'cardholderName': _cardholderName,
+                      },
+                      'contactName': _contactName,
+                      'phoneNumber': _phoneNumber,
+                    });
+
+                    // 🔐 Then call biometric + booking
+                    widget.onSubmit();
+                  },
+                  child: const Text('Confirm'),
+                ),
               ],
             ),
           ],

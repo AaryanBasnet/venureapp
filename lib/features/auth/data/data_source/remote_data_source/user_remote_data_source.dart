@@ -10,7 +10,7 @@ class UserRemoteDataSource implements IUserDataSource {
 
   UserRemoteDataSource({required ApiService apiService})
     : _apiService = apiService;
-    
+
   @override
   Future<Map<String, dynamic>> loginUser(String email, String password) async {
     try {
@@ -65,6 +65,26 @@ class UserRemoteDataSource implements IUserDataSource {
       );
     } catch (e) {
       throw Exception('Failed to register: $e');
+    }
+  }
+
+  @override
+  Future<bool> verifyPassword(String userId, String password) async {
+    try {
+      final response = await _apiService.dio.post(
+        '/auth/verify-password',
+        data: {'userId': userId, 'password': password},
+      );
+
+      if (response.statusCode == 200) {
+        return response.data['success'] == true;
+      } else {
+        throw Exception('Verification failed: ${response.statusMessage}');
+      }
+    } on DioException catch (e) {
+      throw Exception(
+        'Failed to verify password: ${e.response?.data?['message'] ?? e.message}',
+      );
     }
   }
 }

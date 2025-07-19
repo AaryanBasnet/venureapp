@@ -42,4 +42,18 @@ class UserRemoteRepository implements IUserRepository {
       return Left(ApiFailure(message: e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, bool>> verifyPassword(
+  String userId,
+  String password,
+) async {
+  try {
+    final result = await _userRemoteDataSource.verifyPassword(userId, password);
+    return Right(result);
+  } catch (e) {
+    return Left(ApiFailure(message: e.toString()));
+  }
+}
+
 }

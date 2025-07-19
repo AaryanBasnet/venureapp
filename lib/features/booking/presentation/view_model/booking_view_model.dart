@@ -17,6 +17,11 @@ class BookingViewModel extends Bloc<BookingEvent, BookingState> {
     on<BookingBack>(_onBack);
     on<BookingReset>(_onReset);
     on<BookingSubmit>(_onSubmit);
+    on<BookingInit>(_onInit);
+  }
+
+  void _onInit(BookingInit event, Emitter<BookingState> emit) {
+    emit(state.copyWith(formData: event.initialData));
   }
 
   void _onNext(BookingNext event, Emitter<BookingState> emit) {
@@ -43,18 +48,24 @@ class BookingViewModel extends Bloc<BookingEvent, BookingState> {
     emit(const BookingState());
   }
 
-  Future<void> _onSubmit(BookingSubmit event, Emitter<BookingState> emit) async {
+  Future<void> _onSubmit(
+    BookingSubmit event,
+    Emitter<BookingState> emit,
+  ) async {
     final userId = localStorage.userId;
     if (userId == null || userId.isEmpty) {
-      emit(state.copyWith(
-        isLoading: false,
-        errorMessage: 'User not logged in',
-        isSuccess: false,
-      ));
+      emit(
+        state.copyWith(
+          isLoading: false,
+          errorMessage: 'User not logged in',
+          isSuccess: false,
+        ),
+      );
       return;
     }
 
     emit(state.copyWith(isLoading: true, errorMessage: '', isSuccess: false));
+    print('[DEBUG] Booking Data: ${state.formData}');
 
     try {
       final data = state.formData;
@@ -63,11 +74,13 @@ class BookingViewModel extends Bloc<BookingEvent, BookingState> {
       try {
         bookingDate = DateTime.parse(data['bookingDate']);
       } catch (_) {
-        emit(state.copyWith(
-          isLoading: false,
-          errorMessage: 'Invalid booking date format',
-          isSuccess: false,
-        ));
+        emit(
+          state.copyWith(
+            isLoading: false,
+            errorMessage: 'Invalid booking date format',
+            isSuccess: false,
+          ),
+        );
         return;
       }
 
@@ -83,7 +96,8 @@ class BookingViewModel extends Bloc<BookingEvent, BookingState> {
         contactName: data['contactName'],
         phoneNumber: data['phoneNumber'],
         totalPrice: data['totalPrice'] ?? 0,
-        selectedAddons: (data['selectedAddons'] as List<dynamic>?)
+        selectedAddons:
+            (data['selectedAddons'] as List<dynamic>?)
                 ?.map((e) => Map<String, dynamic>.from(e))
                 .toList() ??
             [],
@@ -95,11 +109,13 @@ class BookingViewModel extends Bloc<BookingEvent, BookingState> {
       final result = await createBookingUseCase(booking);
 
       result.fold(
-        (failure) => emit(state.copyWith(
-          isLoading: false,
-          errorMessage: failure.message,
-          isSuccess: false,
-        )),
+        (failure) => emit(
+          state.copyWith(
+            isLoading: false,
+            errorMessage: failure.message,
+            isSuccess: false,
+          ),
+        ),
         (_) => emit(state.copyWith(isLoading: false, isSuccess: true)),
       );
     } catch (e) {
