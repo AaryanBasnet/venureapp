@@ -81,9 +81,14 @@ class BookingHiveModel extends HiveObject {
             .map((e) => e is Map ? jsonEncode(e) : e.toString())
             .toList();
 
+    final venueId =
+        json['venue'] is String
+            ? json['venue']
+            : (json['venue'] != null ? json['venue']['_id'] : '');
+
     return BookingHiveModel(
       id: json['_id'] ?? '',
-      venue: json['venue'].toString(),
+      venue: venueId.toString(),
       bookingDate: DateTime.parse(json['bookingDate']),
       timeSlot: json['timeSlot'],
       hoursBooked: json['hoursBooked'],

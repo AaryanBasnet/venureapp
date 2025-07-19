@@ -19,7 +19,9 @@ import 'package:venure/features/booking/data/data_source/local_data_source/booki
 import 'package:venure/features/booking/data/data_source/remote_data_source/booking_remote_data_source.dart';
 import 'package:venure/features/booking/data/repository/booking_repository_impl.dart';
 import 'package:venure/features/booking/domain/repository/booking_repository.dart';
+import 'package:venure/features/booking/domain/use_case/cancel_booking_usecase.dart';
 import 'package:venure/features/booking/domain/use_case/create_booking_usecase.dart';
+import 'package:venure/features/booking/domain/use_case/get_booking_usecase.dart';
 import 'package:venure/features/booking/presentation/view_model/booking_view_model.dart';
 import 'package:venure/features/chat/data/data_source/local_data_source/chat_local_data_source.dart';
 import 'package:venure/features/chat/data/data_source/remote_data_source/chat_api_service.dart';
@@ -42,6 +44,7 @@ import 'package:venure/features/home/domain/use_case/toggle_favorite_usecase.dar
 import 'package:venure/features/home/presentation/view_model/home_view_model.dart';
 import 'package:venure/features/home/presentation/view_model/search_bloc.dart';
 import 'package:venure/features/profile/data/data_source/remote_data_source/profile_remote_data_source.dart';
+import 'package:venure/features/profile/presentation/view_model/my_bookings_view_model/my_booking_view_model.dart';
 import 'package:venure/features/profile/presentation/view_model/profile_view_model.dart';
 
 final serviceLocator = GetIt.instance;
@@ -205,6 +208,7 @@ Future<void> _initBookingModule() async {
       () => BookingRepositoryImpl(
         remoteDataSource: serviceLocator<BookingRemoteDataSource>(),
         localDataSource: serviceLocator<BookingLocalDataSource>(),
+        venueRepository: serviceLocator<IVenueRepository>(),
       ),
     );
   }
@@ -223,6 +227,18 @@ Future<void> _initBookingModule() async {
       ),
     );
   }
+
+  if (!serviceLocator.isRegistered<GetMyBookingsUseCase>()) {
+    serviceLocator.registerLazySingleton(
+      () => GetMyBookingsUseCase(serviceLocator<BookingRepository>()),
+    );
+  }
+
+  if (!serviceLocator.isRegistered<CancelBookingUseCase>()) {
+    serviceLocator.registerLazySingleton(
+      () => CancelBookingUseCase(serviceLocator<BookingRepository>()),
+    );
+  }
 }
 
 Future<void> _initProfileModule() async {
@@ -237,6 +253,15 @@ Future<void> _initProfileModule() async {
       () => ProfileViewModel(
         remoteDataSource: serviceLocator<ProfileRemoteDataSource>(),
         storageService: serviceLocator<LocalStorageService>(),
+      ),
+    );
+  }
+
+  if (!serviceLocator.isRegistered<BookingBloc>()) {
+    serviceLocator.registerFactory(
+      () => BookingBloc(
+        getBookingsUseCase: serviceLocator<GetMyBookingsUseCase>(),
+        cancelBookingUseCase: serviceLocator<CancelBookingUseCase>(),
       ),
     );
   }

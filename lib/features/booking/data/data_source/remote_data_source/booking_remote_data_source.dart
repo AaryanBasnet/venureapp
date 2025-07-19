@@ -17,6 +17,8 @@ class BookingRemoteDataSource {
     }
   }
 
+  
+
   Future<Map<String, dynamic>> createBooking(Map<String, dynamic> bookingJson) async {
     final response = await apiService.post(ApiEndpoints.createBooking, bookingJson, requiresAuth: true);
     if (response.statusCode == 201) {

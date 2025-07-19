@@ -117,6 +117,24 @@ Future<Either<Failure, List<Venue>>> searchVenues({
   }
 }
 
+@override
+Future<Either<Failure, List<Venue>>> getVenuesByIds(List<String> ids) async {
+  try {
+    final venues = <Venue>[];
+    for (final id in ids) {
+      final result = await getVenueById(id);
+      result.fold(
+        (failure) => throw Exception('Failed to fetch venue $id: ${failure.message}'),
+        (venue) => venues.add(venue),
+      );
+    }
+    return Right(venues);
+  } catch (e) {
+    return Left(ApiFailure(message: e.toString()));
+  }
+}
+
+
 
 
 

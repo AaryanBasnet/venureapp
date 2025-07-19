@@ -8,6 +8,8 @@ abstract interface class IVenueRepository {
   Future<Either<Failure, Venue>> addVenue(Venue venue);
   Future<Either<Failure, Venue>> updateVenue(Venue venue);
   Future<Either<Failure, void>> deleteVenue(String id);
+    Future<Either<Failure, List<Venue>>> getVenuesByIds(List<String> ids);
+
 
   Future<Either<Failure, List<Venue>>> searchVenues({
   String? search,

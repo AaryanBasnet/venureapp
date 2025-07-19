@@ -83,25 +83,3 @@ class ApiService {
     );
   }
 }
-
-extension AuthApi on ApiService {
-  Future<bool> verifyPassword({
-    required String userId,
-    required String password,
-  }) async {
-    try {
-      final response = await post(
-        ApiEndpoints.verifyPassword,
-        {"userId": userId, "password": password},
-        requiresAuth:
-            true, // 🔐 If your backend requires token, keep this true.
-      );
-
-      final data = response.data;
-      return data['success'] == true;
-    } catch (e) {
-      print('[AuthApi] Password verification failed: $e');
-      return false;
-    }
-  }
-}

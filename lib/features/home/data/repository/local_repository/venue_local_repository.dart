@@ -96,4 +96,10 @@ Future<Either<Failure, List<Venue>>> getFavoriteVenues() async {
     // TODO: implement searchVenues
     throw UnimplementedError();
   }
+  
+  @override
+  Future<Either<Failure, List<Venue>>> getVenuesByIds(List<String> ids) {
+    // TODO: implement getVenuesByIds
+    throw UnimplementedError();
+  }
 }

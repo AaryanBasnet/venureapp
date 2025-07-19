@@ -2,40 +2,44 @@ import 'package:venure/features/booking/data/data_source/local_data_source/booki
 import 'package:venure/features/booking/data/data_source/remote_data_source/booking_remote_data_source.dart';
 import 'package:venure/features/booking/domain/entity/booking.dart';
 import 'package:venure/features/booking/domain/repository/booking_repository.dart';
+import 'package:venure/features/home/domain/repository/venue_repository.dart';
+import 'package:venure/features/profile/domain/entity/my_booking_entity.dart';
 
 import '../model/booking_hive_model.dart';
 
 class BookingRepositoryImpl implements BookingRepository {
   final BookingRemoteDataSource remoteDataSource;
   final BookingLocalDataSource localDataSource;
+  final IVenueRepository venueRepository;
 
   BookingRepositoryImpl({
     required this.remoteDataSource,
     required this.localDataSource,
+    required this.venueRepository,
   });
 
-  @override
-  Future<List<Booking>> getBookings() async {
-    try {
-      final remoteData = await remoteDataSource.fetchBookings();
-      final bookings =
-          remoteData
-              .map((json) => BookingHiveModel.fromJson(json).toEntity())
-              .toList();
+  // @override
+  // Future<List<Booking>> getBookings() async {
+  //   try {
+  //     final remoteData = await remoteDataSource.fetchBookings();
+  //     final bookings =
+  //         remoteData
+  //             .map((json) => BookingHiveModel.fromJson(json).toEntity())
+  //             .toList();
 
-      // Cache locally
-      await localDataSource.clearAllBookings();
-      for (var booking in bookings) {
-        await localDataSource.saveBooking(booking.toHiveModel());
-      }
+  //     // Cache locally
+  //     await localDataSource.clearAllBookings();
+  //     for (var booking in bookings) {
+  //       await localDataSource.saveBooking(booking.toHiveModel());
+  //     }
 
-      return bookings;
-    } catch (_) {
-      // Fallback to local cache on error
-      final cached = await localDataSource.getAllBookings();
-      return cached.map((e) => e.toEntity()).toList();
-    }
-  }
+  //     return bookings;
+  //   } catch (_) {
+  //     // Fallback to local cache on error
+  //     final cached = await localDataSource.getAllBookings();
+  //     return cached.map((e) => e.toEntity()).toList();
+  //   }
+  // }
 
   @override
   Future<Booking?> createBooking(Booking booking) async {
@@ -83,5 +87,34 @@ class BookingRepositoryImpl implements BookingRepository {
     } catch (_) {
       return false;
     }
+  }
+
+  @override
+  Future<List<MyBooking>> getMyBookings() async {
+    final bookingJsonList = await remoteDataSource.fetchBookings();
+
+    final myBookings = <MyBooking>[];
+
+    for (final bookingJson in bookingJsonList) {
+      final booking = BookingHiveModel.fromJson(bookingJson).toEntity();
+
+      final venueResult = await venueRepository.getVenueById(booking.venue);
+
+      venueResult.fold(
+        (failure) {
+          // Handle venue fetch failure, for example skip or throw
+          // Here, skipping this booking:
+          print(
+            'Failed to fetch venue for booking ${booking.id}: ${failure.message}',
+          );
+          // Optionally, continue to next booking
+        },
+        (venue) {
+          myBookings.add(MyBooking.fromBookingAndVenue(booking, venue));
+        },
+      );
+    }
+
+    return myBookings;
   }
 }

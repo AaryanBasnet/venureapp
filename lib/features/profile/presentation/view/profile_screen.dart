@@ -5,9 +5,12 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sensors_plus/sensors_plus.dart';
+import 'package:venure/app/service_locator/service_locator.dart';
 import 'package:venure/core/utils/url_utils.dart';
 import 'package:venure/features/auth/presentation/view/login_wrapper.dart';
+import 'package:venure/features/booking/domain/use_case/get_booking_usecase.dart';
 import 'package:venure/features/profile/presentation/view/edit_profile_screen.dart';
+import 'package:venure/features/profile/presentation/view/my_bookings_view/my_bookings_screen.dart';
 import 'package:venure/features/profile/presentation/view_model/profile_event.dart';
 import 'package:venure/features/profile/presentation/view_model/profile_state.dart';
 import 'package:venure/features/profile/presentation/view_model/profile_view_model.dart';
@@ -275,24 +278,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
         const SizedBox(height: 12),
         Row(
           children: [
-            Expanded(
-              child: ElevatedButton.icon(
-                onPressed: () => Navigator.pushNamed(context, "/favorites"),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.pink,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                icon: const Icon(Icons.favorite_border),
-                label: const Text("Favorites"),
-              ),
-            ),
             const SizedBox(width: 12),
             Expanded(
               child: OutlinedButton.icon(
-                onPressed: () => Navigator.pushNamed(context, "/my-bookings"),
+                onPressed:
+                    () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (_) => MyBookingsScreen(
+                              getBookingsUseCase:
+                                  serviceLocator<GetMyBookingsUseCase>(),
+                            ),
+                      ),
+                    ),
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: Colors.grey),
                   padding: const EdgeInsets.symmetric(vertical: 16),

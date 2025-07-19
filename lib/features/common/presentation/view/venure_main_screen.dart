@@ -1,22 +1,22 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venure/app/constant/shared_pref/local_storage_service.dart';
 import 'package:venure/app/service_locator/service_locator.dart';
-
-import 'package:venure/features/chat/presentation/view/chat_screen.dart';
+import 'package:venure/features/booking/domain/use_case/cancel_booking_usecase.dart';
+import 'package:venure/features/booking/domain/use_case/get_booking_usecase.dart';
 import 'package:venure/features/chat/presentation/view/chat_list_view.dart';
 import 'package:venure/features/chat/presentation/view_model/chat_list_bloc.dart';
 import 'package:venure/features/chat/presentation/view_model/chat_list_event.dart';
-
-import 'package:venure/features/common/presentation/view_model/navigation_cubit.dart';
 import 'package:venure/features/common/presentation/view/favorites_page.dart';
+import 'package:venure/features/common/presentation/view_model/navigation_cubit.dart';
 import 'package:venure/features/home/presentation/view/home_screen_wrapper.dart';
 import 'package:venure/features/home/presentation/view_model/home_screen_event.dart';
 import 'package:venure/features/home/presentation/view_model/home_view_model.dart';
 import 'package:venure/features/profile/presentation/view/profile_screen.dart';
-import 'package:venure/features/profile/presentation/view_model/profile_view_model.dart';
+import 'package:venure/features/profile/presentation/view_model/my_bookings_view_model/my_booking_view_model.dart';
+import 'package:venure/features/profile/presentation/view_model/my_bookings_view_model/my_bookings_event.dart';
 import 'package:venure/features/profile/presentation/view_model/profile_event.dart';
+import 'package:venure/features/profile/presentation/view_model/profile_view_model.dart';
 
 class VenureMainScreen extends StatefulWidget {
   const VenureMainScreen({super.key});
@@ -51,13 +51,9 @@ class _VenureMainScreenState extends State<VenureMainScreen>
 
     _screens = [
       const HomeScreenWrapper(),
-      ChatScreenView(), // Remove BlocProvider from here
+      const ChatScreenView(),
       const FavoritesPage(),
-      BlocProvider(
-        create:
-            (_) => serviceLocator<ProfileViewModel>()..add(LoadUserProfile()),
-        child: const ProfileScreen(),
-      ),
+      const ProfileScreen(),
     ];
   }
 
@@ -95,6 +91,17 @@ class _VenureMainScreenState extends State<VenureMainScreen>
               (_) =>
                   serviceLocator<ChatListBloc>()
                     ..add(LoadUserChats(currentUserId: currentUserId)),
+        ),
+        BlocProvider(
+          create:
+              (_) => serviceLocator<ProfileViewModel>()..add(LoadUserProfile()),
+        ),
+        BlocProvider(
+          create:
+              (_) => BookingBloc(
+                getBookingsUseCase: serviceLocator<GetMyBookingsUseCase>(),
+                cancelBookingUseCase: serviceLocator<CancelBookingUseCase>(),
+              )..add(FetchBookings()),
         ),
       ],
       child: BlocBuilder<NavigationCubit, int>(
