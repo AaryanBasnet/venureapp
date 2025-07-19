@@ -1,6 +1,10 @@
+import 'dart:async';
+import 'dart:math';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sensors_plus/sensors_plus.dart';
 import 'package:venure/core/utils/url_utils.dart';
 import 'package:venure/features/auth/presentation/view/login_wrapper.dart';
 import 'package:venure/features/profile/presentation/view/edit_profile_screen.dart';
@@ -8,15 +12,77 @@ import 'package:venure/features/profile/presentation/view_model/profile_event.da
 import 'package:venure/features/profile/presentation/view_model/profile_state.dart';
 import 'package:venure/features/profile/presentation/view_model/profile_view_model.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  static const double shakeThreshold = 15.0;
+  static const int shakeDebounceMs = 500;
+
+  late final StreamSubscription _accelerometerSub;
+  int _lastShakeTimestamp = 0;
+
+  Future<void> _confirmAndLogout() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder:
+          (ctx) => AlertDialog(
+            title: const Text('Logout'),
+            content: const Text('Are you sure you want to logout?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(true),
+                child: const Text('Logout'),
+              ),
+            ],
+          ),
+    );
+
+    if (confirmed == true) {
+      context.read<ProfileViewModel>().add(LogoutUser(context));
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    _accelerometerSub = accelerometerEvents.listen((event) {
+      final now = DateTime.now().millisecondsSinceEpoch;
+      final acceleration = sqrt(
+        event.x * event.x + event.y * event.y + event.z * event.z,
+      );
+
+      if (acceleration > shakeThreshold &&
+          now - _lastShakeTimestamp > shakeDebounceMs) {
+        _lastShakeTimestamp = now;
+        // Dispatch logout event with context from bloc
+        _confirmAndLogout();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _accelerometerSub.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFAFAFA),
       body: BlocListener<ProfileViewModel, ProfileState>(
-        listenWhen: (previous, current) => previous.isLoggedIn != current.isLoggedIn,
+        listenWhen:
+            (previous, current) => previous.isLoggedIn != current.isLoggedIn,
         listener: (context, state) {
           if (!state.isLoggedIn) {
             Navigator.of(context).pushAndRemoveUntil(
@@ -73,18 +139,22 @@ class ProfileScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              child: state.avatar != null
-                  ? ClipOval(
-                      child: CachedNetworkImage(
-                        imageUrl: UrlUtils.buildFullUrl(state.avatar!),
-                        placeholder: (context, url) => const CircularProgressIndicator(),
-                        errorWidget: (context, url, error) => const Icon(Icons.person),
-                        fit: BoxFit.cover,
-                        width: 120,
-                        height: 120,
-                      ),
-                    )
-                  : const Icon(Icons.person, color: Colors.white, size: 50),
+              child:
+                  state.avatar != null
+                      ? ClipOval(
+                        child: CachedNetworkImage(
+                          imageUrl: UrlUtils.buildFullUrl(state.avatar!),
+                          placeholder:
+                              (context, url) =>
+                                  const CircularProgressIndicator(),
+                          errorWidget:
+                              (context, url, error) => const Icon(Icons.person),
+                          fit: BoxFit.cover,
+                          width: 120,
+                          height: 120,
+                        ),
+                      )
+                      : const Icon(Icons.person, color: Colors.white, size: 50),
             ),
             Container(
               padding: const EdgeInsets.all(8),
@@ -105,9 +175,15 @@ class ProfileScreen extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 16),
-        Text(state.name ?? "", style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w700)),
+        Text(
+          state.name ?? "",
+          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w700),
+        ),
         const SizedBox(height: 4),
-        Text(state.email ?? "", style: const TextStyle(fontSize: 16, color: Colors.grey)),
+        Text(
+          state.email ?? "",
+          style: const TextStyle(fontSize: 16, color: Colors.grey),
+        ),
         const SizedBox(height: 12),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -117,7 +193,11 @@ class ProfileScreen extends StatelessWidget {
           ),
           child: const Text(
             "VERIFIED MEMBER",
-            style: TextStyle(color: Colors.pink, fontWeight: FontWeight.bold, fontSize: 12),
+            style: TextStyle(
+              color: Colors.pink,
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ),
           ),
         ),
       ],
@@ -128,11 +208,18 @@ class ProfileScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("Contact Details", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
+        const Text(
+          "Contact Details",
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+        ),
         const SizedBox(height: 12),
         _contactItem(Icons.phone, "Phone", state.phone ?? "N/A"),
         const SizedBox(height: 8),
-        _contactItem(Icons.location_on_outlined, "Address", state.address ?? "N/A"),
+        _contactItem(
+          Icons.location_on_outlined,
+          "Address",
+          state.address ?? "N/A",
+        ),
       ],
     );
   }
@@ -143,7 +230,9 @@ class ProfileScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 8)],
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 8),
+        ],
       ),
       child: Row(
         children: [
@@ -153,9 +242,18 @@ class ProfileScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                Text(
+                  label,
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                ),
                 const SizedBox(height: 4),
-                Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ],
             ),
           ),
@@ -170,7 +268,10 @@ class ProfileScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("Quick Actions", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
+        const Text(
+          "Quick Actions",
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+        ),
         const SizedBox(height: 12),
         Row(
           children: [
@@ -179,7 +280,9 @@ class ProfileScreen extends StatelessWidget {
                 onPressed: () => Navigator.pushNamed(context, "/favorites"),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.pink,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
                 icon: const Icon(Icons.favorite_border),
@@ -193,7 +296,9 @@ class ProfileScreen extends StatelessWidget {
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: Colors.grey),
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 icon: const Icon(Icons.history),
                 label: const Text("Bookings"),
@@ -207,10 +312,11 @@ class ProfileScreen extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => BlocProvider.value(
-                  value: profileViewModel,
-                  child: const EditProfileScreen(),
-                ),
+                builder:
+                    (_) => BlocProvider.value(
+                      value: profileViewModel,
+                      child: const EditProfileScreen(),
+                    ),
               ),
             );
           },
@@ -223,7 +329,9 @@ class ProfileScreen extends StatelessWidget {
           style: OutlinedButton.styleFrom(
             side: const BorderSide(color: Colors.grey),
             padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
           icon: const Icon(Icons.settings),
           label: const Text("Account Settings"),
@@ -242,7 +350,10 @@ class ProfileScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("Platform Features", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
+        const Text(
+          "Platform Features",
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+        ),
         const SizedBox(height: 12),
         Row(
           children: [
@@ -268,7 +379,11 @@ class ProfileScreen extends StatelessWidget {
             child: Icon(icon, color: Colors.pink, size: 28),
           ),
           const SizedBox(height: 8),
-          Text(label, textAlign: TextAlign.center, style: const TextStyle(fontSize: 14)),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 14),
+          ),
         ],
       ),
     );

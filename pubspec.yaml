@@ -33,6 +33,7 @@ dependencies:
   cached_network_image: ^3.4.1
   sqflite_common_ffi: ^2.3.6
   socket_io_client: ^3.1.2
+  sensors_plus: ^6.1.1
 
 dev_dependencies:
   flutter_test:

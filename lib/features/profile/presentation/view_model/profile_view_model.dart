@@ -54,6 +54,8 @@ class ProfileViewModel extends Bloc<ProfileEvent, ProfileState> {
     }
   }
 
+  
+
   Future<void> _onUpdateUserProfile(
     UpdateUserProfile event,
     Emitter<ProfileState> emit,
