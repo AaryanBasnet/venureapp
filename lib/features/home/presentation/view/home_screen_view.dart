@@ -3,12 +3,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venure/app/service_locator/service_locator.dart';
 import 'package:venure/core/common/venue_card.dart';
 import 'package:venure/features/booking/presentation/view/main_booking_page.dart';
+import 'package:venure/features/chat/presentation/view_model/chat_list_bloc.dart';
 import 'package:venure/features/common/presentation/view/venue_details_page.dart';
 import 'package:venure/features/common/presentation/view_model/venue_details_bloc.dart';
 import 'package:venure/features/common/presentation/view_model/venue_details_event.dart';
+import 'package:venure/features/home/presentation/view/search_page.dart';
 import 'package:venure/features/home/presentation/view_model/home_screen_event.dart';
 import 'package:venure/features/home/presentation/view_model/home_screen_state.dart';
 import 'package:venure/features/home/presentation/view_model/home_view_model.dart';
+import 'package:venure/features/home/presentation/view_model/search_bloc.dart';
 
 class HomeScreenView extends StatelessWidget {
   const HomeScreenView({super.key});
@@ -27,7 +30,7 @@ class HomeScreenView extends StatelessWidget {
       backgroundColor: pearlWhite,
       body: CustomScrollView(
         slivers: [
-          _buildPremiumHeader(),
+          _buildPremiumHeader(context),
           SliverToBoxAdapter(
             child: Column(
               children: [
@@ -46,7 +49,7 @@ class HomeScreenView extends StatelessWidget {
     );
   }
 
-  Widget _buildPremiumHeader() {
+  Widget _buildPremiumHeader(BuildContext context) {
     return SliverAppBar(
       expandedHeight: 250,
       floating: false,
@@ -77,7 +80,7 @@ class HomeScreenView extends StatelessWidget {
                   ),
                 ),
                 const Spacer(),
-                _buildPremiumSearchBar(),
+                _buildPremiumSearchBar(context),
               ],
             ),
           ),
@@ -116,43 +119,63 @@ class HomeScreenView extends StatelessWidget {
     );
   }
 
-  Widget _buildPremiumSearchBar() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.95),
-        borderRadius: BorderRadius.circular(25),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
+  Widget _buildPremiumSearchBar(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder:
+                (_) => BlocProvider<SearchBloc>(
+                  create: (_) => serviceLocator<SearchBloc>(),
+                  child: const SearchPage(),
+                ),
           ),
-        ],
-      ),
-      child: TextField(
-        style: const TextStyle(
-          fontSize: 16,
-          color: richBlack,
-          fontWeight: FontWeight.w400,
-        ),
-        decoration: InputDecoration(
-          hintText: "Discover exceptional venues...",
-          hintStyle: TextStyle(
-            color: warmGray,
-            fontSize: 16,
-            fontWeight: FontWeight.w400,
-          ),
-          border: InputBorder.none,
-          icon: Icon(Icons.search_rounded, color: primaryGold, size: 24),
-          suffixIcon: Container(
-            margin: const EdgeInsets.all(8),
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: primaryGold,
-              borderRadius: BorderRadius.circular(12),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.95),
+          borderRadius: BorderRadius.circular(25),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
             ),
-            child: const Icon(Icons.tune_rounded, color: pearlWhite, size: 20),
+          ],
+        ),
+        child: IgnorePointer(
+          // Prevents keyboard from popping up
+          child: TextField(
+            style: const TextStyle(
+              fontSize: 16,
+              color: richBlack,
+              fontWeight: FontWeight.w400,
+            ),
+            decoration: InputDecoration(
+              hintText: "Discover exceptional venues...",
+              hintStyle: TextStyle(
+                color: warmGray,
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
+              ),
+              border: InputBorder.none,
+              icon: Icon(Icons.search_rounded, color: primaryGold, size: 24),
+              suffixIcon: Container(
+                margin: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: primaryGold,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.tune_rounded,
+                  color: pearlWhite,
+                  size: 20,
+                ),
+              ),
+            ),
           ),
         ),
       ),
@@ -441,14 +464,21 @@ class HomeScreenView extends StatelessWidget {
                       );
                     },
                     onDetailsPage: () {
+                      final chatBloc = context.read<ChatListBloc>();
+
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder:
-                              (_) => BlocProvider(
-                                create:
-                                    (_) =>
-                                        serviceLocator<VenueDetailsBloc>()
-                                          ..add(LoadVenueDetails(venue.id)),
+                              (_) => MultiBlocProvider(
+                                providers: [
+                                  BlocProvider.value(value: chatBloc),
+                                  BlocProvider(
+                                    create:
+                                        (_) =>
+                                            serviceLocator<VenueDetailsBloc>()
+                                              ..add(LoadVenueDetails(venue.id)),
+                                  ),
+                                ],
                                 child: VenueDetailsPage(venueId: venue.id),
                               ),
                         ),

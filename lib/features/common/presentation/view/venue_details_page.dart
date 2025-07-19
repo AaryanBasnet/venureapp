@@ -1,10 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:venure/app/service_locator/service_locator.dart';
+import 'package:venure/core/network/socket_service.dart';
+import 'package:venure/features/chat/domain/repository/i_chat_repository.dart';
+import 'package:venure/features/chat/domain/use_case/get_or_create_chat_usecase.dart';
+import 'package:venure/features/chat/presentation/view/chat_screen.dart';
+import 'package:venure/features/chat/presentation/view_model/chat_list_bloc.dart';
+import 'package:venure/features/chat/presentation/view_model/chat_list_event.dart';
+import 'package:venure/features/chat/presentation/view_model/chat_list_state.dart';
+import 'package:venure/features/chat/presentation/view_model/chat_message_bloc.dart';
+import 'package:venure/features/chat/presentation/view_model/chat_message_event.dart';
+
 import 'package:venure/features/common/presentation/view_model/venue_details_bloc.dart';
 import 'package:venure/features/common/presentation/view_model/venue_details_state.dart';
 import 'package:venure/features/home/domain/entity/venue_entity.dart';
 import 'package:venure/core/utils/url_utils.dart';
+import 'package:venure/app/constant/shared_pref/local_storage_service.dart';
+import 'package:get_it/get_it.dart';
 
 class VenueDetailsPage extends StatelessWidget {
   final String venueId;
@@ -12,35 +25,83 @@ class VenueDetailsPage extends StatelessWidget {
   const VenueDetailsPage({required this.venueId, super.key});
 
   @override
-  @override
   Widget build(BuildContext context) {
+    final localStorage = GetIt.I<LocalStorageService>();
+    final currentUserId = localStorage.userId ?? '';
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Venue Details'),
         backgroundColor: Colors.black87,
       ),
-      body: BlocBuilder<VenueDetailsBloc, VenueDetailsState>(
-        builder: (context, state) {
-          if (state is VenueDetailsLoading) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (state is VenueDetailsError) {
-            return Center(child: Text(state.message));
-          } else if (state is VenueDetailsLoaded) {
-            return _buildVenueDetailsUI(state.venue);
-          }
-          return const SizedBox.shrink();
-        },
+      body: MultiBlocListener(
+        listeners: [
+          BlocListener<ChatListBloc, ChatListState>(
+            listener: (context, state) {
+              if (state is ChatListLoadedChat) {
+                final userId = GetIt.I<LocalStorageService>().userId ?? '';
+
+                final otherUserId = state.chat.participants.firstWhere(
+                  (p) => p != userId,
+                  orElse: () => '',
+                );
+
+                // When chat is loaded, navigate and provide ChatMessagesBloc for the chat
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (_) => BlocProvider(
+                          create:
+                              (_) => ChatMessagesBloc(
+                                chatRepository:
+                                    serviceLocator<IChatRepository>(),
+                                socketService: serviceLocator<SocketService>(),
+                                currentUserId: userId,
+                              )..add(LoadChatMessages(state.chat.id)),
+                          child: ChatScreen(
+                            chatId: state.chat.id,
+                            currentUserId: userId,
+                            otherUserId: otherUserId,
+                            venueId: state.chat.venueId,
+                          ),
+                        ),
+                  ),
+                );
+              } else if (state is ChatListError) {
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(state.message)));
+              }
+            },
+          ),
+        ],
+        child: BlocBuilder<VenueDetailsBloc, VenueDetailsState>(
+          builder: (context, state) {
+            if (state is VenueDetailsLoading) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (state is VenueDetailsError) {
+              return Center(child: Text(state.message));
+            } else if (state is VenueDetailsLoaded) {
+              return _buildVenueDetailsUI(state.venue, context, currentUserId);
+            }
+            return const SizedBox.shrink();
+          },
+        ),
       ),
     );
   }
 
-  Widget _buildVenueDetailsUI(Venue venue) {
+  Widget _buildVenueDetailsUI(
+    Venue venue,
+    BuildContext context,
+    String currentUserId,
+  ) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Venue Image
           ClipRRect(
             borderRadius: BorderRadius.circular(20),
             child:
@@ -82,18 +143,12 @@ class VenueDetailsPage extends StatelessWidget {
                       ),
                     ),
           ),
-
           const SizedBox(height: 20),
-
-          // Venue Name
           Text(
             venue.venueName,
             style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
           ),
-
           const SizedBox(height: 8),
-
-          // Location
           Row(
             children: [
               Icon(Icons.location_on, color: Colors.grey[700]),
@@ -104,10 +159,7 @@ class VenueDetailsPage extends StatelessWidget {
               ),
             ],
           ),
-
           const SizedBox(height: 12),
-
-          // Rating stub (replace if you have data)
           Row(
             children: [
               Icon(Icons.star, color: Colors.amber[600], size: 20),
@@ -118,12 +170,9 @@ class VenueDetailsPage extends StatelessWidget {
               ),
             ],
           ),
-
           const SizedBox(height: 24),
-
-          // Description
           if (venue.description != null && venue.description!.isNotEmpty) ...[
-            Text(
+            const Text(
               'Description',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
             ),
@@ -138,10 +187,8 @@ class VenueDetailsPage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
           ],
-
-          // Amenities
           if (venue.amenities.isNotEmpty) ...[
-            Text(
+            const Text(
               'Amenities',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
             ),
@@ -150,31 +197,31 @@ class VenueDetailsPage extends StatelessWidget {
               spacing: 8,
               runSpacing: 8,
               children:
-                  venue.amenities.map((a) {
-                    return Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.green.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Text(
-                        a,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.green[700],
-                          fontWeight: FontWeight.w500,
+                  venue.amenities
+                      .map(
+                        (a) => Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.green.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Text(
+                            a,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.green[700],
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                         ),
-                      ),
-                    );
-                  }).toList(),
+                      )
+                      .toList(),
             ),
             const SizedBox(height: 24),
           ],
-
-          // Capacity and Price
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -184,24 +231,27 @@ class VenueDetailsPage extends StatelessWidget {
                   const SizedBox(width: 6),
                   Text(
                     'Capacity: ${venue.capacity}',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ],
               ),
               Text(
                 'Price/hr: Nrs.${venue.pricePerHour.toStringAsFixed(0)}',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ],
           ),
-
-          const SizedBox(height: 24),
-
           Row(
             children: [
               ElevatedButton(
                 onPressed: () {
-                  // Navigate to booking page or trigger booking flow
+                  // Booking flow here
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black87,
@@ -220,11 +270,17 @@ class VenueDetailsPage extends StatelessWidget {
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                 ),
               ),
-              SizedBox(width: 40),
-
+              const SizedBox(width: 40),
               ElevatedButton(
                 onPressed: () {
-                 //navigate to chat 
+                  final ownerId = venue.ownerId;
+                  final params = GetOrCreateChatParamsWithUser(
+                    participantId: ownerId,
+                    venueId: venue.id,
+                    currentUserId: currentUserId,
+                  );
+                  // Send event to ChatListBloc (not ChatMessagesBloc)
+                  context.read<ChatListBloc>().add(GetOrCreateChat(params));
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black87,

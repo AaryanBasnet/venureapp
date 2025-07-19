@@ -1,9 +1,14 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:venure/app/constant/shared_pref/local_storage_service.dart';
 import 'package:venure/app/service_locator/service_locator.dart';
 
-import 'package:venure/features/chat/presentation/view/chat_screen_view.dart';
+import 'package:venure/features/chat/presentation/view/chat_screen.dart';
+import 'package:venure/features/chat/presentation/view/chat_list_view.dart';
+import 'package:venure/features/chat/presentation/view_model/chat_list_bloc.dart';
+import 'package:venure/features/chat/presentation/view_model/chat_list_event.dart';
+
 import 'package:venure/features/common/presentation/view_model/navigation_cubit.dart';
 import 'package:venure/features/common/presentation/view/favorites_page.dart';
 import 'package:venure/features/home/presentation/view/home_screen_wrapper.dart';
@@ -25,6 +30,7 @@ class _VenureMainScreenState extends State<VenureMainScreen>
   late PageController _pageController;
   late AnimationController _selectionController;
   late Animation<double> _selectionAnimation;
+  late String currentUserId;
 
   late final List<Widget> _screens;
 
@@ -41,16 +47,15 @@ class _VenureMainScreenState extends State<VenureMainScreen>
       curve: Curves.easeInOutQuart,
     );
 
+    currentUserId = serviceLocator<LocalStorageService>().userId ?? '';
+
     _screens = [
       const HomeScreenWrapper(),
-      const Placeholder(), // Replace with ChatScreenView() when ready
+      ChatScreenView(), // Remove BlocProvider from here
       const FavoritesPage(),
       BlocProvider(
         create:
-            (_) => ProfileViewModel(
-              remoteDataSource: serviceLocator(),
-              storageService: serviceLocator(),
-            )..add(LoadUserProfile()),
+            (_) => serviceLocator<ProfileViewModel>()..add(LoadUserProfile()),
         child: const ProfileScreen(),
       ),
     ];
@@ -84,6 +89,12 @@ class _VenureMainScreenState extends State<VenureMainScreen>
         BlocProvider(create: (_) => NavigationCubit()),
         BlocProvider(
           create: (_) => serviceLocator<HomeScreenBloc>()..add(LoadVenues()),
+        ),
+        BlocProvider(
+          create:
+              (_) =>
+                  serviceLocator<ChatListBloc>()
+                    ..add(LoadUserChats(currentUserId: currentUserId)),
         ),
       ],
       child: BlocBuilder<NavigationCubit, int>(
@@ -266,4 +277,3 @@ class _BottomNavItem {
     required this.label,
   });
 }
- 

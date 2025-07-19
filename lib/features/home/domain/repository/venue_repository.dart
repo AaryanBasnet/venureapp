@@ -9,6 +9,17 @@ abstract interface class IVenueRepository {
   Future<Either<Failure, Venue>> updateVenue(Venue venue);
   Future<Either<Failure, void>> deleteVenue(String id);
 
+  Future<Either<Failure, List<Venue>>> searchVenues({
+  String? search,
+  String? city,
+  String? capacityRange,
+  List<String>? amenities,
+  String? sort,
+  int page = 1,
+  int limit = 6,
+});
+
+
   // Favorites
   Future<Either<Failure, List<String>>>
   getFavorites(); // returns list of favorite venue IDs

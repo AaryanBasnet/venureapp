@@ -77,4 +77,10 @@ class VenueLocalDataSource implements IVenueDataSource {
         .where((venue) => _cachedFavorites.contains(venue.id))
         .toList();
   }
+  
+  @override
+  Future<List<Venue>> searchVenues({String? search, String? city, String? capacityRange, List<String>? amenities, String? sort, int page = 1, int limit = 6}) {
+    // TODO: implement searchVenues
+    throw UnimplementedError();
+  }
 }

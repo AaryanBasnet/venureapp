@@ -91,5 +91,33 @@ Future<Either<Failure, List<Venue>>> getFavoriteVenues() async {
   }
 }
 
+@override
+Future<Either<Failure, List<Venue>>> searchVenues({
+  String? search,
+  String? city,
+  String? capacityRange,
+  List<String>? amenities,
+  String? sort,
+  int page = 1,
+  int limit = 6,
+}) async {
+  try {
+    final venues = await remoteDataSource.searchVenues(
+      search: search,
+      city: city,
+      capacityRange: capacityRange,
+      amenities: amenities,
+      sort: sort,
+      page: page,
+      limit: limit,
+    );
+    return Right(venues);
+  } catch (e) {
+    return Left(ApiFailure(message: e.toString()));
+  }
+}
+
+
+
 
 }

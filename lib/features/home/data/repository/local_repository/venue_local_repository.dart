@@ -90,4 +90,10 @@ Future<Either<Failure, List<Venue>>> getFavoriteVenues() async {
     return Left(LocalDataBaseFailure(message: e.toString()));
   }
 }
+
+  @override
+  Future<Either<Failure, List<Venue>>> searchVenues({String? search, String? city, String? capacityRange, List<String>? amenities, String? sort, int page = 1, int limit = 6}) {
+    // TODO: implement searchVenues
+    throw UnimplementedError();
+  }
 }

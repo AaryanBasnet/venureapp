@@ -129,4 +129,37 @@ class VenueRemoteDataSource implements IVenueDataSource {
       throw Exception('Failed to fetch favorite venues: $e');
     }
   }
+
+  @override
+Future<List<Venue>> searchVenues({
+  String? search,
+  String? city,
+  String? capacityRange,
+  List<String>? amenities,
+  String? sort,
+  int page = 1,
+  int limit = 6,
+}) async {
+  try {
+    final params = <String, dynamic>{
+      if (search != null) 'search': search,
+      if (city != null) 'city': city,
+      if (capacityRange != null) 'capacityRange': capacityRange,
+      if (amenities != null && amenities.isNotEmpty) 'amenities': amenities.join(','),
+      if (sort != null) 'sort': sort,
+      'page': page.toString(),
+      'limit': limit.toString(),
+    };
+
+    final response = await apiService.dio.get(
+      ApiEndpoints.getApprovedVenues,
+      queryParameters: params,
+    );
+
+    final data = response.data['data'] as List;
+    return data.map((e) => VenueModel.fromJson(e).toEntity()).toList();
+  } catch (e) {
+    throw Exception('Failed to search venues: $e');
+  }
+}
 }

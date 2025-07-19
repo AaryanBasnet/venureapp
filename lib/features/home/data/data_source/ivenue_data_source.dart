@@ -6,6 +6,15 @@ abstract interface class IVenueDataSource {
   Future<Venue> addVenue(Venue venue);
   Future<Venue> updateVenue(Venue venue);
   Future<void> deleteVenue(String id);
+  Future<List<Venue>> searchVenues({
+    String? search,
+    String? city,
+    String? capacityRange,
+    List<String>? amenities,
+    String? sort,
+    int page = 1,
+    int limit = 6,
+  });
 
   // Favorites related methods
   Future<List<String>> getFavoriteVenueIds();
