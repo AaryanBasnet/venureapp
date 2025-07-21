@@ -15,5 +15,9 @@ abstract class IChatRepository {
     required String currentUserId, // added
   });
 
-  Future<Either<Failure, List<MessageEntity>>> getMessagesForChat(String chatId);
+  Future<Either<Failure, List<MessageEntity>>> getMessagesForChat(
+    String chatId,
+  );
+
+  Future<void> saveMessageLocally(MessageEntity message);
 }

@@ -15,9 +15,12 @@ class UserLocalDatasource implements IUserDataSource {
       final loginUser = await _hiveService.loginUser(email, password);
 
       if (loginUser != null) {
+        // Save current userId locally for offline access
+        await _hiveService.saveCurrentUserId(loginUser.userId);
+
         return {
           "userData": {"name": loginUser.name, "email": loginUser.email},
-          "token": "dummy_token_${loginUser.userId}", // ✅ Added dummy token
+          "token": "dummy_token_${loginUser.userId}", // dummy token for offline
         };
       } else {
         throw Exception("Invalid Credentials");
@@ -73,5 +76,15 @@ class UserLocalDatasource implements IUserDataSource {
     } catch (e) {
       throw Exception("Save user failed: $e");
     }
+  }
+
+  @override
+  Future<void> saveCurrentUserId(String userId) async {
+    await _hiveService.saveCurrentUserId(userId);
+  }
+
+  @override
+  Future<String?> getCurrentUserId() async {
+    return await _hiveService.getCurrentUserId();
   }
 }

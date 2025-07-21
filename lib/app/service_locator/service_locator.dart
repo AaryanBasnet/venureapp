@@ -31,7 +31,7 @@ import 'package:venure/features/booking/presentation/view_model/booking_view_mod
 import 'package:venure/features/chat/data/data_source/local_data_source/chat_local_data_source.dart';
 import 'package:venure/features/chat/data/data_source/remote_data_source/chat_api_service.dart';
 import 'package:venure/features/chat/data/data_source/remote_data_source/chat_remote_data_source.dart';
-import 'package:venure/features/chat/data/data_source/repository/chat_repository_impl.dart';
+import 'package:venure/features/chat/data/repository/chat_repository_impl.dart';
 import 'package:venure/features/chat/domain/repository/i_chat_repository.dart';
 import 'package:venure/features/chat/domain/use_case/get_chat_usecase.dart';
 import 'package:venure/features/chat/domain/use_case/get_or_create_chat_usecase.dart';
@@ -369,15 +369,14 @@ Future<void> _initChatModule() async {
     );
   }
 
-  if (!serviceLocator.isRegistered<ChatListBloc>()) {
-    serviceLocator.registerFactory(
-      () => ChatListBloc(
-        getUserChatsUseCase: serviceLocator<GetUserChatsUseCase>(),
-        getOrCreateChatUseCase: serviceLocator<GetOrCreateChatUseCase>(),
-        currentUserId: serviceLocator<LocalStorageService>().userId ?? '',
-      ),
-    );
-  }
+  serviceLocator.registerFactory(
+  () => ChatListBloc(
+    getUserChatsUseCase: serviceLocator<GetUserChatsUseCase>(),
+    getOrCreateChatUseCase: serviceLocator<GetOrCreateChatUseCase>(),
+    currentUserId: serviceLocator<HiveService>().getCurrentUserIdSync(),
+  ),
+);
+
 
   if (!serviceLocator.isRegistered<ChatMessagesBloc>()) {
     serviceLocator.registerFactory(

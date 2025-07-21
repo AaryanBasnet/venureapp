@@ -1,15 +1,25 @@
 import 'package:hive/hive.dart';
 import 'package:venure/features/chat/data/model/chat_model.dart';
+import 'package:venure/features/chat/data/model/message_model.dart';
 
 abstract interface class ChatLocalDataSource {
   Future<List<ChatModel>> getCachedChats();
   Future<void> cacheChats(List<ChatModel> chats);
   Future<void> clearCache();
+
+  // New message cache APIs
+  Future<void> cacheMessages(String chatId, List<MessageModel> messages);
+  Future<List<MessageModel>> getMessagesForChat(String chatId);
+
+  // Append single message efficiently
+  Future<void> cacheMessage(String chatId, MessageModel message);
 }
 class ChatLocalDataSourceImpl implements ChatLocalDataSource {
   static const String _chatBoxName = 'chatBox';
+  static const String _messageBoxPrefix = 'messageBox_';
 
   late final Box<ChatModel> _chatBox;
+  final Map<String, Box<MessageModel>> _messageBoxes = {};
 
   bool _initialized = false;
 
@@ -18,9 +28,43 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
       if (!Hive.isAdapterRegistered(ChatModelAdapter().typeId)) {
         Hive.registerAdapter(ChatModelAdapter());
       }
+      if (!Hive.isAdapterRegistered(MessageModelAdapter().typeId)) {
+        Hive.registerAdapter(MessageModelAdapter());
+      }
       _chatBox = await Hive.openBox<ChatModel>(_chatBoxName);
       _initialized = true;
     }
+  }
+
+  Future<Box<MessageModel>> _openMessageBox(String chatId) async {
+    if (_messageBoxes.containsKey(chatId)) {
+      if (Hive.isBoxOpen('$_messageBoxPrefix$chatId')) {
+        return _messageBoxes[chatId]!;
+      }
+    }
+    final box = await Hive.openBox<MessageModel>('$_messageBoxPrefix$chatId');
+    _messageBoxes[chatId] = box;
+    return box;
+  }
+
+  @override
+  Future<List<ChatModel>> getCachedChats() async {
+    await _ensureInitialized();
+    return _chatBox.values.toList();
+  }
+
+  @override
+  Future<void> cacheChats(List<ChatModel> chats) async {
+    await _ensureInitialized();
+    await _chatBox.clear();
+    final chatMap = {for (var c in chats) c.id: c};
+    await _chatBox.putAll(chatMap);
+  }
+
+  @override
+  Future<void> clearCache() async {
+    await _ensureInitialized();
+    await _chatBox.clear();
   }
 
   Future<void> _ensureInitialized() async {
@@ -29,40 +73,26 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
     }
   }
 
+  // Messages caching
+
   @override
-  Future<List<ChatModel>> getCachedChats() async {
-    try {
-      await _ensureInitialized();
-      return _chatBox.values.toList();
-    } catch (e, st) {
-      // Consider logging here
-      rethrow; // or return [];
-    }
+  Future<void> cacheMessages(String chatId, List<MessageModel> messages) async {
+    final box = await _openMessageBox(chatId);
+    await box.clear();
+    final messageMap = {for (var i = 0; i < messages.length; i++) i: messages[i]};
+    await box.putAll(messageMap);
   }
 
   @override
-  Future<void> cacheChats(List<ChatModel> chats) async {
-    try {
-      await _ensureInitialized();
-      await _chatBox.clear();
-      final Map<String, ChatModel> chatMap = {
-        for (var chat in chats) chat.id: chat,
-      };
-      await _chatBox.putAll(chatMap);
-    } catch (e, st) {
-      // Consider logging
-      rethrow;
-    }
+  Future<List<MessageModel>> getMessagesForChat(String chatId) async {
+    final box = await _openMessageBox(chatId);
+    return box.values.toList();
   }
 
   @override
-  Future<void> clearCache() async {
-    try {
-      await _ensureInitialized();
-      await _chatBox.clear();
-    } catch (e, st) {
-      // Consider logging
-      rethrow;
-    }
+  Future<void> cacheMessage(String chatId, MessageModel message) async {
+    final box = await _openMessageBox(chatId);
+    // Use message id as key for uniqueness (better than index)
+    await box.put(message.id, message);
   }
 }

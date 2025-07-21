@@ -76,6 +76,20 @@ class ChatRepositoryImpl implements IChatRepository {
     }
   }
 
+  // New method to save a message locally
+  Future<void> saveMessageLocally(MessageEntity message) async {
+    final msgModel = MessageModel(
+      id: message.id,
+      chatId: message.chatId,
+      senderId: message.senderId,
+      receiverId: message.receiverId,
+      text: message.text,
+      timestamp: message.timestamp,
+      seen: message.seen,
+    );
+    await localDataSource.cacheMessage(message.chatId, msgModel);
+  }
+
   @override
   Future<Either<Failure, List<MessageEntity>>> getMessagesForChat(
     String chatId,
@@ -97,8 +111,22 @@ class ChatRepositoryImpl implements IChatRepository {
       final messages =
           data.map((json) => MessageModel.fromJson(json).toEntity()).toList();
 
+      // Cache messages locally after remote fetch
+      await localDataSource.cacheMessages(
+        chatId,
+        data.map((json) => MessageModel.fromJson(json)).toList(),
+      );
+
       return Right(messages);
     } catch (e) {
+      // Fallback to local cache on error
+      try {
+        final cachedMessages = await localDataSource.getMessagesForChat(chatId);
+        if (cachedMessages.isNotEmpty) {
+          return Right(cachedMessages.map((m) => m.toEntity()).toList());
+        }
+      } catch (_) {}
+
       return Left(ApiFailure(message: e.toString()));
     }
   }

@@ -67,4 +67,18 @@ class UserLocalRepository implements IUserRepository {
   }
 }
 
+@override
+Future<void> saveCurrentUserId(String? userId) async {
+  if (userId == null || userId.isEmpty) {
+    throw Exception("User ID cannot be null or empty");
+  }
+  
+  await _userLocalDataSource.saveCurrentUserId(userId);
+}
+
+Future<String?> getCurrentUserId() async {
+  return await _userLocalDataSource.getCurrentUserId();
+}
+
+
 }

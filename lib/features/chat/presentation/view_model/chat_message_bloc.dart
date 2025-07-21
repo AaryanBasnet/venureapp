@@ -45,21 +45,26 @@ class ChatMessagesBloc extends Bloc<ChatMessagesEvent, ChatMessagesState> {
       },
     );
   }
+void _onReceiveMessage(
+  ReceiveMessage event,
+  Emitter<ChatMessagesState> emit,
+) async {
+  final currentState = state;
+  if (currentState is ChatMessagesLoaded) {
+    final updatedMessages = List<MessageEntity>.from(currentState.messages)
+      ..add(event.message);
 
-  void _onReceiveMessage(
-    ReceiveMessage event,
-    Emitter<ChatMessagesState> emit,
-  ) {
-    final currentState = state;
-    if (currentState is ChatMessagesLoaded) {
-      final updatedMessages = List<MessageEntity>.from(currentState.messages)
-        ..add(event.message);
-      emit(ChatMessagesLoaded(updatedMessages));
-    } else {
-      emit(ChatMessagesLoaded([event.message]));
-    }
+    emit(ChatMessagesLoaded(updatedMessages));
+
+    // Save to local cache through repository
+    await chatRepository.saveMessageLocally(event.message);
+  } else {
+    emit(ChatMessagesLoaded([event.message]));
+
+    // Save to local cache as well
+    await chatRepository.saveMessageLocally(event.message);
   }
-
+}
   void sendMessage({
     required String chatId,
     required String senderId,

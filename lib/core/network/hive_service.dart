@@ -21,6 +21,8 @@ class HiveService {
   late Box<BookingHiveModel> _bookingBox;
   late Box<VenueModel> _venueBox;
   late Box<ChatModel> _chatBox;
+  late Box<String> _currentUserBox;
+
 
   Future<void> init() async {
     final directory = await getApplicationDocumentsDirectory();
@@ -60,12 +62,31 @@ class HiveService {
       HiveTableConstant.bookingsBox,
     );
     _venueBox = await Hive.openBox<VenueModel>(HiveTableConstant.venueBoxName);
+    _currentUserBox = await Hive.openBox<String>('current_user_box');
+
   }
 
   // User Methods
   Future<void> registerUser(UserHiveModel user) async {
     await _userBox.put(user.userId, user);
   }
+
+  
+
+
+  String getCurrentUserIdSync() {
+  return _currentUserBox.get('currentUserId', defaultValue: '') ?? '';
+}
+
+
+  Future<void> saveCurrentUserId(String userId) async {
+  await _currentUserBox.put('currentUserId', userId);
+}
+
+Future<String?> getCurrentUserId() async {
+  return _currentUserBox.get('currentUserId');
+}
+
 
   Future<void> saveUserProfile(UserHiveModel user) async {
     await _userBox.put(user.userId, user);
