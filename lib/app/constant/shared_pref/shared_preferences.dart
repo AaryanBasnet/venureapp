@@ -7,11 +7,11 @@ Future<void> storeLoginData(Map<String, dynamic> json) async {
   final token = json['token'];
 
   final user = UserEntity(
-    userId: userData['_id'] ?? userData['id'], // ✅ Handles both _id and id
+    userId: userData['_id'] ?? userData['id'], 
     name: userData['name'],
     email: userData['email'],
-    phone: '',       // Backend didn't send phone
-    password: '',    // Not storing password
+    phone: '',      
+    password: '',    
     token: token,
     role: userData['role'],
   );

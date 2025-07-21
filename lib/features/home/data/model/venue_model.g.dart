@@ -8,7 +8,7 @@ part of 'venue_model.dart';
 
 class VenueModelAdapter extends TypeAdapter<VenueModel> {
   @override
-  final int typeId = 3;
+  final int typeId = 9;
 
   @override
   VenueModel read(BinaryReader reader) {

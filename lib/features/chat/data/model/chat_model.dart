@@ -78,6 +78,8 @@ class ChatModel {
   }
 }
 
+
+
 @HiveType(typeId: 5) // Unique typeId for Participant
 class Participant {
   @HiveField(0)

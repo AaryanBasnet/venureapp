@@ -5,7 +5,6 @@ import 'package:venure/core/network/hive_service.dart';
 
 class VenueLocalDataSource implements IVenueDataSource {
   final HiveService _hiveService;
-  List<String> _cachedFavorites = [];
 
   VenueLocalDataSource({required HiveService hiveService})
     : _hiveService = hiveService;
@@ -18,8 +17,11 @@ class VenueLocalDataSource implements IVenueDataSource {
 
   @override
   Future<Venue> getVenueById(String id) async {
-    final model = await _hiveService.getVenueById(id);
-    return model!.toEntity();
+    final model = _hiveService.getVenueById(id);
+    if (model == null) {
+      throw Exception('Venue with ID $id not found');
+    }
+    return model.toEntity();
   }
 
   @override
@@ -43,44 +45,81 @@ class VenueLocalDataSource implements IVenueDataSource {
 
   @override
   Future<List<String>> getFavoriteVenueIds() async {
-    // Return cached list instantly
-    if (_cachedFavorites.isEmpty) {
-      _cachedFavorites = await _hiveService.getFavoriteVenueIds();
-    }
-    return _cachedFavorites;
+    return _hiveService.getFavoriteVenueIds();
   }
 
   @override
   Future<bool> toggleFavoriteVenue(String venueId) async {
-    if (_cachedFavorites.contains(venueId)) {
-      _cachedFavorites.remove(venueId);
-    } else {
-      _cachedFavorites.add(venueId);
-    }
-
-    // Persist asynchronously, don't wait here
-    _hiveService.saveFavoriteVenueIds(_cachedFavorites);
-
-    // Return immediately based on updated cache
-    return _cachedFavorites.contains(venueId);
+    return await _hiveService.toggleFavoriteVenue(venueId);
   }
 
   @override
   Future<List<Venue>> getFavoriteVenues() async {
-    if (_cachedFavorites.isEmpty) {
-      _cachedFavorites = await _hiveService.getFavoriteVenueIds();
-    }
-
+    final favoriteIds = await _hiveService.getFavoriteVenueIds();
     final allVenues = await getAllVenues();
 
-    return allVenues
-        .where((venue) => _cachedFavorites.contains(venue.id))
-        .toList();
+    return allVenues.where((venue) => favoriteIds.contains(venue.id)).toList();
   }
+
+  Future<void> saveAllVenues(List<Venue> venues) async {
+    for (final venue in venues) {
+      final model = VenueModel.fromEntity(venue); // Convert entity to model
+      await _hiveService.saveVenue(model);
+    }
+  }
+
+  Future<void> saveFavoriteVenueIds(List<String> ids) async {
+  await _hiveService.saveFavoriteVenueIds(ids);
+}
+
+
   
+
   @override
-  Future<List<Venue>> searchVenues({String? search, String? city, String? capacityRange, List<String>? amenities, String? sort, int page = 1, int limit = 6}) {
-    // TODO: implement searchVenues
-    throw UnimplementedError();
+  Future<List<Venue>> searchVenues({
+    String? search,
+    String? city,
+    String? capacityRange,
+    List<String>? amenities,
+    String? sort,
+    int page = 1,
+    int limit = 6,
+  }) async {
+    final allVenues = await getAllVenues();
+
+    var filtered =
+        allVenues.where((venue) {
+          final matchesSearch =
+              search == null ||
+              venue.venueName.toLowerCase().contains(search.toLowerCase());
+          final matchesCity =
+              city == null ||
+              venue.location.city.toLowerCase() == city.toLowerCase();
+          final matchesAmenities =
+              amenities == null ||
+              amenities.every((a) => venue.amenities.contains(a));
+          final matchesCapacity =
+              capacityRange == null ||
+              _checkCapacity(venue.capacity, capacityRange);
+          return matchesSearch &&
+              matchesCity &&
+              matchesAmenities &&
+              matchesCapacity;
+        }).toList();
+
+    if (sort == 'price') {
+      filtered.sort((a, b) => a.pricePerHour.compareTo(b.pricePerHour));
+    }
+
+    final start = (page - 1) * limit;
+    return filtered.skip(start).take(limit).toList();
+  }
+
+  bool _checkCapacity(int capacity, String range) {
+    final parts = range.split('-');
+    if (parts.length != 2) return true;
+    final min = int.tryParse(parts[0]) ?? 0;
+    final max = int.tryParse(parts[1]) ?? 9999;
+    return capacity >= min && capacity <= max;
   }
 }

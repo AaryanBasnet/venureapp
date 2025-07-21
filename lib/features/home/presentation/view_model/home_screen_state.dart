@@ -16,7 +16,7 @@ class HomeScreenLoaded extends HomeScreenState {
   final List<Venue> venues;
   final List<String> favoriteVenueIds;
 
-  const HomeScreenLoaded(this.venues, {this.favoriteVenueIds = const []});
+  const HomeScreenLoaded(this.venues, {this.favoriteVenueIds = const [], required List<Venue> favoriteVenues});
 
   @override
   List<Object> get props => [venues, favoriteVenueIds];

@@ -10,6 +10,9 @@ abstract interface class IVenueRepository {
   Future<Either<Failure, void>> deleteVenue(String id);
     Future<Either<Failure, List<Venue>>> getVenuesByIds(List<String> ids);
 
+    Future<Either<Failure, List<Venue>>> getCachedVenues();    // 🗄 For offline
+  Future<void> cacheVenues(List<Venue> venues);
+
 
   Future<Either<Failure, List<Venue>>> searchVenues({
   String? search,
@@ -23,6 +26,9 @@ abstract interface class IVenueRepository {
 
 
   // Favorites
+
+   Future<void> cacheFavoriteVenueIds(List<String> ids);
+  Future<Either<Failure, List<String>>> getCachedFavoriteVenueIds();
   Future<Either<Failure, List<String>>>
   getFavorites(); // returns list of favorite venue IDs
   Future<Either<Failure, bool>> toggleFavorite(

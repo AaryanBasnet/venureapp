@@ -5,7 +5,7 @@ class UserEntity extends Equatable {
   final String name;
   final String email;
   final String phone;
-  final String password; // Usually not returned from backend; consider removing from entity if unused
+  final String password;
   final String token;
   final String role;
 
@@ -25,7 +25,7 @@ class UserEntity extends Equatable {
       name: json['name'] as String? ?? '',
       email: json['email'] as String? ?? '',
       phone: json['phone'] as String? ?? '',
-      password: '', // don't store password from backend response
+      password: '', // no password from backend
       token: json['token'] as String? ?? '',
       role: json['role'] as String? ?? '',
     );
@@ -39,6 +39,26 @@ class UserEntity extends Equatable {
     'token': token,
     'role': role,
   };
+
+  UserEntity copyWith({
+    String? userId,
+    String? name,
+    String? email,
+    String? phone,
+    String? password,
+    String? token,
+    String? role,
+  }) {
+    return UserEntity(
+      userId: userId ?? this.userId,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      phone: phone ?? this.phone,
+      password: password ?? this.password,
+      token: token ?? this.token,
+      role: role ?? this.role,
+    );
+  }
 
   @override
   List<Object?> get props => [

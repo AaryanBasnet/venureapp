@@ -2,13 +2,18 @@ import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:venure/app/constant/shared_pref/local_storage_service.dart';
 import 'package:venure/core/network/api_service.dart';
+import 'package:venure/core/network/hive_service.dart';
 import 'package:venure/core/network/search_venue_service.dart';
 import 'package:venure/core/network/socket_service.dart';
+import 'package:venure/features/auth/data/data_source/local_data_source/user_local_datasource.dart';
 // import 'package:venure/core/network/hive_service.dart'; //
 // import 'package:venure/features/auth/data/data_source/local_data_source/user_local_datasource.dart';
 import 'package:venure/features/auth/data/data_source/remote_data_source/user_remote_data_source.dart';
+import 'package:venure/features/auth/data/repository/hybrid_user_repository.dart';
+import 'package:venure/features/auth/data/repository/local_repository/user_local_repository.dart';
 // import 'package:venure/features/auth/data/repository/local_repository/user_local_repository.dart';
 import 'package:venure/features/auth/data/repository/remote_repository/user_remote_repository.dart';
+import 'package:venure/features/auth/domain/repository/user_repository.dart';
 // import 'package:venure/features/auth/domain/repository/user_repository.dart'; //
 import 'package:venure/features/auth/domain/use_case/user_login_usecase.dart';
 import 'package:venure/features/auth/domain/use_case/user_register_usecase.dart';
@@ -34,7 +39,10 @@ import 'package:venure/features/chat/presentation/view_model/chat_list_bloc.dart
 import 'package:venure/features/chat/presentation/view_model/chat_message_bloc.dart';
 import 'package:venure/features/common/presentation/view_model/venue_details_bloc.dart';
 import 'package:venure/features/home/data/data_source/ivenue_data_source.dart';
+import 'package:venure/features/home/data/data_source/local_data_source/venue_local_datasource.dart';
 import 'package:venure/features/home/data/data_source/remote_data_source/venue_remote_datasource.dart';
+import 'package:venure/features/home/data/repository/hybrid_venue_repository.dart';
+import 'package:venure/features/home/data/repository/local_repository/venue_local_repository.dart';
 import 'package:venure/features/home/data/repository/remote_repository/venue_remote_repository.dart';
 import 'package:venure/features/home/domain/repository/venue_repository.dart';
 import 'package:venure/features/home/domain/use_case/get_%20favorites_usecase.dart';
@@ -61,14 +69,19 @@ Future<void> initDependencies() async {
 }
 
 Future<void> _initCoreServices() async {
-  // Register ApiService once for all modules
   if (!serviceLocator.isRegistered<ApiService>()) {
     serviceLocator.registerLazySingleton(() => ApiService(Dio()));
   }
 
-  // Socket service shared by chat and other modules
   if (!serviceLocator.isRegistered<SocketService>()) {
     serviceLocator.registerLazySingleton(() => SocketService());
+  }
+
+  // ✅ Add HiveService Singleton
+  if (!serviceLocator.isRegistered<HiveService>()) {
+    final hiveService = HiveService.instance;
+    await hiveService.init();
+    serviceLocator.registerSingleton<HiveService>(hiveService);
   }
 }
 
@@ -76,6 +89,20 @@ Future<void> _initAuthModule() async {
   if (!serviceLocator.isRegistered<UserRemoteDataSource>()) {
     serviceLocator.registerFactory(
       () => UserRemoteDataSource(apiService: serviceLocator<ApiService>()),
+    );
+  }
+
+  if (!serviceLocator.isRegistered<UserLocalDatasource>()) {
+    serviceLocator.registerFactory(
+      () => UserLocalDatasource(hiveService: serviceLocator<HiveService>()),
+    );
+  }
+
+  if (!serviceLocator.isRegistered<UserLocalRepository>()) {
+    serviceLocator.registerFactory(
+      () => UserLocalRepository(
+        userLocalDataSource: serviceLocator<UserLocalDatasource>(),
+      ),
     );
   }
 
@@ -87,10 +114,21 @@ Future<void> _initAuthModule() async {
     );
   }
 
+  // Register the Hybrid Repository implementing IUserRepository
+  if (!serviceLocator.isRegistered<IUserRepository>()) {
+    serviceLocator.registerFactory<IUserRepository>(
+      () => HybridUserRepository(
+        remote: serviceLocator<UserRemoteRepository>(),
+        local: serviceLocator<UserLocalRepository>(),
+      ),
+    );
+  }
+
+  // Now use IUserRepository (hybrid) in your usecases
   if (!serviceLocator.isRegistered<UserRegisterUsecase>()) {
     serviceLocator.registerFactory(
       () => UserRegisterUsecase(
-        repository: serviceLocator<UserRemoteRepository>(),
+        repository: serviceLocator<IUserRepository>(), // <-- Hybrid here
       ),
     );
   }
@@ -98,7 +136,7 @@ Future<void> _initAuthModule() async {
   if (!serviceLocator.isRegistered<UserLoginUsecase>()) {
     serviceLocator.registerFactory(
       () => UserLoginUsecase(
-        repository: serviceLocator<UserRemoteRepository>(),
+        repository: serviceLocator<IUserRepository>(), // <-- Hybrid here
         localStorageService: serviceLocator<LocalStorageService>(),
       ),
     );
@@ -106,7 +144,9 @@ Future<void> _initAuthModule() async {
 
   if (!serviceLocator.isRegistered<VerifyPasswordUsecase>()) {
     serviceLocator.registerFactory(
-      () => VerifyPasswordUsecase(serviceLocator<UserRemoteRepository>()),
+      () => VerifyPasswordUsecase(
+        serviceLocator<IUserRepository>(),
+      ), // <-- Hybrid here
     );
   }
 
@@ -130,13 +170,34 @@ Future<void> _initHomeModule() async {
     );
   }
 
-  if (!serviceLocator.isRegistered<IVenueRepository>()) {
-    serviceLocator.registerLazySingleton<IVenueRepository>(
+  if (!serviceLocator.isRegistered<VenueLocalDataSource>()) {
+    serviceLocator.registerLazySingleton(
+      () => VenueLocalDataSource(hiveService: serviceLocator<HiveService>()),
+    );
+  }
+
+  if (!serviceLocator.isRegistered<VenueLocalRepository>()) {
+    serviceLocator.registerLazySingleton<VenueLocalRepository>(
+      () => VenueLocalRepository(
+        localDataSource: serviceLocator<VenueLocalDataSource>(),
+      ),
+    );
+  }
+
+  if (!serviceLocator.isRegistered<VenueRemoteRepository>()) {
+    serviceLocator.registerLazySingleton<VenueRemoteRepository>(
       () => VenueRemoteRepository(
         remoteDataSource: serviceLocator<VenueRemoteDataSource>(),
       ),
     );
   }
+
+  serviceLocator.registerLazySingleton<IVenueRepository>(
+    () => HybridVenueRepository(
+      remoteRepository: serviceLocator<VenueRemoteRepository>(),
+      localRepository: serviceLocator<VenueLocalRepository>(),
+    ),
+  );
 
   if (!serviceLocator.isRegistered<GetAllVenuesUseCase>()) {
     serviceLocator.registerLazySingleton(

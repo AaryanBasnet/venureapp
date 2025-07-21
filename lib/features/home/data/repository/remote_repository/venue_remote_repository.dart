@@ -134,6 +134,33 @@ Future<Either<Failure, List<Venue>>> getVenuesByIds(List<String> ids) async {
   }
 }
 
+  @override
+  Future<void> cacheVenues(List<Venue> venues) {
+    // TODO: implement cacheVenues
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Either<Failure, List<Venue>>> getCachedVenues() {
+    // TODO: implement getCachedVenues
+    throw UnimplementedError();
+  }
+  
+  @override
+  Future<void> cacheFavoriteVenueIds(List<String> ids) {
+    // TODO: implement cacheFavoriteVenueIds
+    throw UnimplementedError();
+  }
+  
+  @override
+  Future<Either<Failure, List<String>>> getCachedFavoriteVenueIds() {
+    // TODO: implement getCachedFavoriteVenueIds
+    throw UnimplementedError();
+  }
+
+
+  
+
 
 
 

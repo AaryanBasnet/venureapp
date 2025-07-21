@@ -10,28 +10,25 @@ class UserRemoteRepository implements IUserRepository {
   UserRemoteRepository({required UserRemoteDataSource userRemoteDataSource})
     : _userRemoteDataSource = userRemoteDataSource;
 
-  @override
-  Future<Either<Failure, UserEntity>> loginUser(
-    String email,
-    String password,
-  ) async {
-    try {
-      final loginResponse = await _userRemoteDataSource.loginUser(
-        email,
-        password,
-      );
-      // Extract userData map and token string separately from loginResponse
-      final Map<String, dynamic> userData = loginResponse['userData'];
-      userData['token'] = loginResponse['token']; // merge token into userData
-
-      // Now pass the nested userData + token map to UserEntity.fromJson
-      final userEntity = UserEntity.fromJson(userData);
-
-      return Right(userEntity);
-    } catch (e) {
-      return Left(ApiFailure(message: e.toString()));
-    }
+@override
+Future<Either<Failure, UserEntity>> loginUser(
+  String email,
+  String password,
+) async {
+  try {
+    final loginResponse = await _userRemoteDataSource.loginUser(email, password);
+    print("Remote login response: $loginResponse");
+    
+    final Map<String, dynamic> userData = loginResponse['userData'];
+    userData['token'] = loginResponse['token'];
+    final userEntity = UserEntity.fromJson(userData);
+    return Right(userEntity);
+  } catch (e, stackTrace) {
+    print("Remote login exception: $e");
+    print(stackTrace);
+    return Left(ApiFailure(message: e.toString()));
   }
+}
 
   @override
   Future<Either<Failure, void>> registerUser(UserEntity user) async {

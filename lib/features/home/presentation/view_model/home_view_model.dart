@@ -29,15 +29,38 @@ class HomeScreenBloc extends Bloc<HomeScreenEvent, HomeScreenState> {
     final venuesResult = await getAllVenuesUseCase();
     final favoritesResult = await getFavoritesUseCase();
 
-    venuesResult.fold((failure) => emit(HomeScreenError(failure.toString())), (
-      venues,
-    ) {
-      favoritesResult.fold(
-        (failure) => emit(HomeScreenError(failure.toString())),
-        (favoriteIds) =>
-            emit(HomeScreenLoaded(venues, favoriteVenueIds: favoriteIds)),
-      );
-    });
+    venuesResult.fold(
+      (failure) {
+        emit(HomeScreenError("Failed to load venues"));
+      },
+      (venues) {
+        favoritesResult.fold(
+          (failure) {
+            emit(
+              HomeScreenLoaded(
+                venues,
+                favoriteVenueIds: [],
+                favoriteVenues: [],
+              ),
+            );
+          },
+          (favoriteIds) {
+            final favoriteVenues =
+                venues
+                    .where((venue) => favoriteIds.contains(venue.id))
+                    .toList();
+
+            emit(
+              HomeScreenLoaded(
+                venues,
+                favoriteVenueIds: favoriteIds,
+                favoriteVenues: favoriteVenues,
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   Future<void> _onLoadFavorites(
@@ -50,7 +73,18 @@ class HomeScreenBloc extends Bloc<HomeScreenEvent, HomeScreenState> {
     ) {
       if (state is HomeScreenLoaded) {
         final currentVenues = (state as HomeScreenLoaded).venues;
-        emit(HomeScreenLoaded(currentVenues, favoriteVenueIds: favoriteIds));
+        final favoriteVenues =
+            currentVenues
+                .where((venue) => favoriteIds.contains(venue.id))
+                .toList();
+
+        emit(
+          HomeScreenLoaded(
+            currentVenues,
+            favoriteVenueIds: favoriteIds,
+            favoriteVenues: favoriteVenues,
+          ),
+        );
       }
     });
   }
@@ -73,8 +107,17 @@ class HomeScreenBloc extends Bloc<HomeScreenEvent, HomeScreenState> {
     }
 
     // Immediately emit updated state for instant UI update
+    final updatedFavoriteVenues =
+        currentState.venues
+            .where((venue) => updatedFavorites.contains(venue.id))
+            .toList();
+
     emit(
-      HomeScreenLoaded(currentState.venues, favoriteVenueIds: updatedFavorites),
+      HomeScreenLoaded(
+        currentState.venues,
+        favoriteVenueIds: updatedFavorites,
+        favoriteVenues: updatedFavoriteVenues,
+      ),
     );
 
     // Persist change asynchronously
@@ -89,16 +132,24 @@ class HomeScreenBloc extends Bloc<HomeScreenEvent, HomeScreenState> {
         } else {
           revertedFavorites.remove(event.venueId);
         }
+
+        final revertedFavoriteVenues =
+            currentState.venues
+                .where((venue) => revertedFavorites.contains(venue.id))
+                .toList();
+
         emit(
           HomeScreenLoaded(
             currentState.venues,
             favoriteVenueIds: revertedFavorites,
+            favoriteVenues: revertedFavoriteVenues,
           ),
         );
+
         // Optionally show error snackbar
       },
       (isNowFavorite) {
-        // Success - nothing more to do as UI already updated
+        // Success - UI already updated, no action needed
       },
     );
   }

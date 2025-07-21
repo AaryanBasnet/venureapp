@@ -82,24 +82,97 @@ class VenueLocalRepository implements IVenueRepository {
   }
 
   @override
-Future<Either<Failure, List<Venue>>> getFavoriteVenues() async {
+  Future<Either<Failure, List<Venue>>> getFavoriteVenues() async {
+    try {
+      final venues = await localDataSource.getFavoriteVenues();
+      return Right(venues);
+    } catch (e) {
+      return Left(LocalDataBaseFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<Venue>>> searchVenues({
+    String? search,
+    String? city,
+    String? capacityRange,
+    List<String>? amenities,
+    String? sort,
+    int page = 1,
+    int limit = 6,
+  }) async {
+    try {
+      final venues = await localDataSource.searchVenues(
+        search: search,
+        city: city,
+        capacityRange: capacityRange,
+        amenities: amenities,
+        sort: sort,
+        page: page,
+        limit: limit,
+      );
+      return Right(venues);
+    } catch (e) {
+      return Left(LocalDataBaseFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<Venue>>> getVenuesByIds(List<String> ids) async {
+    try {
+      final allVenues = await localDataSource.getAllVenues();
+      final filtered = allVenues.where((v) => ids.contains(v.id)).toList();
+      return Right(filtered);
+    } catch (e) {
+      return Left(LocalDataBaseFailure(message: e.toString()));
+    }
+  }
+   @override
+Future<Either<Failure, List<Venue>>> getCachedVenues() async {
   try {
-    final venues = await localDataSource.getFavoriteVenues();
-    return Right(venues);
+    final cachedVenues = await localDataSource.getAllVenues(); // or a specific cache method
+    return Right(cachedVenues);
   } catch (e) {
     return Left(LocalDataBaseFailure(message: e.toString()));
   }
 }
 
-  @override
-  Future<Either<Failure, List<Venue>>> searchVenues({String? search, String? city, String? capacityRange, List<String>? amenities, String? sort, int page = 1, int limit = 6}) {
-    // TODO: implement searchVenues
-    throw UnimplementedError();
-  }
-  
-  @override
-  Future<Either<Failure, List<Venue>>> getVenuesByIds(List<String> ids) {
-    // TODO: implement getVenuesByIds
-    throw UnimplementedError();
+@override
+Future<void> cacheVenues(List<Venue> venues) async {
+  try {
+    await localDataSource.saveAllVenues(venues);
+  } catch (e) {
+    throw LocalDataBaseFailure(message: e.toString());
   }
 }
+
+Future<void> saveAllVenues(List<Venue> venues) async {
+  await localDataSource.saveAllVenues(venues);
+}
+
+
+Future<void> cacheFavoriteVenueIds(List<String> ids) async {
+  await localDataSource.saveFavoriteVenueIds(ids);
+  print("🟢 VenueLocalRepository: Cached favorite venue IDs: $ids");
+}
+
+Future<Either<Failure, List<String>>> getCachedFavoriteVenueIds() async {
+  try {
+    final cached = await localDataSource.getFavoriteVenueIds();
+    print("🟢 VenueLocalRepository: Retrieved cached favorite venue IDs: $cached");
+    return Right(cached);
+  } catch (e) {
+    print("🔴 VenueLocalRepository: Error getting cached favorite venue IDs: $e");
+    return Left(LocalDataBaseFailure(message: e.toString()));
+  }
+}
+
+}
+
+
+
+
+
+
+
+

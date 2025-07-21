@@ -6,7 +6,7 @@ import '../../domain/entity/venue_entity.dart';
 
 part 'venue_model.g.dart';
 
-@HiveType(typeId: 3)
+@HiveType(typeId: 9)
 @JsonSerializable(explicitToJson: true)
 class VenueModel {
   @HiveField(0)

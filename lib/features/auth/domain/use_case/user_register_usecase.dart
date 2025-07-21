@@ -44,7 +44,7 @@ class UserRegisterUsecase
       phone: params.phone,
       password: params.password,
       token: '',
-      role: '',
+      role: 'Customer',
     );
     return await repository.registerUser(user);
   }

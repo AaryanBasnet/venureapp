@@ -6,6 +6,9 @@ import 'package:venure/app/constant/hive/hive_table_constant.dart';
 import 'package:venure/features/auth/data/model/user_hive_model.dart';
 import 'package:venure/features/booking/data/model/booking_hive_model.dart';
 import 'package:venure/features/chat/data/model/chat_model.dart';
+import 'package:venure/features/chat/data/model/message_model.dart';
+import 'package:venure/features/home/data/model/venue_image_model.dart';
+import 'package:venure/features/home/data/model/venue_location_model.dart';
 import 'package:venure/features/home/data/model/venue_model.dart';
 
 class HiveService {
@@ -21,9 +24,9 @@ class HiveService {
 
   Future<void> init() async {
     final directory = await getApplicationDocumentsDirectory();
-    Hive.init(directory.path); // directory only, no filename
+    Hive.init(directory.path);
 
-    // Register adapters once
+    // Register all your adapters including nested models
     if (!Hive.isAdapterRegistered(UserHiveModelAdapter().typeId)) {
       Hive.registerAdapter(UserHiveModelAdapter());
     }
@@ -33,16 +36,24 @@ class HiveService {
     if (!Hive.isAdapterRegistered(VenueModelAdapter().typeId)) {
       Hive.registerAdapter(VenueModelAdapter());
     }
+    if (!Hive.isAdapterRegistered(VenueLocationModelAdapter().typeId)) {
+      Hive.registerAdapter(VenueLocationModelAdapter());
+    }
+    if (!Hive.isAdapterRegistered(VenueImageModelAdapter().typeId)) {
+      Hive.registerAdapter(VenueImageModelAdapter());
+    }
+    if (!Hive.isAdapterRegistered(ChatModelAdapter().typeId)) {
+      Hive.registerAdapter(ChatModelAdapter());
+    }
+    if (!Hive.isAdapterRegistered(MessageModelAdapter().typeId)) {
+      Hive.registerAdapter(MessageModelAdapter());
+    }
 
-   if (!Hive.isAdapterRegistered(ChatModelAdapter().typeId)) {
-  Hive.registerAdapter(ChatModelAdapter());
-}
-if (!Hive.isAdapterRegistered(ParticipantAdapter().typeId)) {
-  Hive.registerAdapter(ParticipantAdapter());
-}
+    if (!Hive.isAdapterRegistered(ParticipantAdapter().typeId)) {
+      Hive.registerAdapter(ParticipantAdapter());
+    }
+
     _chatBox = await Hive.openBox<ChatModel>(HiveTableConstant.chatBoxName);
-
-    // Open all boxes once and cache references
     _userBox = await Hive.openBox<UserHiveModel>(HiveTableConstant.userBox);
     _favoritesBox = await Hive.openBox<String>(HiveTableConstant.favoritesBox);
     _bookingBox = await Hive.openBox<BookingHiveModel>(
@@ -70,7 +81,7 @@ if (!Hive.isAdapterRegistered(ParticipantAdapter().typeId)) {
         (u) => u.email == email && u.password == password,
       );
     } catch (e) {
-      return null; // or throw custom exception
+      return null;
     }
   }
 
@@ -99,6 +110,12 @@ if (!Hive.isAdapterRegistered(ParticipantAdapter().typeId)) {
     await _venueBox.clear();
   }
 
+  Future<void> saveAllVenues(List<VenueModel> venues) async {
+    for (final venue in venues) {
+      await saveVenue(venue);
+    }
+  }
+
   // Favorites Methods
   // Getting favorite venue ids
   List<String> getFavoriteVenueIds() {
@@ -110,8 +127,7 @@ if (!Hive.isAdapterRegistered(ParticipantAdapter().typeId)) {
 
   // Saving favorite venue ids
   Future<void> saveFavoriteVenueIds(List<String> ids) async {
-    final jsonString = jsonEncode(ids);
-    await _favoritesBox.put('favoritesList', jsonString);
+    await _favoritesBox.put('favoritesList', jsonEncode(ids));
   }
 
   // Toggling favorite
@@ -150,27 +166,24 @@ if (!Hive.isAdapterRegistered(ParticipantAdapter().typeId)) {
     await _bookingBox.clear();
   }
 
-
   // Chat Methods
-Future<void> saveChat(ChatModel chat) async {
-  await _chatBox.put(chat.id, chat);
-}
+  Future<void> saveChat(ChatModel chat) async {
+    await _chatBox.put(chat.id, chat);
+  }
 
-Future<ChatModel?> getChatById(String id) async {
-  return Future.value(_chatBox.get(id));
-}
+  Future<ChatModel?> getChatById(String id) async {
+    return Future.value(_chatBox.get(id));
+  }
 
+  List<ChatModel> getAllChats() {
+    return _chatBox.values.toList();
+  }
 
-List<ChatModel> getAllChats() {
-  return _chatBox.values.toList();
-}
+  Future<void> clearAllChats() async {
+    await _chatBox.clear();
+  }
 
-Future<void> clearAllChats() async {
-  await _chatBox.clear();
-}
-
-Future<void> deleteChat(String id) async {
-  await _chatBox.delete(id);
-}
-
+  Future<void> deleteChat(String id) async {
+    await _chatBox.delete(id);
+  }
 }
