@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:venure/features/chat/domain/entity/message_entity.dart';
+import 'package:venure/features/chat/presentation/widgets/message_bubble.dart';
 import 'package:venure/features/chat/presentation/view_model/chat_message_bloc.dart';
-import 'package:venure/features/chat/presentation/view_model/chat_message_event.dart';
 import 'package:venure/features/chat/presentation/view_model/chat_message_state.dart';
+import 'package:venure/features/chat/presentation/view_model/chat_message_event.dart';
+import 'package:venure/features/chat/presentation/widgets/message_input_field.dart';
 
-class ChatScreen extends StatefulWidget {
+class ChatScreen extends StatelessWidget {
   final String chatId;
   final String currentUserId;
   final String otherUserId;
@@ -20,24 +21,13 @@ class ChatScreen extends StatefulWidget {
   });
 
   @override
-  State<ChatScreen> createState() => _ChatScreenState();
-}
-
-class _ChatScreenState extends State<ChatScreen> {
-  final TextEditingController _controller = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    context.read<ChatMessagesBloc>().add(LoadChatMessages(widget.chatId));
-  }
-
-  @override
   Widget build(BuildContext context) {
+    context.read<ChatMessagesBloc>().add(LoadChatMessages(chatId));
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Chat'),
-        backgroundColor: Colors.black87,
+        backgroundColor: const Color.fromARGB(221, 19, 148, 38),
       ),
       body: Column(
         children: [
@@ -49,8 +39,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 }
 
                 if (state is ChatMessagesLoaded) {
-                  final messages =
-                      state.messages.reversed.toList(); // show latest at bottom
+                  final messages = state.messages.reversed.toList();
 
                   if (messages.isEmpty) {
                     return const Center(child: Text('No messages yet.'));
@@ -62,29 +51,9 @@ class _ChatScreenState extends State<ChatScreen> {
                     itemCount: messages.length,
                     itemBuilder: (context, index) {
                       final msg = messages[index];
-                      final isMe = msg.senderId == widget.currentUserId;
+                      final isMe = msg.senderId == currentUserId;
 
-                      return Align(
-                        alignment:
-                            isMe ? Alignment.centerRight : Alignment.centerLeft,
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(vertical: 4),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isMe ? Colors.blue[700] : Colors.grey[300],
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            msg.text,
-                            style: TextStyle(
-                              color: isMe ? Colors.white : Colors.black,
-                            ),
-                          ),
-                        ),
-                      );
+                      return MessageBubble(message: msg, isMe: isMe);
                     },
                   );
                 }
@@ -99,54 +68,10 @@ class _ChatScreenState extends State<ChatScreen> {
               },
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    decoration: const InputDecoration(
-                      hintText: 'Type a message...',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.send),
-                  onPressed: () {
-                    if (_controller.text.trim().isNotEmpty) {
-                      final text = _controller.text.trim();
-
-                      final myMessage = MessageEntity(
-                        id: UniqueKey().toString(), // Temporary local ID
-                        chatId: widget.chatId,
-                        senderId: widget.currentUserId,
-                        receiverId: widget.otherUserId,
-                        text: text,
-                        timestamp: DateTime.now(),
-                        seen: false,
-                      );
-
-                      // Immediately show the message in the UI
-                      context.read<ChatMessagesBloc>().add(
-                        ReceiveMessage(myMessage),
-                      );
-
-                      // Send message over socket
-                      context.read<ChatMessagesBloc>().sendMessage(
-                        chatId: widget.chatId,
-                        senderId: widget.currentUserId,
-                        receiverId: widget.otherUserId,
-                        text: text,
-                      );
-
-                      _controller.clear();
-                    }
-                  },
-                ),
-              ],
-            ),
+          MessageInputField(
+            chatId: chatId,
+            currentUserId: currentUserId,
+            otherUserId: otherUserId,
           ),
         ],
       ),

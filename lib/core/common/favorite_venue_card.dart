@@ -288,28 +288,6 @@ class FavoriteVenueCard extends StatelessWidget {
             ],
           ),
         ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
-            color:
-                venue.status == 'available'
-                    ? Colors.green.withOpacity(0.1)
-                    : Colors.orange.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Text(
-            venue.status.toUpperCase(),
-            style: TextStyle(
-              fontSize: 10,
-              color:
-                  venue.status == 'available'
-                      ? Colors.green[700]
-                      : Colors.orange[700],
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.5,
-            ),
-          ),
-        ),
       ],
     );
   }
