@@ -458,6 +458,7 @@ class HomeScreenView extends StatelessWidget {
                               (_) => MainBookingPage(
                                 venueName: venue.venueName,
                                 venueId: venue.id,
+                                pricePerHour: venue.pricePerHour.toInt(),
                                 onSubmit: (bookingData) {},
                               ),
                         ),

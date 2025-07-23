@@ -18,28 +18,7 @@ class BookingRepositoryImpl implements BookingRepository {
     required this.venueRepository,
   });
 
-  // @override
-  // Future<List<Booking>> getBookings() async {
-  //   try {
-  //     final remoteData = await remoteDataSource.fetchBookings();
-  //     final bookings =
-  //         remoteData
-  //             .map((json) => BookingHiveModel.fromJson(json).toEntity())
-  //             .toList();
 
-  //     // Cache locally
-  //     await localDataSource.clearAllBookings();
-  //     for (var booking in bookings) {
-  //       await localDataSource.saveBooking(booking.toHiveModel());
-  //     }
-
-  //     return bookings;
-  //   } catch (_) {
-  //     // Fallback to local cache on error
-  //     final cached = await localDataSource.getAllBookings();
-  //     return cached.map((e) => e.toEntity()).toList();
-  //   }
-  // }
 
   @override
   Future<Booking?> createBooking(Booking booking) async {

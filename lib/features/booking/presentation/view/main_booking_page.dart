@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:venure/core/snackbar/my_snackbar.dart';
 import 'package:venure/core/utils/secure_action_handler.dart';
+import 'package:venure/features/booking/domain/use_case/get_booking_usecase.dart';
 import 'package:venure/features/booking/presentation/view_model/booking_event.dart';
 import 'package:venure/features/booking/presentation/view_model/booking_state.dart';
 import 'package:venure/features/booking/presentation/view_model/booking_view_model.dart';
 import 'package:venure/app/service_locator/service_locator.dart';
+import 'package:venure/features/profile/presentation/view/my_bookings_view/my_bookings_screen.dart';
 
 import 'booking_details_page.dart';
 import 'addons_page.dart';
@@ -12,15 +15,17 @@ import 'payment_page.dart';
 
 class MainBookingPage extends StatelessWidget {
   final String venueName;
-  final String venueId; // ✅ Venue ID passed to this page
+  final String venueId;
+  final int pricePerHour;
   final Function(Map<String, dynamic>) onSubmit;
 
   const MainBookingPage({
-    Key? key,
+    super.key,
     required this.venueName,
     required this.venueId,
     required this.onSubmit,
-  }) : super(key: key);
+    required this.pricePerHour,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -29,30 +34,52 @@ class MainBookingPage extends StatelessWidget {
           (_) =>
               serviceLocator<BookingViewModel>()..add(
                 BookingInit({
-                  'venue': venueId, // ✅ Preload venue ID into formData
+                  'venue': venueId,
+                  'pricePerHour': pricePerHour, // Include this
                 }),
               ),
+
       child: Scaffold(
         appBar: AppBar(title: Text('Book Venue: $venueName')),
         body: BlocConsumer<BookingViewModel, BookingState>(
+          listenWhen:
+              (previous, current) =>
+                  previous.paymentStatus != current.paymentStatus ||
+                  previous.isSuccess != current.isSuccess ||
+                  previous.errorMessage != current.errorMessage,
           listener: (context, state) {
-            if (state.isSuccess) {
-              print(state.formData);
-
-              onSubmit(state.formData);
-              context.read<BookingViewModel>().add(BookingReset());
-              Navigator.pop(
-                context,
-              ); // Optional: Pop the booking page after success
+            if (state.paymentStatus == PaymentStatus.success &&
+                !state.hasSubmitted) {
+              context.read<BookingViewModel>().add(BookingSubmit());
             }
 
+            showMySnackBar(context: context, message: "Booking successful!");
+            if (state.isSuccess) {
+              onSubmit(state.formData);
+              context.read<BookingViewModel>().add(BookingReset());
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (_) => MyBookingsScreen(
+                        getBookingsUseCase:
+                            serviceLocator<GetMyBookingsUseCase>(),
+                      ),
+                ),
+              );
+            }
             if (state.errorMessage.isNotEmpty) {
-              // Show error message if any
-              print('[DEBUG] Booking error: ${state.errorMessage}');
-              print(state.formData);
               ScaffoldMessenger.of(
                 context,
               ).showSnackBar(SnackBar(content: Text(state.errorMessage)));
+            }
+            if (state.paymentStatus == PaymentStatus.failure) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Payment failed: ${state.paymentError}'),
+                ),
+              );
             }
           },
           builder: (context, state) {
@@ -91,13 +118,14 @@ class MainBookingPage extends StatelessWidget {
                       context,
                       reason: 'Please confirm your identity to submit booking',
                     );
-
                     if (isVerified) {
-                      context.read<BookingViewModel>().add(BookingSubmit());
+                      // Trigger Stripe Payment Sheet flow
+                      context.read<BookingViewModel>().add(
+                        BookingStartPayment(),
+                      );
                     }
                   },
                 );
-
               default:
                 return const Center(child: Text('Unknown step'));
             }

@@ -1,173 +1,164 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:venure/core/utils/secure_action_handler.dart';
-import 'package:venure/features/booking/presentation/view_model/booking_event.dart';
-import 'package:venure/features/booking/presentation/view_model/booking_view_model.dart';
 
-class PaymentPage extends StatefulWidget {
+const Color _primaryRed = Color(0xFFE74C3C);
+const Color _textDark = Color(0xFF333333);
+const Color _inputFill = Color(0xFFF9F9F9);
+const double _cornerRadius = 14.0;
+
+class PaymentPage extends StatelessWidget {
   final Map<String, dynamic> initialData;
   final Function(Map<String, dynamic>) onNext;
   final VoidCallback onBack;
   final VoidCallback onSubmit;
 
   const PaymentPage({
-    Key? key,
+    super.key,
     required this.initialData,
     required this.onNext,
     required this.onBack,
     required this.onSubmit,
-  }) : super(key: key);
-
-  @override
-  State<PaymentPage> createState() => _PaymentPageState();
-}
-
-class _PaymentPageState extends State<PaymentPage> {
-  final _formKey = GlobalKey<FormState>();
-
-  String _cardNumber = '';
-  String _expiryDate = '';
-  String _cvv = '';
-  String _cardholderName = '';
-  String _contactName = '';
-  String _phoneNumber = '';
-
-  @override
-  void initState() {
-    super.initState();
-    final data = widget.initialData;
-    _cardNumber = data['paymentDetails']?['cardNumber'] ?? '';
-    _expiryDate = data['paymentDetails']?['expiryDate'] ?? '';
-    _cvv = data['paymentDetails']?['cvv'] ?? '';
-    _cardholderName = data['paymentDetails']?['cardholderName'] ?? '';
-    _contactName = data['contactName'] ?? '';
-    _phoneNumber = data['phoneNumber'] ?? '';
-  }
-
-  void _submit() {
-    if (_formKey.currentState?.validate() != true) {
-      return;
-    }
-    _formKey.currentState?.save();
-
-    widget.onNext({
-      'paymentDetails': {
-        'cardNumber': _cardNumber,
-        'expiryDate': _expiryDate,
-        'cvv': _cvv,
-        'cardholderName': _cardholderName,
-      },
-      'contactName': _contactName,
-      'phoneNumber': _phoneNumber,
-    });
-  }
+  });
 
   @override
   Widget build(BuildContext context) {
+    final totalPrice = initialData['totalPrice'] ?? 0;
+
+    final _formKey = GlobalKey<FormState>();
+    final contactNameController = TextEditingController(
+      text: initialData['contactName'] ?? '',
+    );
+    final phoneNumberController = TextEditingController(
+      text: initialData['phoneNumber'] ?? '',
+    );
+
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       child: Form(
         key: _formKey,
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const Text(
+              'Contact Information',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: _textDark,
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Contact Name
             TextFormField(
-              decoration: const InputDecoration(labelText: 'Contact Name *'),
-              initialValue: _contactName,
+              controller: contactNameController,
+              decoration: InputDecoration(
+                labelText: 'Contact Name *',
+                filled: true,
+                fillColor: _inputFill,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(_cornerRadius),
+                  borderSide: BorderSide.none,
+                ),
+              ),
               validator:
                   (val) =>
                       val == null || val.isEmpty ? 'Enter contact name' : null,
-              onSaved: (val) => _contactName = val ?? '',
             ),
+            const SizedBox(height: 16),
+
+            // Phone Number
             TextFormField(
-              decoration: const InputDecoration(labelText: 'Phone Number *'),
-              initialValue: _phoneNumber,
+              controller: phoneNumberController,
               keyboardType: TextInputType.phone,
+              decoration: InputDecoration(
+                labelText: 'Phone Number *',
+                filled: true,
+                fillColor: _inputFill,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(_cornerRadius),
+                  borderSide: BorderSide.none,
+                ),
+              ),
               validator:
                   (val) =>
                       val == null || val.isEmpty ? 'Enter phone number' : null,
-              onSaved: (val) => _phoneNumber = val ?? '',
             ),
-            const SizedBox(height: 20),
-            const Text(
-              'Payment Details',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            TextFormField(
-              decoration: const InputDecoration(labelText: 'Card Number *'),
-              initialValue: _cardNumber,
-              keyboardType: TextInputType.number,
-              maxLength: 16,
-              validator:
-                  (val) =>
-                      val == null || val.length != 16
-                          ? 'Enter valid card number'
-                          : null,
-              onSaved: (val) => _cardNumber = val ?? '',
-            ),
-            TextFormField(
-              decoration: const InputDecoration(
-                labelText: 'Expiry Date (MM/YY) *',
+            const SizedBox(height: 32),
+
+            // Total Price
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: _primaryRed.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(_cornerRadius),
               ),
-              initialValue: _expiryDate,
-              maxLength: 5,
-              validator: (val) {
-                if (val == null ||
-                    !RegExp(r'^(0[1-9]|1[0-2])\/\d{2}$').hasMatch(val)) {
-                  return 'Enter valid expiry date';
-                }
-                return null;
-              },
-              onSaved: (val) => _expiryDate = val ?? '',
+              child: Text(
+                'Total Price: Nrs. $totalPrice',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: _primaryRed,
+                ),
+              ),
             ),
-            TextFormField(
-              decoration: const InputDecoration(labelText: 'CVV *'),
-              initialValue: _cvv,
-              maxLength: 3,
-              keyboardType: TextInputType.number,
-              validator:
-                  (val) =>
-                      val == null || val.length != 3 ? 'Enter valid CVV' : null,
-              onSaved: (val) => _cvv = val ?? '',
-            ),
-            TextFormField(
-              decoration: const InputDecoration(labelText: 'Cardholder Name *'),
-              initialValue: _cardholderName,
-              validator:
-                  (val) =>
-                      val == null || val.isEmpty
-                          ? 'Enter cardholder name'
-                          : null,
-              onSaved: (val) => _cardholderName = val ?? '',
-            ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
+
+            // Buttons
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                TextButton(onPressed: widget.onBack, child: const Text('Back')),
-                ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState?.validate() != true) return;
-                    _formKey.currentState?.save();
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: onBack,
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: _primaryRed),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(_cornerRadius),
+                      ),
+                    ),
+                    child: const Text(
+                      'Back',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                        color: _primaryRed,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (!_formKey.currentState!.validate()) return;
 
-                    // 🔁 First save data to bloc
-                    widget.onNext({
-                      'paymentDetails': {
-                        'cardNumber': _cardNumber,
-                        'expiryDate': _expiryDate,
-                        'cvv': _cvv,
-                        'cardholderName': _cardholderName,
-                      },
-                      'contactName': _contactName,
-                      'phoneNumber': _phoneNumber,
-                    });
+                      onNext({
+                        'contactName': contactNameController.text,
+                        'phoneNumber': phoneNumberController.text,
+                      });
 
-                    // 🔐 Then call biometric + booking
-                    widget.onSubmit();
-                  },
-                  child: const Text('Confirm'),
+                      onSubmit();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _primaryRed,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(_cornerRadius),
+                      ),
+                    ),
+                    child: const Text(
+                      'Confirm & Pay',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
+            const SizedBox(height: 16),
           ],
         ),
       ),
