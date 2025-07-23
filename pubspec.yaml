@@ -35,6 +35,12 @@ dependencies:
   socket_io_client: ^3.1.2
   sensors_plus: ^6.1.1
   local_auth: ^2.3.0
+  http: ^1.4.0
+  url_launcher: ^6.3.2
+  flutter_stripe: ^11.5.0
+  flutter_dotenv: ^5.2.1
+  mime: ^2.0.0
+  http_parser: ^4.1.2
 
 dev_dependencies:
   flutter_test:
