@@ -1,19 +1,14 @@
 import 'dart:async';
 import 'dart:math';
-
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sensors_plus/sensors_plus.dart';
-import 'package:venure/app/service_locator/service_locator.dart';
-import 'package:venure/core/utils/url_utils.dart';
 import 'package:venure/features/auth/presentation/view/login_wrapper.dart';
-import 'package:venure/features/booking/domain/use_case/get_booking_usecase.dart';
-import 'package:venure/features/profile/presentation/view/edit_profile_screen.dart';
-import 'package:venure/features/profile/presentation/view/my_bookings_view/my_bookings_screen.dart';
 import 'package:venure/features/profile/presentation/view_model/profile_event.dart';
 import 'package:venure/features/profile/presentation/view_model/profile_state.dart';
 import 'package:venure/features/profile/presentation/view_model/profile_view_model.dart';
+import 'package:venure/features/profile/presentation/widget/header.dart';
+import 'package:venure/features/profile/presentation/widget/quick_actions.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -104,11 +99,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
               child: Column(
                 children: [
-                  _buildHeader(state),
+                  Header(state: state),
                   const SizedBox(height: 32),
                   _buildContactSection(state),
                   const SizedBox(height: 24),
-                  _buildQuickActions(context),
+                  QuickActions(context: context),
                   const SizedBox(height: 24),
                   _buildPlatformFeatures(),
                 ],
@@ -117,93 +112,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           },
         ),
       ),
-    );
-  }
-
-  Widget _buildHeader(ProfileState state) {
-    return Column(
-      children: [
-        Stack(
-          alignment: Alignment.bottomRight,
-          children: [
-            Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: const LinearGradient(
-                  colors: [Color(0xFFF43F5E), Color(0xFFE11D48)],
-                ),
-                border: Border.all(color: Colors.white, width: 4),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 20,
-                  ),
-                ],
-              ),
-              child:
-                  state.avatar != null
-                      ? ClipOval(
-                        child: CachedNetworkImage(
-                          imageUrl: UrlUtils.buildFullUrl(state.avatar!),
-                          placeholder:
-                              (context, url) =>
-                                  const CircularProgressIndicator(),
-                          errorWidget:
-                              (context, url, error) => const Icon(Icons.person),
-                          fit: BoxFit.cover,
-                          width: 120,
-                          height: 120,
-                        ),
-                      )
-                      : const Icon(Icons.person, color: Colors.white, size: 50),
-            ),
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFFF43F5E), Color(0xFFE11D48)],
-                ),
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.15),
-                    blurRadius: 10,
-                  ),
-                ],
-              ),
-              child: const Icon(Icons.star, color: Colors.white, size: 18),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Text(
-          state.name ?? "",
-          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w700),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          state.email ?? "",
-          style: const TextStyle(fontSize: 16, color: Colors.grey),
-        ),
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-          decoration: BoxDecoration(
-            color: Colors.pink.shade50,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: const Text(
-            "VERIFIED MEMBER",
-            style: TextStyle(
-              color: Colors.pink,
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
-            ),
-          ),
-        ),
-      ],
     );
   }
 
@@ -258,132 +166,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
               ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildQuickActions(BuildContext context) {
-    final profileViewModel = context.read<ProfileViewModel>();
-
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 20),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            "Quick Actions",
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 16),
-
-          // Bookings Button
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder:
-                        (_) => MyBookingsScreen(
-                          getBookingsUseCase:
-                              serviceLocator<GetMyBookingsUseCase>(),
-                        ),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.history),
-              label: const Text("My Bookings"),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueGrey[50],
-                foregroundColor: Colors.black87,
-                elevation: 0,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-
-          // Edit Profile
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder:
-                        (_) => BlocProvider.value(
-                          value: profileViewModel,
-                          child: const EditProfileScreen(),
-                        ),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.edit),
-              label: const Text("Edit Profile"),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueGrey[50],
-                foregroundColor: Colors.black87,
-                elevation: 0,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-
-          // Settings
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () => Navigator.pushNamed(context, "/settings"),
-              icon: const Icon(Icons.settings),
-              label: const Text("Account Settings"),
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-
-          // Logout
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () => profileViewModel.add(LogoutUser(context)),
-              icon: const Icon(Icons.logout, color: Colors.red),
-              label: const Text("Logout", style: TextStyle(color: Colors.red)),
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Colors.red),
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
             ),
           ),
         ],

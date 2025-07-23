@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:venure/features/booking/presentation/widget/premium_dropdown.dart';
 
 class BookingDetailsPage extends StatefulWidget {
   final Map<String, dynamic> initialData;
@@ -226,74 +227,6 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
     return '${date.day} ${months[date.month - 1]}, ${date.year}';
   }
 
-  Widget _buildPremiumDropdown({
-    required String label,
-    required String? value,
-    required List<String> items,
-    required Function(String?) onChanged,
-    required String? Function(String?) validator,
-    IconData? icon,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: _textDark,
-          ),
-        ),
-        const SizedBox(height: 12),
-        DropdownButtonFormField<String>(
-          decoration: InputDecoration(
-            prefixIcon:
-                icon != null
-                    ? Padding(
-                      padding: const EdgeInsets.only(left: 12, right: 8),
-                      child: Icon(icon, color: _primaryRed, size: 20),
-                    )
-                    : null,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: _mediumGray),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: _mediumGray),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: _primaryRed, width: 2),
-            ),
-            filled: true,
-            fillColor: _lightGray,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 20,
-              vertical: 20,
-            ),
-          ),
-          style: const TextStyle(
-            fontSize: 16,
-            color: _textDark,
-            fontWeight: FontWeight.w500,
-          ),
-          dropdownColor: Colors.white,
-          value: value,
-          onChanged: onChanged,
-          validator: validator,
-          items:
-              items
-                  .map(
-                    (item) => DropdownMenuItem(value: item, child: Text(item)),
-                  )
-                  .toList(),
-        ),
-      ],
-    );
-  }
-
   Widget _buildPremiumTextField({
     required String label,
     required String initialValue,
@@ -399,7 +332,11 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                   children: [
                     _buildDateSelector(),
                     const SizedBox(height: 20),
-                    _buildPremiumDropdown(
+                    PremiumDropdown(
+                      textDark: _textDark,
+                      primaryRed: _primaryRed,
+                      mediumGray: _mediumGray,
+                      lightGray: _lightGray,
                       label: 'Time Slot',
                       value: _timeSlot,
                       items: _timeSlotLabels,
@@ -494,7 +431,11 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                       ],
                     ),
                     const SizedBox(height: 20),
-                    _buildPremiumDropdown(
+                    PremiumDropdown(
+                      textDark: _textDark,
+                      primaryRed: _primaryRed,
+                      mediumGray: _mediumGray,
+                      lightGray: _lightGray,
                       label: 'Event Type',
                       value: _eventType,
                       items: _eventTypes,
