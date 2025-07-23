@@ -1,7 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:venure/app/service_locator/service_locator.dart';
 import 'package:venure/core/common/venue_card.dart';
+import 'package:venure/features/booking/presentation/view/main_booking_page.dart';
+import 'package:venure/features/chat/presentation/view_model/chat_list_bloc.dart';
+import 'package:venure/features/common/presentation/view/venue_details_page.dart';
+import 'package:venure/features/common/presentation/view_model/venue_details_bloc.dart';
+import 'package:venure/features/common/presentation/view_model/venue_details_event.dart';
 import 'package:venure/features/home/presentation/view_model/search_bloc.dart';
 import 'package:venure/features/home/presentation/view_model/search_event.dart';
 import 'package:venure/features/home/presentation/view_model/search_state.dart';
@@ -196,8 +202,47 @@ class _SearchPageState extends State<SearchPage> {
                               ToggleSearchFavoriteEvent(venue.id),
                             );
                           },
-                          onDetailsPage: () {},
-                          onBookNow: () {},
+                          onDetailsPage: () {
+                            final chatBloc = context.read<ChatListBloc>();
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder:
+                                    (_) => MultiBlocProvider(
+                                      providers: [
+                                        BlocProvider.value(value: chatBloc),
+                                        BlocProvider(
+                                          create:
+                                              (_) =>
+                                                  serviceLocator<
+                                                      VenueDetailsBloc
+                                                    >()
+                                                    ..add(
+                                                      LoadVenueDetails(
+                                                        venue.id,
+                                                      ),
+                                                    ),
+                                        ),
+                                      ],
+                                      child: VenueDetailsPage(
+                                        venueId: venue.id,
+                                      ),
+                                    ),
+                              ),
+                            );
+                          },
+                          onBookNow: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder:
+                                    (_) => MainBookingPage(
+                                      venueName: venue.venueName,
+                                      venueId: venue.id,
+                                      pricePerHour: venue.pricePerHour.toInt(),
+                                      onSubmit: (bookingData) {},
+                                    ),
+                              ),
+                            );
+                          },
                         );
                       },
                     );
