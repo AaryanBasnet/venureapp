@@ -20,6 +20,12 @@ class ApiEndpoints {
 
   static const String verifyPassword = "/auth/verify-password";
 
+  
+  // Forgot Password routes
+  static const String forgotPassword = "/auth/forgot-password";
+  static const String verifyResetCode = "/auth/verify-reset-code";
+  static const String resetPassword = "/auth/reset-password";
+
   //user
 
   static const String getApprovedVenues = "/user/venues/getApprovedVenues";

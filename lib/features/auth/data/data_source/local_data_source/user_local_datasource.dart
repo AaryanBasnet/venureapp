@@ -87,4 +87,22 @@ class UserLocalDatasource implements IUserDataSource {
   Future<String?> getCurrentUserId() async {
     return await _hiveService.getCurrentUserId();
   }
+  
+  @override
+  Future<void> resetPassword({required String email, required String code, required String newPassword}) {
+    // TODO: implement resetPassword
+    throw UnimplementedError();
+  }
+  
+  @override
+  Future<void> sendResetCode(String email) {
+    // TODO: implement sendResetCode
+    throw UnimplementedError();
+  }
+  
+  @override
+  Future<void> verifyResetCode(String email, String code) {
+    // TODO: implement verifyResetCode
+    throw UnimplementedError();
+  }
 }

@@ -53,4 +53,42 @@ Future<Either<Failure, UserEntity>> loginUser(
   }
 }
 
+  @override
+Future<Either<Failure, void>> sendResetCode(String email) async {
+  try {
+    await _userRemoteDataSource.sendResetCode(email);
+    return const Right(null);
+  } catch (e) {
+    return Left(ApiFailure(message: e.toString()));
+  }
+}
+
+@override
+Future<Either<Failure, void>> verifyResetCode(String email, String code) async {
+  try {
+    await _userRemoteDataSource.verifyResetCode(email, code);
+    return const Right(null);
+  } catch (e) {
+    return Left(ApiFailure(message: e.toString()));
+  }
+}
+
+@override
+Future<Either<Failure, void>> resetPassword({
+  required String email,
+  required String code,
+  required String newPassword,
+}) async {
+  try {
+    await _userRemoteDataSource.resetPassword(
+      email: email,
+      code: code,
+      newPassword: newPassword,
+    );
+    return const Right(null);
+  } catch (e) {
+    return Left(ApiFailure(message: e.toString()));
+  }
+}
+
 }

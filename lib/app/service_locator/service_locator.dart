@@ -14,10 +14,14 @@ import 'package:venure/features/auth/data/repository/local_repository/user_local
 // import 'package:venure/features/auth/data/repository/local_repository/user_local_repository.dart';
 import 'package:venure/features/auth/data/repository/remote_repository/user_remote_repository.dart';
 import 'package:venure/features/auth/domain/repository/user_repository.dart';
+import 'package:venure/features/auth/domain/use_case/reset_password_usecase.dart';
+import 'package:venure/features/auth/domain/use_case/send_rest_code_usecase.dart';
 // import 'package:venure/features/auth/domain/repository/user_repository.dart'; //
 import 'package:venure/features/auth/domain/use_case/user_login_usecase.dart';
 import 'package:venure/features/auth/domain/use_case/user_register_usecase.dart';
 import 'package:venure/features/auth/domain/use_case/verify_password_usecase.dart';
+import 'package:venure/features/auth/domain/use_case/verify_reset_code_usecase.dart';
+import 'package:venure/features/auth/presentation/view_model/forget_password_view_model/forget_password_view_model.dart';
 import 'package:venure/features/auth/presentation/view_model/login_view_model/login_view_model.dart';
 import 'package:venure/features/auth/presentation/view_model/register_view_model/register_view_model.dart';
 import 'package:venure/features/booking/data/data_source/local_data_source/booking_local_data_source.dart';
@@ -159,6 +163,37 @@ Future<void> _initAuthModule() async {
   if (!serviceLocator.isRegistered<LoginViewModel>()) {
     serviceLocator.registerFactory(
       () => LoginViewModel(serviceLocator<UserLoginUsecase>()),
+    );
+  }
+
+  // Assuming you have these use cases implemented
+  if (!serviceLocator.isRegistered<SendResetCodeUseCase>()) {
+    serviceLocator.registerFactory(
+      () => SendResetCodeUseCase(serviceLocator<IUserRepository>()),
+    );
+  }
+
+  // Register Forgot Password Usecases
+  if (!serviceLocator.isRegistered<VerifyResetCodeUseCase>()) {
+    serviceLocator.registerFactory(
+      () => VerifyResetCodeUseCase(serviceLocator<IUserRepository>()),
+    );
+  }
+
+  if (!serviceLocator.isRegistered<ResetPasswordUseCase>()) {
+    serviceLocator.registerFactory(
+      () => ResetPasswordUseCase(serviceLocator<IUserRepository>()),
+    );
+  }
+
+  // Register ForgotPasswordViewModel
+  if (!serviceLocator.isRegistered<ForgotPasswordViewModel>()) {
+    serviceLocator.registerFactory(
+      () => ForgotPasswordViewModel(
+        sendResetCodeUseCase: serviceLocator<SendResetCodeUseCase>(),
+        verifyResetCodeUseCase: serviceLocator<VerifyResetCodeUseCase>(),
+        resetPasswordUseCase: serviceLocator<ResetPasswordUseCase>(),
+      ),
     );
   }
 }
@@ -370,13 +405,12 @@ Future<void> _initChatModule() async {
   }
 
   serviceLocator.registerFactory(
-  () => ChatListBloc(
-    getUserChatsUseCase: serviceLocator<GetUserChatsUseCase>(),
-    getOrCreateChatUseCase: serviceLocator<GetOrCreateChatUseCase>(),
-    currentUserId: serviceLocator<HiveService>().getCurrentUserIdSync(),
-  ),
-);
-
+    () => ChatListBloc(
+      getUserChatsUseCase: serviceLocator<GetUserChatsUseCase>(),
+      getOrCreateChatUseCase: serviceLocator<GetOrCreateChatUseCase>(),
+      currentUserId: serviceLocator<HiveService>().getCurrentUserIdSync(),
+    ),
+  );
 
   if (!serviceLocator.isRegistered<ChatMessagesBloc>()) {
     serviceLocator.registerFactory(

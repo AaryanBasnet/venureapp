@@ -80,5 +80,23 @@ Future<String?> getCurrentUserId() async {
   return await _userLocalDataSource.getCurrentUserId();
 }
 
+  @override
+  Future<Either<Failure, void>> resetPassword({required String email, required String code, required String newPassword}) {
+    // TODO: implement resetPassword
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Either<Failure, void>> sendResetCode(String email) {
+    // TODO: implement sendResetCode
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Either<Failure, void>> verifyResetCode(String email, String code) {
+    // TODO: implement verifyResetCode
+    throw UnimplementedError();
+  }
+
 
 }

@@ -87,4 +87,68 @@ class UserRemoteDataSource implements IUserDataSource {
       );
     }
   }
+  @override
+Future<void> sendResetCode(String email) async {
+  try {
+    final response = await _apiService.dio.post(
+      ApiEndpoints.forgotPassword, // "/auth/forgot-password"
+      data: {'email': email},
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception(response.data['message'] ?? 'Failed to send reset code');
+    }
+  } on DioException catch (e) {
+    throw Exception(
+      'Failed to send reset code: ${e.response?.data?['message'] ?? e.message}',
+    );
+  }
+}
+
+@override
+Future<void> verifyResetCode(String email, String code) async {
+  try {
+    final response = await _apiService.dio.post(
+      ApiEndpoints.verifyResetCode, // "/auth/verify-reset-code"
+      data: {
+        'email': email,
+        'code': code,
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception(response.data['message'] ?? 'Invalid or expired code');
+    }
+  } on DioException catch (e) {
+    throw Exception(
+      'Failed to verify code: ${e.response?.data?['message'] ?? e.message}',
+    );
+  }
+}
+
+@override
+Future<void> resetPassword({
+  required String email,
+  required String code,
+  required String newPassword,
+}) async {
+  try {
+    final response = await _apiService.dio.post(
+      ApiEndpoints.resetPassword, // "/auth/reset-password"
+      data: {
+        'email': email,
+        'code': code,
+        'password': newPassword,
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception(response.data['message'] ?? 'Failed to reset password');
+    }
+  } on DioException catch (e) {
+    throw Exception(
+      'Failed to reset password: ${e.response?.data?['message'] ?? e.message}',
+    );
+  }
+}
 }

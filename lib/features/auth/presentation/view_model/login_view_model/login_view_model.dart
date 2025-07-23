@@ -17,11 +17,9 @@ class LoginViewModel extends Bloc<LoginEvent, LoginState> {
 
   LoginViewModel(this._loginUsecase) : super(LoginState.initial()) {
     on<LoginIntoSystemEvent>(_handleLogin);
-    // on<NavigateToSignupView>(_navigateToSignup);
-    // on<NavigateToDashboardView>(_navigateToDashboard);
+   
   }
 
-  /// Handles login with email and password
   Future<void> _handleLogin(
     LoginIntoSystemEvent event,
     Emitter<LoginState> emit,
@@ -40,48 +38,13 @@ class LoginViewModel extends Bloc<LoginEvent, LoginState> {
       (UserEntity userEntity) async {
         emit(state.copyWith(isLoading: false, isSuccess: true));
 
-        // Store login data persistently using UserEntity
         final localStorage = serviceLocator<LocalStorageService>();
         await localStorage.saveUser(userEntity);
 
-         // ✅ DEBUG CHECK: Print what was saved in SharedPreferences
-    
-  
-
-        // Navigator.pushAndRemoveUntil(
-        //   event.context,
-        //   MaterialPageRoute(
-        //     builder: (_) => BlocProvider(
-        //       create: (_) => NavigationCubit(),
-        //       child: VenureMainScreen(),
-        //     ),
-        //   ),
-        //   (route) => false,
-        // );
+         
       },
     );
   }
 
-  /// Navigates to the Register screen (using wrapper)
-  // void _navigateToSignup(NavigateToSignupView event, Emitter<LoginState> emit) {
-  //   if (event.context.mounted) {
-  //     Navigator.push(
-  //       event.context,
-  //       MaterialPageRoute(builder: (_) => const RegisterWrapper()),
-  //     );
-  //   }
-  // }
-
-  /// Navigates to Dashboard/Home (used if required separately)
-  // void _navigateToDashboard(
-  //   NavigateToDashboardView event,
-  //   Emitter<LoginState> emit,
-  // ) {
-  //   if (event.context.mounted) {
-  //     Navigator.push(
-  //       event.context,
-  //       MaterialPageRoute(builder: (_) => const HomeScreenWrapper()),
-  //     );
-  //   }
-  // }
+  
 }

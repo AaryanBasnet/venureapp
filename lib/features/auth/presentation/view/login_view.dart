@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venure/core/common/common_text_form_field.dart';
+import 'package:venure/features/auth/presentation/view/forget_password_view/forget_password_screen.dart';
 import 'package:venure/features/auth/presentation/view/register_wrapper.dart';
 import 'package:venure/features/auth/presentation/view_model/login_view_model/login_event.dart';
 import 'package:venure/features/auth/presentation/view_model/login_view_model/login_state.dart';
@@ -48,7 +49,7 @@ class LoginView extends StatelessWidget {
                 onChanged: (String) {},
               ),
               const SizedBox(height: 10),
-              _buildForgotPassword(),
+              _buildForgotPassword(context),
               const SizedBox(height: 25),
               _buildLoginButton(context, emailController, passwordController),
               const SizedBox(height: 20),
@@ -83,12 +84,22 @@ class LoginView extends StatelessWidget {
     );
   }
 
-  Widget _buildForgotPassword() {
+  Widget _buildForgotPassword(BuildContext context) {
     return Align(
       alignment: Alignment.centerRight,
       child: TextButton(
         onPressed: () async {
-          // TODO: Implement Forgot Password logic here
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder:
+                  (_) => ForgotPasswordScreen(
+                    key: UniqueKey(),
+
+                    // Pass any required parameters here
+                  ),
+            ),
+          );
         },
         child: const Text(
           "Forgot password?",
@@ -112,37 +123,39 @@ class LoginView extends StatelessWidget {
         return SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed: state.isLoading
-                ? null
-                : () async {
-                    context.read<LoginViewModel>().add(
-                          LoginIntoSystemEvent(
-                            email: emailController.text.trim(),
-                            password: passwordController.text,
-                          ),
-                        );
-                  },
+            onPressed:
+                state.isLoading
+                    ? null
+                    : () async {
+                      context.read<LoginViewModel>().add(
+                        LoginIntoSystemEvent(
+                          email: emailController.text.trim(),
+                          password: passwordController.text,
+                        ),
+                      );
+                    },
             style: ElevatedButton.styleFrom(
               backgroundColor: primaryColor,
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
-            child: state.isLoading
-                ? const SizedBox(
-                    height: 24,
-                    width: 24,
-                    child: CircularProgressIndicator(
-                      color: Colors.white,
-                      strokeWidth: 3,
+            child:
+                state.isLoading
+                    ? const SizedBox(
+                      height: 24,
+                      width: 24,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 3,
+                      ),
+                    )
+                    : const Text(
+                      "Login",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  )
-                : const Text(
-                    "Login",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
           ),
         );
       },
@@ -185,9 +198,9 @@ class LoginView extends StatelessWidget {
           onPressed: () async {
             await Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (_) => RegisterWrapper(
-                  registerViewModel: registerViewModel,
-                ),
+                builder:
+                    (_) =>
+                        RegisterWrapper(registerViewModel: registerViewModel),
               ),
             );
           },

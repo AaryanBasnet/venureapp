@@ -14,40 +14,41 @@ class HybridUserRepository implements IUserRepository {
   HybridUserRepository({required this.remote, required this.local});
 
   @override
-Future<Either<Failure, UserEntity>> loginUser(
-  String email,
-  String password,
-) async {
-  try {
-    final remoteResult = await remote.loginUser(email, password);
-    print("Hybrid repo remoteResult: $remoteResult");
+  Future<Either<Failure, UserEntity>> loginUser(
+    String email,
+    String password,
+  ) async {
+    try {
+      final remoteResult = await remote.loginUser(email, password);
+      print("Hybrid repo remoteResult: $remoteResult");
 
-    if (remoteResult.isRight()) {
-      return await remoteResult.fold((failure) => Left(failure), (
-        userEntity,
-      ) async {
-        final userWithPassword = userEntity.copyWith(password: password);
-        
-        await local.saveUser(userWithPassword);
-        await local.saveCurrentUserId(userWithPassword.userId); // ✅ Save current userId here
+      if (remoteResult.isRight()) {
+        return await remoteResult.fold((failure) => Left(failure), (
+          userEntity,
+        ) async {
+          final userWithPassword = userEntity.copyWith(password: password);
 
-        return Right(userWithPassword);
-      });
-    } else {
-      print("Fallback to local login due to remote failure");
+          await local.saveUser(userWithPassword);
+          await local.saveCurrentUserId(
+            userWithPassword.userId,
+          ); // ✅ Save current userId here
+
+          return Right(userWithPassword);
+        });
+      } else {
+        print("Fallback to local login due to remote failure");
+        final localResult = await local.loginUser(email, password);
+        if (localResult.isRight()) return localResult;
+        return remoteResult;
+      }
+    } catch (e, stackTrace) {
+      print("Hybrid repo caught exception: $e");
+      print(stackTrace);
       final localResult = await local.loginUser(email, password);
       if (localResult.isRight()) return localResult;
-      return remoteResult;
+      return Left(ApiFailure(message: e.toString()));
     }
-  } catch (e, stackTrace) {
-    print("Hybrid repo caught exception: $e");
-    print(stackTrace);
-    final localResult = await local.loginUser(email, password);
-    if (localResult.isRight()) return localResult;
-    return Left(ApiFailure(message: e.toString()));
   }
-}
-
 
   @override
   Future<Either<Failure, void>> registerUser(UserEntity user) async {
@@ -93,5 +94,28 @@ Future<Either<Failure, UserEntity>> loginUser(
     }
 
     return remoteResult;
+  }
+
+  @override
+  Future<Either<Failure, void>> sendResetCode(String email) {
+    return remote.sendResetCode(email);
+  }
+
+  @override
+  Future<Either<Failure, void>> verifyResetCode(String email, String code) {
+    return remote.verifyResetCode(email, code);
+  }
+
+  @override
+  Future<Either<Failure, void>> resetPassword({
+    required String email,
+    required String code,
+    required String newPassword,
+  }) {
+    return remote.resetPassword(
+      email: email,
+      code: code,
+      newPassword: newPassword,
+    );
   }
 }
