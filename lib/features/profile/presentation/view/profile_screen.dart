@@ -268,80 +268,126 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildQuickActions(BuildContext context) {
     final profileViewModel = context.read<ProfileViewModel>();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          "Quick Actions",
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            const SizedBox(width: 12),
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed:
-                    () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder:
-                            (_) => MyBookingsScreen(
-                              getBookingsUseCase:
-                                  serviceLocator<GetMyBookingsUseCase>(),
-                            ),
-                      ),
-                    ),
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Colors.grey),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 20),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Quick Actions",
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+
+          // Bookings Button
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (_) => MyBookingsScreen(
+                          getBookingsUseCase:
+                              serviceLocator<GetMyBookingsUseCase>(),
+                        ),
                   ),
+                );
+              },
+              icon: const Icon(Icons.history),
+              label: const Text("My Bookings"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blueGrey[50],
+                foregroundColor: Colors.black87,
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                icon: const Icon(Icons.history),
-                label: const Text("Bookings"),
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        OutlinedButton.icon(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder:
-                    (_) => BlocProvider.value(
-                      value: profileViewModel,
-                      child: const EditProfileScreen(),
-                    ),
-              ),
-            );
-          },
-          icon: const Icon(Icons.edit),
-          label: const Text("Edit Profile"),
-        ),
-        const SizedBox(height: 12),
-        OutlinedButton.icon(
-          onPressed: () => Navigator.pushNamed(context, "/settings"),
-          style: OutlinedButton.styleFrom(
-            side: const BorderSide(color: Colors.grey),
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
             ),
           ),
-          icon: const Icon(Icons.settings),
-          label: const Text("Account Settings"),
-        ),
-        const SizedBox(height: 12),
-        OutlinedButton.icon(
-          onPressed: () => profileViewModel.add(LogoutUser(context)),
-          icon: const Icon(Icons.logout, color: Colors.red),
-          label: const Text("Logout", style: TextStyle(color: Colors.red)),
-        ),
-      ],
+          const SizedBox(height: 12),
+
+          // Edit Profile
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (_) => BlocProvider.value(
+                          value: profileViewModel,
+                          child: const EditProfileScreen(),
+                        ),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.edit),
+              label: const Text("Edit Profile"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blueGrey[50],
+                foregroundColor: Colors.black87,
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // Settings
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () => Navigator.pushNamed(context, "/settings"),
+              icon: const Icon(Icons.settings),
+              label: const Text("Account Settings"),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // Logout
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () => profileViewModel.add(LogoutUser(context)),
+              icon: const Icon(Icons.logout, color: Colors.red),
+              label: const Text("Logout", style: TextStyle(color: Colors.red)),
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: Colors.red),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

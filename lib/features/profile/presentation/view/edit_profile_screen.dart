@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:venure/core/utils/url_utils.dart';
 import 'package:venure/features/profile/presentation/view_model/profile_event.dart';
 import 'package:venure/features/profile/presentation/view_model/profile_state.dart';
 import 'package:venure/features/profile/presentation/view_model/profile_view_model.dart';
@@ -35,24 +36,28 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               Center(
                 child: GestureDetector(
                   onTap: _pickImage,
-                  child: CircleAvatar(
-                    radius: 50,
-                    backgroundImage:
-                        _avatarFile != null
-                            ? FileImage(_avatarFile!)
-                            : (state.avatar != null
-                                    ? NetworkImage(state.avatar!)
-                                    : null)
-                                as ImageProvider?,
-                    child:
-                        _avatarFile == null && state.avatar == null
-                            ? const Icon(
-                              Icons.camera_alt,
-                              size: 40,
-                              color: Colors.grey,
-                            )
-                            : null,
-                  ),
+                  child:
+                      _avatarFile != null
+                          ? CircleAvatar(
+                            radius: 50,
+                            backgroundImage: FileImage(_avatarFile!),
+                          )
+                          : (state.avatar != null
+                              ? CircleAvatar(
+                                radius: 50,
+                                backgroundImage: NetworkImage(
+                                  UrlUtils.buildFullUrl(state.avatar!),
+                                ),
+                              )
+                              : CircleAvatar(
+                                radius: 50,
+                                backgroundColor: Colors.grey.shade300,
+                                child: const Icon(
+                                  Icons.camera_alt,
+                                  size: 40,
+                                  color: Colors.grey,
+                                ),
+                              )),
                 ),
               ),
               const SizedBox(height: 20),
@@ -89,6 +94,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final picker = ImagePicker();
     final picked = await picker.pickImage(source: ImageSource.gallery);
     if (picked != null) {
+      final extension = picked.path.split('.').last;
+      print('Picked file path: ${picked.path}');
+      print('File extension: $extension');
+
       setState(() {
         _avatarFile = File(picked.path);
       });
