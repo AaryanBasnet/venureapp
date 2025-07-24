@@ -3,19 +3,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venure/app/constant/shared_pref/local_storage_service.dart';
 import 'package:venure/features/auth/presentation/view/login_wrapper.dart';
-import 'package:venure/features/profile/data/data_source/remote_data_source/profile_remote_data_source.dart';
+import 'package:venure/features/profile/domain/use_case/get_profile_usecase.dart';
+import 'package:venure/features/profile/domain/use_case/update_profile_usecase.dart';
+import 'package:venure/features/profile/domain/use_case/update_profile_params.dart';
+import 'package:venure/features/profile/data/data_source/local_data_source/profile_local_data_source.dart';
 import 'package:venure/features/profile/data/model/user_profile_model.dart';
 import 'profile_event.dart';
 import 'profile_state.dart';
 
 class ProfileViewModel extends Bloc<ProfileEvent, ProfileState> {
-  final ProfileRemoteDataSource remoteDataSource;
+  final GetProfileUseCase getProfileUseCase;
+  final UpdateProfileUseCase updateProfileUseCase;
   final LocalStorageService _storageService;
+  final ProfileLocalDataSource _localDataSource;
 
   ProfileViewModel({
-    required this.remoteDataSource,
+    required this.getProfileUseCase,
+    required this.updateProfileUseCase,
     required LocalStorageService storageService,
+    required ProfileLocalDataSource localDataSource,
   }) : _storageService = storageService,
+       _localDataSource = localDataSource,
        super(ProfileState.initial()) {
     on<LoadUserProfile>(_onLoadUserProfile);
     on<UpdateUserProfile>(_onUpdateUserProfile);
@@ -23,71 +31,110 @@ class ProfileViewModel extends Bloc<ProfileEvent, ProfileState> {
   }
 
   Future<void> _onLoadUserProfile(
-    LoadUserProfile event,
-    Emitter<ProfileState> emit,
-  ) async {
-    emit(state.copyWith(isLoading: true, error: null));
+  LoadUserProfile event,
+  Emitter<ProfileState> emit,
+) async {
+  emit(state.copyWith(isLoading: true, error: null));
 
-    try {
-      final token = _storageService.token;
-      if (token == null || token.isEmpty) {
-        emit(state.copyWith(isLoading: false, isLoggedIn: false));
-        return;
+  final token = _storageService.token;
+  if (token == null || token.isEmpty) {
+    emit(state.copyWith(isLoading: false, isLoggedIn: false));
+    return;
+  }
+
+  final result = await getProfileUseCase(token);
+
+  if (emit.isDone) return; // ✅ Prevent emitting after handler is closed
+
+  await result.fold(
+    (failure) async {
+      debugPrint("❌ Remote fetch failed: ${failure.message}");
+      try {
+        final cached = await _localDataSource.getCachedUserProfile();
+        emit(
+          state.copyWith(
+            name: cached.name,
+            email: cached.email,
+            phone: cached.phone,
+            address: cached.address,
+            avatar: cached.avatar,
+            isLoggedIn: true,
+            isLoading: false,
+          ),
+        );
+      } catch (e) {
+        emit(state.copyWith(isLoading: false, error: failure.message));
       }
-
-      final profileResponse = await remoteDataSource.getUserProfile(token);
-      final userData = profileResponse['user'];
-
+    },
+    (profile) async {
+      final model = UserProfileModel(
+        id: profile.id,
+        name: profile.name,
+        email: profile.email,
+        phone: profile.phone,
+        address: profile.address,
+        avatar: profile.avatar,
+      );
+      await _localDataSource.cacheUserProfile(model);
       emit(
         state.copyWith(
-          name: userData['name'],
-          email: userData['email'],
-          phone: userData['phone'],
-          address: userData['address'],
-          avatar: userData['avatar'],
+          name: profile.name,
+          email: profile.email,
+          phone: profile.phone,
+          address: profile.address,
+          avatar: profile.avatar,
           isLoggedIn: true,
           isLoading: false,
         ),
       );
-    } catch (e) {
-      emit(state.copyWith(isLoading: false, error: e.toString()));
-    }
-  }
+    },
+  );
+}
 
-  
 
   Future<void> _onUpdateUserProfile(
     UpdateUserProfile event,
     Emitter<ProfileState> emit,
   ) async {
     emit(state.copyWith(isLoading: true, error: null));
-    try {
-      final token = _storageService.token;
-      if (token == null || token.isEmpty) throw Exception('No token found');
 
-      await remoteDataSource.updateUserProfile(
-        token: token,
-        name: event.name,
-        phone: event.phone,
-        address: event.address,
-        avatarFile: event.avatarFile,
-      );
-
-      // Refresh profile after update
-      add(LoadUserProfile());
-    } catch (e) {
-      emit(state.copyWith(isLoading: false, error: e.toString()));
+    final token = _storageService.token;
+    if (token == null || token.isEmpty) {
+      emit(state.copyWith(isLoading: false, error: "Token not found"));
+      return;
     }
+
+    final params = UpdateProfileParams(
+      token: token,
+      name: event.name,
+      phone: event.phone,
+      address: event.address,
+      avatarFile: event.avatarFile,
+    );
+
+    final result = await updateProfileUseCase(params);
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false, error: failure.message));
+      },
+      (_) {
+        add(LoadUserProfile()); // Refresh profile after update
+      },
+    );
   }
 
-   void _onLogoutUser(LogoutUser event, Emitter<ProfileState> emit) async {
+  Future<void> _onLogoutUser(
+    LogoutUser event,
+    Emitter<ProfileState> emit,
+  ) async {
     await _storageService.clearLoginData();
     if (event.context.mounted) {
-      Navigator.push(
+      Navigator.pushAndRemoveUntil(
         event.context,
         MaterialPageRoute(builder: (_) => const LoginWrapper()),
+        (route) => false,
       );
     }
   }
 }
-

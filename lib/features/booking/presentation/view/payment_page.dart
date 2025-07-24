@@ -23,7 +23,7 @@ class PaymentPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final totalPrice = initialData['totalPrice'] ?? 0;
 
-    final _formKey = GlobalKey<FormState>();
+    final formKey = GlobalKey<FormState>();
     final contactNameController = TextEditingController(
       text: initialData['contactName'] ?? '',
     );
@@ -34,7 +34,7 @@ class PaymentPage extends StatelessWidget {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Form(
-        key: _formKey,
+        key: formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -131,7 +131,7 @@ class PaymentPage extends StatelessWidget {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      if (!_formKey.currentState!.validate()) return;
+                      if (!formKey.currentState!.validate()) return;
 
                       onNext({
                         'contactName': contactNameController.text,

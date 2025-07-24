@@ -180,7 +180,7 @@ class HybridVenueRepository implements IVenueRepository {
       },
       (favoriteIds) async {
         await localRepository.cacheFavoriteVenueIds(favoriteIds);
-        print("✅ Fetched & cached favorite IDs: ${favoriteIds}");
+        print("✅ Fetched & cached favorite IDs: $favoriteIds");
         return Right(favoriteIds);
       },
     );

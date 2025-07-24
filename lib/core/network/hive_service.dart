@@ -10,6 +10,7 @@ import 'package:venure/features/chat/data/model/message_model.dart';
 import 'package:venure/features/home/data/model/venue_image_model.dart';
 import 'package:venure/features/home/data/model/venue_location_model.dart';
 import 'package:venure/features/home/data/model/venue_model.dart';
+import 'package:venure/features/profile/data/model/user_profile_model.dart';
 
 class HiveService {
   // Singleton setup
@@ -17,12 +18,13 @@ class HiveService {
   static final HiveService instance = HiveService._privateConstructor();
 
   late Box<UserHiveModel> _userBox;
+  late Box<UserProfileModel> _userProfileBox; // Declare here
+
   late Box<String> _favoritesBox;
   late Box<BookingHiveModel> _bookingBox;
   late Box<VenueModel> _venueBox;
   late Box<ChatModel> _chatBox;
   late Box<String> _currentUserBox;
-
 
   Future<void> init() async {
     final directory = await getApplicationDocumentsDirectory();
@@ -31,6 +33,9 @@ class HiveService {
     // Register all your adapters including nested models
     if (!Hive.isAdapterRegistered(UserHiveModelAdapter().typeId)) {
       Hive.registerAdapter(UserHiveModelAdapter());
+    }
+    if (!Hive.isAdapterRegistered(UserProfileModelAdapter().typeId)) {
+      Hive.registerAdapter(UserProfileModelAdapter());
     }
     if (!Hive.isAdapterRegistered(BookingHiveModelAdapter().typeId)) {
       Hive.registerAdapter(BookingHiveModelAdapter());
@@ -63,30 +68,27 @@ class HiveService {
     );
     _venueBox = await Hive.openBox<VenueModel>(HiveTableConstant.venueBoxName);
     _currentUserBox = await Hive.openBox<String>('current_user_box');
-
+    _userProfileBox = await Hive.openBox<UserProfileModel>(HiveTableConstant.userProfileBox);
   }
+
+  Box<UserProfileModel> get userProfileBox => _userProfileBox;
 
   // User Methods
   Future<void> registerUser(UserHiveModel user) async {
     await _userBox.put(user.userId, user);
   }
 
-  
-
-
   String getCurrentUserIdSync() {
-  return _currentUserBox.get('currentUserId', defaultValue: '') ?? '';
-}
-
+    return _currentUserBox.get('currentUserId', defaultValue: '') ?? '';
+  }
 
   Future<void> saveCurrentUserId(String userId) async {
-  await _currentUserBox.put('currentUserId', userId);
-}
+    await _currentUserBox.put('currentUserId', userId);
+  }
 
-Future<String?> getCurrentUserId() async {
-  return _currentUserBox.get('currentUserId');
-}
-
+  Future<String?> getCurrentUserId() async {
+    return _currentUserBox.get('currentUserId');
+  }
 
   Future<void> saveUserProfile(UserHiveModel user) async {
     await _userBox.put(user.userId, user);

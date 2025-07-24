@@ -17,10 +17,15 @@ class ProfileRepositoryImpl implements IProfileRepository {
   });
 
   @override
-  Future<Either<Failure, UserProfileEntity>> getUserProfile(String token) async {
+  Future<Either<Failure, UserProfileEntity>> getUserProfile(
+    String token,
+  ) async {
     try {
       final remoteData = await remoteDataSource.getUserProfile(token);
-      final userModel = UserProfileModel.fromJson(remoteData);
+
+      final userModel = UserProfileModel.fromJson(
+        remoteData['user'],
+      ); // ✅ FIXED
 
       // Save to local cache
       await localDataSource.cacheUserProfile(userModel);

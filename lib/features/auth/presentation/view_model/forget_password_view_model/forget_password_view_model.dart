@@ -1,5 +1,4 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:venure/core/error/failure.dart';
 import 'package:venure/features/auth/domain/use_case/reset_password_usecase.dart';
 
 import 'package:venure/features/auth/domain/use_case/send_rest_code_usecase.dart';

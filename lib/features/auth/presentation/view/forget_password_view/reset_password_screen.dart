@@ -12,8 +12,7 @@ class ResetPasswordScreen extends StatelessWidget {
   final String email;
   final String code;
 
-  ResetPasswordScreen({Key? key, required this.email, required this.code})
-    : super(key: key);
+  ResetPasswordScreen({super.key, required this.email, required this.code});
 
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
@@ -53,12 +52,12 @@ class _ResetPasswordForm extends StatefulWidget {
   final TextEditingController confirmPasswordController;
 
   const _ResetPasswordForm({
-    Key? key,
+    super.key,
     required this.email,
     required this.code,
     required this.passwordController,
     required this.confirmPasswordController,
-  }) : super(key: key);
+  });
 
   @override
   State<_ResetPasswordForm> createState() => _ResetPasswordFormState();

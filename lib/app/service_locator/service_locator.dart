@@ -3,7 +3,6 @@ import 'package:get_it/get_it.dart';
 import 'package:venure/app/constant/shared_pref/local_storage_service.dart';
 import 'package:venure/core/network/api_service.dart';
 import 'package:venure/core/network/hive_service.dart';
-import 'package:venure/core/network/search_venue_service.dart';
 import 'package:venure/core/network/socket_service.dart';
 import 'package:venure/features/auth/data/data_source/local_data_source/user_local_datasource.dart';
 // import 'package:venure/core/network/hive_service.dart'; //
@@ -42,7 +41,6 @@ import 'package:venure/features/chat/domain/use_case/get_or_create_chat_usecase.
 import 'package:venure/features/chat/presentation/view_model/chat_list_bloc.dart';
 import 'package:venure/features/chat/presentation/view_model/chat_message_bloc.dart';
 import 'package:venure/features/common/presentation/view_model/venue_details_bloc.dart';
-import 'package:venure/features/home/data/data_source/ivenue_data_source.dart';
 import 'package:venure/features/home/data/data_source/local_data_source/venue_local_datasource.dart';
 import 'package:venure/features/home/data/data_source/remote_data_source/venue_remote_datasource.dart';
 import 'package:venure/features/home/data/repository/hybrid_venue_repository.dart';
@@ -55,7 +53,12 @@ import 'package:venure/features/home/domain/use_case/search_venue_usecase.dart';
 import 'package:venure/features/home/domain/use_case/toggle_favorite_usecase.dart';
 import 'package:venure/features/home/presentation/view_model/home_view_model.dart';
 import 'package:venure/features/home/presentation/view_model/search_bloc.dart';
+import 'package:venure/features/profile/data/data_source/local_data_source/profile_local_data_source.dart';
 import 'package:venure/features/profile/data/data_source/remote_data_source/profile_remote_data_source.dart';
+import 'package:venure/features/profile/data/repository/profile_repository_impl.dart';
+import 'package:venure/features/profile/domain/repository/profile_repository.dart';
+import 'package:venure/features/profile/domain/use_case/get_profile_usecase.dart';
+import 'package:venure/features/profile/domain/use_case/update_profile_usecase.dart';
 import 'package:venure/features/profile/presentation/view_model/my_bookings_view_model/my_booking_view_model.dart';
 import 'package:venure/features/profile/presentation/view_model/profile_view_model.dart';
 
@@ -344,11 +347,39 @@ Future<void> _initProfileModule() async {
     );
   }
 
+  if (!serviceLocator.isRegistered<ProfileLocalDataSource>()) {
+    serviceLocator.registerLazySingleton(
+      () => ProfileLocalDataSource(hiveService: serviceLocator<HiveService>()),
+    );
+  }
+  if (!serviceLocator.isRegistered<IProfileRepository>()) {
+    serviceLocator.registerLazySingleton<IProfileRepository>(
+      () => ProfileRepositoryImpl(
+        remoteDataSource: serviceLocator<ProfileRemoteDataSource>(),
+        localDataSource: serviceLocator<ProfileLocalDataSource>(),
+      ),
+    );
+  }
+
+  if (!serviceLocator.isRegistered<GetProfileUseCase>()) {
+    serviceLocator.registerLazySingleton(
+      () => GetProfileUseCase(serviceLocator<IProfileRepository>()),
+    );
+  }
+
+  if (!serviceLocator.isRegistered<UpdateProfileUseCase>()) {
+    serviceLocator.registerLazySingleton(
+      () => UpdateProfileUseCase(serviceLocator<IProfileRepository>()),
+    );
+  }
+
   if (!serviceLocator.isRegistered<ProfileViewModel>()) {
     serviceLocator.registerFactory(
       () => ProfileViewModel(
-        remoteDataSource: serviceLocator<ProfileRemoteDataSource>(),
+        getProfileUseCase: serviceLocator<GetProfileUseCase>(),
+        updateProfileUseCase: serviceLocator<UpdateProfileUseCase>(),
         storageService: serviceLocator<LocalStorageService>(),
+        localDataSource: serviceLocator<ProfileLocalDataSource>(),
       ),
     );
   }

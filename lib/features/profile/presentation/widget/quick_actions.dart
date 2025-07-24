@@ -122,7 +122,31 @@ class QuickActions extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
-              onPressed: () => profileViewModel.add(LogoutUser(context)),
+              onPressed: () async {
+                final shouldLogout = await showDialog<bool>(
+                  context: context,
+                  builder:
+                      (context) => AlertDialog(
+                        title: const Text("Confirm Logout"),
+                        content: const Text("Are you sure you want to logout?"),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(false),
+                            child: const Text("Cancel"),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(true),
+                            child: const Text("Yes"),
+                          ),
+                        ],
+                      ),
+                );
+
+                if (shouldLogout == true) {
+                  profileViewModel.add(LogoutUser(context));
+                }
+              },
+
               icon: const Icon(Icons.logout, color: Colors.red),
               label: const Text("Logout", style: TextStyle(color: Colors.red)),
               style: OutlinedButton.styleFrom(

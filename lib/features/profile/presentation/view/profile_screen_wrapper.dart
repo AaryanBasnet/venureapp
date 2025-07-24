@@ -11,10 +11,13 @@ class ProfileScreenWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => ProfileViewModel(
-        remoteDataSource: serviceLocator(),
-        storageService: serviceLocator(),
-      )..add(LoadUserProfile()),
+      create:
+          (_) => ProfileViewModel(
+            getProfileUseCase: serviceLocator(),
+            updateProfileUseCase: serviceLocator(),
+            storageService: serviceLocator(),
+            localDataSource: serviceLocator(),
+          )..add(LoadUserProfile()),
       child: const ProfileScreen(),
     );
   }

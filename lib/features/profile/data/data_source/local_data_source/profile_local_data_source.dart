@@ -1,16 +1,40 @@
+import 'package:flutter/material.dart';
+import 'package:venure/core/network/hive_service.dart';
 import 'package:venure/features/profile/data/model/user_profile_model.dart';
 import 'package:hive/hive.dart';
-import 'package:venure/app/constant/hive/hive_table_constant.dart';
 
 class ProfileLocalDataSource {
+  final HiveService _hiveService;
+
+  ProfileLocalDataSource({required HiveService hiveService})
+    : _hiveService = hiveService;
+
+  Box<UserProfileModel> get _userBox => _hiveService.userProfileBox;
+
   Future<void> cacheUserProfile(UserProfileModel user) async {
-    final box = await Hive.openBox<UserProfileModel>(HiveTableConstant.userBox);
-    await box.put(user.id, user);
+    debugPrint("✅ About to cache profile:");
+    debugPrint("  → ID: ${user.id}");
+    debugPrint("  → Name: ${user.name}");
+    debugPrint("  → Email: ${user.email}");
+    debugPrint("  → Phone: ${user.phone}");
+    debugPrint("  → Address: ${user.address}");
+    debugPrint("  → Avatar: ${user.avatar}");
+
+    await _userBox.put(user.id, user);
   }
 
   Future<UserProfileModel> getCachedUserProfile() async {
-    final box = await Hive.openBox<UserProfileModel>(HiveTableConstant.userBox);
-    if (box.isEmpty) throw Exception("No cached user profile");
-    return box.values.first;
+    debugPrint(
+      "📦 Attempting to load from Hive. Box isEmpty: ${_userBox.isEmpty}",
+    );
+
+    if (_userBox.isEmpty) {
+      throw Exception("No cached user profile");
+    }
+
+    final user = _userBox.values.first;
+    debugPrint("📤 Loaded cached profile: ${user.name} (ID: ${user.id})");
+
+    return user;
   }
 }

@@ -1,26 +1,25 @@
 import 'package:hive/hive.dart';
-import 'package:venure/app/constant/hive/hive_table_constant.dart';
 import 'package:venure/features/profile/domain/entity/user_profile_entity.dart';
 
 part 'user_profile_model.g.dart';
 
-@HiveType(typeId: HiveTableConstant.userTableId)
+@HiveType(typeId: 8)
 class UserProfileModel extends HiveObject {
   @HiveField(0)
   final String id;
-  
+
   @HiveField(1)
   final String name;
-  
+
   @HiveField(2)
   final String email;
-  
+
   @HiveField(3)
   final String phone;
-  
+
   @HiveField(4)
   final String address;
-  
+
   @HiveField(5)
   final String avatar;
 
@@ -35,12 +34,12 @@ class UserProfileModel extends HiveObject {
 
   factory UserProfileModel.fromJson(Map<String, dynamic> json) {
     return UserProfileModel(
-      id: json['_id'],
-      name: json['name'],
-      email: json['email'],
-      phone: json['phone'],
-      address: json['address'],
-      avatar: json['avatar'],
+      id: json['_id'] ?? '',
+      name: json['name'] ?? '',
+      email: json['email'] ?? '',
+      phone: json['phone'] ?? '',
+      address: json['address'] ?? '',
+      avatar: json['avatar'] ?? '',
     );
   }
 

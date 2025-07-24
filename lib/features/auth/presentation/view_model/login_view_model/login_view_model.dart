@@ -1,16 +1,10 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venure/app/constant/shared_pref/local_storage_service.dart';
 import 'package:venure/app/service_locator/service_locator.dart';
-import 'package:venure/core/snackbar/my_snackbar.dart';
 import 'package:venure/features/auth/domain/entity/user_entity.dart';
 import 'package:venure/features/auth/domain/use_case/user_login_usecase.dart';
-import 'package:venure/features/auth/presentation/view/register_wrapper.dart';
 import 'package:venure/features/auth/presentation/view_model/login_view_model/login_event.dart';
 import 'package:venure/features/auth/presentation/view_model/login_view_model/login_state.dart';
-import 'package:venure/features/common/presentation/view/venure_main_screen.dart';
-import 'package:venure/features/common/presentation/view_model/navigation_cubit.dart';
-import 'package:venure/features/home/presentation/view/home_screen_wrapper.dart';
 
 class LoginViewModel extends Bloc<LoginEvent, LoginState> {
   final UserLoginUsecase _loginUsecase;
