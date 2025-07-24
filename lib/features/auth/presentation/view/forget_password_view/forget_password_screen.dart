@@ -11,7 +11,7 @@ import 'package:venure/features/auth/presentation/view_model/forget_password_vie
 import 'verify_reset_code_screen.dart';
 
 class ForgotPasswordScreen extends StatelessWidget {
-  ForgotPasswordScreen({super.key});
+  ForgotPasswordScreen({Key? key}) : super(key: key);
 
   final _emailController = TextEditingController();
 

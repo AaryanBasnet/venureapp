@@ -6,10 +6,10 @@ class BookingDetailsPage extends StatefulWidget {
   final Function(Map<String, dynamic>) onNext;
 
   const BookingDetailsPage({
-    super.key,
+    Key? key,
     required this.initialData,
     required this.onNext,
-  });
+  }) : super(key: key);
 
   @override
   State<BookingDetailsPage> createState() => _BookingDetailsPageState();

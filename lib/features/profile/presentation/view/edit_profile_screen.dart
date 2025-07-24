@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:venure/core/utils/url_utils.dart';
 import 'package:venure/features/profile/presentation/view_model/profile_event.dart';
+import 'package:venure/features/profile/presentation/view_model/profile_state.dart';
 import 'package:venure/features/profile/presentation/view_model/profile_view_model.dart';
 
 class EditProfileScreen extends StatefulWidget {

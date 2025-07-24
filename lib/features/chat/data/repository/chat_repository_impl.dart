@@ -77,7 +77,6 @@ class ChatRepositoryImpl implements IChatRepository {
   }
 
   // New method to save a message locally
-  @override
   Future<void> saveMessageLocally(MessageEntity message) async {
     final msgModel = MessageModel(
       id: message.id,

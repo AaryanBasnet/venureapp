@@ -11,11 +11,11 @@ class AddonsPage extends StatefulWidget {
   final VoidCallback onBack;
 
   const AddonsPage({
-    super.key,
+    Key? key,
     required this.initialAddons,
     required this.onNext,
     required this.onBack,
-  });
+  }) : super(key: key);
 
   @override
   State<AddonsPage> createState() => _AddonsPageState();

@@ -151,14 +151,12 @@ Future<void> saveAllVenues(List<Venue> venues) async {
 }
 
 
-@override
-  Future<void> cacheFavoriteVenueIds(List<String> ids) async {
+Future<void> cacheFavoriteVenueIds(List<String> ids) async {
   await localDataSource.saveFavoriteVenueIds(ids);
   print("🟢 VenueLocalRepository: Cached favorite venue IDs: $ids");
 }
 
-@override
-  Future<Either<Failure, List<String>>> getCachedFavoriteVenueIds() async {
+Future<Either<Failure, List<String>>> getCachedFavoriteVenueIds() async {
   try {
     final cached = await localDataSource.getFavoriteVenueIds();
     print("🟢 VenueLocalRepository: Retrieved cached favorite venue IDs: $cached");

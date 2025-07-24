@@ -1,5 +1,9 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:venure/core/snackbar/my_snackbar.dart';
 import 'package:venure/features/auth/domain/use_case/user_register_usecase.dart';
+import 'package:venure/features/auth/presentation/view/login_view.dart';
+import 'package:venure/features/auth/presentation/view/login_wrapper.dart';
 import 'package:venure/features/auth/presentation/view_model/register_view_model/register_event.dart';
 import 'package:venure/features/auth/presentation/view_model/register_view_model/register_state.dart';
 

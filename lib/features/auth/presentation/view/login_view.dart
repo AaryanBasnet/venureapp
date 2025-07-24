@@ -13,7 +13,8 @@ class LoginView extends StatelessWidget {
 
   const LoginView({super.key, this.registerViewModel});
 
-  static const Color primaryColor = Color(0xFF3B2063);
+  static const Color primaryColor = Color(0xFFE11D48);
+  static const Color lightGray = Color(0xFFF1F5F9);
 
   @override
   Widget build(BuildContext context) {
@@ -24,197 +25,145 @@ class LoginView extends StatelessWidget {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildLogo(),
-              const SizedBox(height: 30),
-              _buildTitle(),
-              const SizedBox(height: 20),
+              Center(child: Image.asset('assets/img/app-icon.png', height: 80)),
+              const Center(
+                child: Text(
+                  "VENURE",
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 6,
+                    color: primaryColor,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Center(
+                child: Text(
+                  "Luxury • Redefined",
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 1.5,
+                    color: Colors.grey,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 40),
               CommonTextFormField(
                 label: "Email",
-                icon: Icons.email,
+                icon: Icons.email_outlined,
                 color: primaryColor,
                 controller: emailController,
-                onChanged: (String) {},
+                onChanged: (_) {},
               ),
               const SizedBox(height: 20),
               CommonTextFormField(
                 label: "Password",
-                icon: Icons.lock,
+                icon: Icons.lock_outline,
                 obsecure: true,
                 color: primaryColor,
                 controller: passwordController,
-                onChanged: (String) {},
+                onChanged: (_) {},
               ),
               const SizedBox(height: 10),
-              _buildForgotPassword(context),
-              const SizedBox(height: 25),
-              _buildLoginButton(context, emailController, passwordController),
-              const SizedBox(height: 20),
-              _buildGoogleLoginButton(),
-              const SizedBox(height: 40),
-              _buildSignUpText(context),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => ForgotPasswordScreen()),
+                    );
+                  },
+                  child: const Text(
+                    "Forgot password?",
+                    style: TextStyle(fontSize: 14, color: primaryColor),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 30),
+              BlocBuilder<LoginViewModel, LoginState>(
+                builder: (context, state) {
+                  return SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed:
+                          state.isLoading
+                              ? null
+                              : () {
+                                context.read<LoginViewModel>().add(
+                                  LoginIntoSystemEvent(
+                                    email: emailController.text.trim(),
+                                    password: passwordController.text,
+                                  ),
+                                );
+                              },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColor,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child:
+                          state.isLoading
+                              ? const SizedBox(
+                                height: 24,
+                                width: 24,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 3,
+                                ),
+                              )
+                              : const Text(
+                                "Login",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 30),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text("Don't have an account? "),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (_) => RegisterWrapper(
+                                registerViewModel: registerViewModel,
+                              ),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      "Sign Up",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: primaryColor,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildLogo() {
-    return Center(
-      child: Image.asset(
-        'assets/img/logo_nobg.png',
-        fit: BoxFit.contain,
-        width: 200,
-      ),
-    );
-  }
-
-  Widget _buildTitle() {
-    return const Text(
-      "Sign in to your account!",
-      style: TextStyle(
-        fontSize: 28,
-        fontWeight: FontWeight.bold,
-        color: primaryColor,
-      ),
-    );
-  }
-
-  Widget _buildForgotPassword(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: TextButton(
-        onPressed: () async {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder:
-                  (_) => ForgotPasswordScreen(
-                    key: UniqueKey(),
-
-                    // Pass any required parameters here
-                  ),
-            ),
-          );
-        },
-        child: const Text(
-          "Forgot password?",
-          style: TextStyle(
-            fontSize: 16,
-            color: primaryColor,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLoginButton(
-    BuildContext context,
-    TextEditingController emailController,
-    TextEditingController passwordController,
-  ) {
-    return BlocBuilder<LoginViewModel, LoginState>(
-      builder: (context, state) {
-        return SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed:
-                state.isLoading
-                    ? null
-                    : () async {
-                      context.read<LoginViewModel>().add(
-                        LoginIntoSystemEvent(
-                          email: emailController.text.trim(),
-                          password: passwordController.text,
-                        ),
-                      );
-                    },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: primaryColor,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-            ),
-            child:
-                state.isLoading
-                    ? const SizedBox(
-                      height: 24,
-                      width: 24,
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 3,
-                      ),
-                    )
-                    : const Text(
-                      "Login",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildGoogleLoginButton() {
-    return SizedBox(
-      width: double.infinity,
-      child: OutlinedButton(
-        onPressed: () async {
-          debugPrint('Google login button pressed');
-          // TODO: Implement Google login logic here
-        },
-        style: OutlinedButton.styleFrom(
-          side: const BorderSide(color: primaryColor),
-          padding: const EdgeInsets.symmetric(vertical: 14),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset("assets/img/google_logo.png", height: 24),
-            const SizedBox(width: 12),
-            const Text(
-              "Login with Google",
-              style: TextStyle(fontSize: 18, color: primaryColor),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSignUpText(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Text("Don't have an account? "),
-        TextButton(
-          onPressed: () async {
-            await Navigator.of(context).push(
-              MaterialPageRoute(
-                builder:
-                    (_) =>
-                        RegisterWrapper(registerViewModel: registerViewModel),
-              ),
-            );
-          },
-          child: const Text(
-            "Sign Up!",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              decoration: TextDecoration.underline,
-              fontSize: 18,
-              color: primaryColor,
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

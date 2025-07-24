@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:venure/app/constant/api/api_endpoints.dart';
 import 'package:venure/core/network/api_service.dart';
 

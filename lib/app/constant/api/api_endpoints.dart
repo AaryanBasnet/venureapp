@@ -20,7 +20,6 @@ class ApiEndpoints {
 
   static const String verifyPassword = "/auth/verify-password";
 
-  
   // Forgot Password routes
   static const String forgotPassword = "/auth/forgot-password";
   static const String verifyResetCode = "/auth/verify-reset-code";
@@ -51,4 +50,10 @@ class ApiEndpoints {
   static const String getOrCreateChat = "/chats";
   static String getMessages(String chatId) => "/messages/$chatId";
   static const String sendMessage = "/messages";
+
+  //notification
+
+  static const String getNotifications = "/notification";
+  static String markNotificationAsRead(String id) => "/notification/$id/read";
+  static const String markAllNotificationsAsRead = "/notification/read-all";
 }

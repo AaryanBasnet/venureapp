@@ -8,7 +8,7 @@ class FilterSheet extends StatefulWidget {
   final List<String> selectedAmenities;
   final String? selectedSort;
 
-  const FilterSheet({super.key, 
+  const FilterSheet({
     this.selectedCategory,
     this.selectedCity,
     this.selectedCapacity,

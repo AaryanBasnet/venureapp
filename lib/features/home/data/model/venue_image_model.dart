@@ -7,11 +7,9 @@ part 'venue_image_model.g.dart';
 @HiveType(typeId: 1)
 @JsonSerializable()
 class VenueImageModel extends VenueImage with HiveObjectMixin {
-  @override
   @HiveField(0)
   final String filename;
 
-  @override
   @HiveField(1)
   final String url;
 

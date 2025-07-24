@@ -9,6 +9,8 @@ import 'package:venure/features/chat/presentation/view_model/chat_list_state.dar
 import 'package:venure/features/chat/presentation/view_model/chat_message_bloc.dart';
 import 'package:venure/features/chat/presentation/view_model/chat_message_event.dart';
 
+import 'package:venure/features/chat/domain/entity/message_entity.dart';
+import 'package:venure/features/chat/domain/repository/i_chat_repository.dart';
 
 class ChatScreenView extends StatelessWidget {
   const ChatScreenView({super.key});

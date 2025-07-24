@@ -17,7 +17,7 @@ class SocketService {
     _initialized = true;
 
     _socket = IO.io(
-      'http://10.0.2.2:5050',
+      'http://192.168.1.70:5050',
       IO.OptionBuilder()
           .setTransports(['websocket'])
           .disableAutoConnect()
