@@ -10,9 +10,14 @@ class VenueLocalRepository implements IVenueRepository {
   VenueLocalRepository({required this.localDataSource});
 
   @override
-  Future<Either<Failure, List<Venue>>> getAllVenues() async {
+  Future<Either<Failure, List<Venue>>> getAllVenues(
+    {int page = 1, int limit = 5}
+  ) async {
     try {
-      final venues = await localDataSource.getAllVenues();
+      final venues = await localDataSource.getAllVenues(
+        page: page,
+        limit: limit,
+      );
       return Right(venues);
     } catch (e) {
       return Left(LocalDataBaseFailure(message: e.toString()));

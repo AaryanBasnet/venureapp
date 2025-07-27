@@ -10,9 +10,14 @@ class VenueRemoteRepository implements IVenueRepository {
   VenueRemoteRepository({required this.remoteDataSource});
 
   @override
-  Future<Either<Failure, List<Venue>>> getAllVenues() async {
+  Future<Either<Failure, List<Venue>>> getAllVenues(
+    {int page = 1, int limit = 5}
+  ) async {
     try {
-      final venues = await remoteDataSource.getAllVenues();
+      final venues = await remoteDataSource.getAllVenues(
+        page: page,
+        limit: limit,
+      );
       return Right(venues);
     } catch (e) {
       return Left(ApiFailure(message: e.toString()));

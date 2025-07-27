@@ -15,12 +15,28 @@ class HomeScreenLoading extends HomeScreenState {}
 class HomeScreenLoaded extends HomeScreenState {
   final List<Venue> venues;
   final List<String> favoriteVenueIds;
+  final List<Venue> favoriteVenues;
+  final int currentPage;
+  final bool hasMore;
 
-  const HomeScreenLoaded(this.venues, {this.favoriteVenueIds = const [], required List<Venue> favoriteVenues});
+  const HomeScreenLoaded(
+    this.venues, {
+    required this.favoriteVenueIds,
+    required this.favoriteVenues,
+    this.currentPage = 1,
+    this.hasMore = true,
+  });
 
   @override
-  List<Object> get props => [venues, favoriteVenueIds];
+  List<Object> get props => [
+        venues,
+        favoriteVenueIds,
+        favoriteVenues,
+        currentPage,
+        hasMore,
+      ];
 }
+
 
 class HomeScreenError extends HomeScreenState {
   final String error;

@@ -10,8 +10,12 @@ class VenueLocalDataSource implements IVenueDataSource {
     : _hiveService = hiveService;
 
   @override
-  Future<List<Venue>> getAllVenues() async {
-    final models = await _hiveService.getAllVenues();
+  Future<List<Venue>> getAllVenues(
+    {int page = 1, int limit = 10}
+  ) async {
+    final models = await _hiveService.getAllVenues(
+      
+    );
     return models.map((model) => model.toEntity()).toList();
   }
 

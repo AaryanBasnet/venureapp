@@ -3,7 +3,10 @@ import 'package:venure/core/error/failure.dart';
 import 'package:venure/features/home/domain/entity/venue_entity.dart';
 
 abstract interface class IVenueRepository {
-  Future<Either<Failure, List<Venue>>> getAllVenues();
+  Future<Either<Failure, List<Venue>>> getAllVenues({
+    int page = 1,
+    int limit = 5,
+  });
   Future<Either<Failure, Venue>> getVenueById(String id);
   Future<Either<Failure, Venue>> addVenue(Venue venue);
   Future<Either<Failure, Venue>> updateVenue(Venue venue);

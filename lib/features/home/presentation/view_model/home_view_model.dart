@@ -19,6 +19,7 @@ class HomeScreenBloc extends Bloc<HomeScreenEvent, HomeScreenState> {
     on<LoadVenues>(_onLoadVenues);
     on<LoadFavorites>(_onLoadFavorites);
     on<ToggleFavoriteVenue>(_onToggleFavorite);
+    on<LoadMoreVenues>(_onLoadMoreVenues);
   }
 
   Future<void> _onLoadVenues(
@@ -26,7 +27,8 @@ class HomeScreenBloc extends Bloc<HomeScreenEvent, HomeScreenState> {
     Emitter<HomeScreenState> emit,
   ) async {
     emit(HomeScreenLoading());
-    final venuesResult = await getAllVenuesUseCase();
+
+    final venuesResult = await getAllVenuesUseCase(page: 1);
     final favoritesResult = await getFavoritesUseCase();
 
     venuesResult.fold(
@@ -41,6 +43,8 @@ class HomeScreenBloc extends Bloc<HomeScreenEvent, HomeScreenState> {
                 venues,
                 favoriteVenueIds: [],
                 favoriteVenues: [],
+                currentPage: 1,
+                hasMore: venues.length >= 5,
               ),
             );
           },
@@ -55,9 +59,59 @@ class HomeScreenBloc extends Bloc<HomeScreenEvent, HomeScreenState> {
                 venues,
                 favoriteVenueIds: favoriteIds,
                 favoriteVenues: favoriteVenues,
+                currentPage: 1,
+                hasMore: venues.length >= 5,
               ),
             );
           },
+        );
+      },
+    );
+  }
+
+  Future<void> _onLoadMoreVenues(
+    LoadMoreVenues event,
+    Emitter<HomeScreenState> emit,
+  ) async {
+    if (state is! HomeScreenLoaded) return;
+    final currentState = state as HomeScreenLoaded;
+
+    final nextPage = currentState.currentPage + 1;
+    const int limit =
+        6; // Make sure this matches your backend's default or desired limit
+
+    print('Loading more venues: page $nextPage, limit $limit');
+
+    final venuesResult = await getAllVenuesUseCase(
+      page: nextPage,
+      limit: limit,
+    );
+
+    venuesResult.fold(
+      (failure) {
+        print('Failed to load more venues: ${failure.toString()}');
+        // Optionally emit an error or show a snackbar
+      },
+      (newVenues) {
+        print('Loaded ${newVenues.length} venues on page $nextPage');
+
+        final updatedVenues = [...currentState.venues, ...newVenues];
+
+        final updatedFavoriteVenues =
+            updatedVenues
+                .where(
+                  (venue) => currentState.favoriteVenueIds.contains(venue.id),
+                )
+                .toList();
+
+        emit(
+          HomeScreenLoaded(
+            updatedVenues,
+            favoriteVenueIds: currentState.favoriteVenueIds,
+            favoriteVenues: updatedFavoriteVenues,
+            currentPage: nextPage,
+            hasMore: newVenues.length >= limit,
+          ),
         );
       },
     );
@@ -83,6 +137,8 @@ class HomeScreenBloc extends Bloc<HomeScreenEvent, HomeScreenState> {
             currentVenues,
             favoriteVenueIds: favoriteIds,
             favoriteVenues: favoriteVenues,
+            currentPage: (state as HomeScreenLoaded).currentPage,
+            hasMore: (state as HomeScreenLoaded).hasMore,
           ),
         );
       }
@@ -117,6 +173,8 @@ class HomeScreenBloc extends Bloc<HomeScreenEvent, HomeScreenState> {
         currentState.venues,
         favoriteVenueIds: updatedFavorites,
         favoriteVenues: updatedFavoriteVenues,
+        currentPage: currentState.currentPage,
+        hasMore: currentState.hasMore,
       ),
     );
 
@@ -143,6 +201,8 @@ class HomeScreenBloc extends Bloc<HomeScreenEvent, HomeScreenState> {
             currentState.venues,
             favoriteVenueIds: revertedFavorites,
             favoriteVenues: revertedFavoriteVenues,
+            currentPage: currentState.currentPage,
+            hasMore: currentState.hasMore,
           ),
         );
 

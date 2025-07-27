@@ -76,6 +76,19 @@ class ApiService {
     );
   }
 
+
+  Future<Response> patch(
+    String path,
+    dynamic data, {
+    bool requiresAuth = false,
+  }) async {
+    return _dio.patch(
+      path,
+      data: data,
+      options: await _buildOptions(requiresAuth: requiresAuth),
+    );
+  }
+
   Future<Response> delete(String path, {bool requiresAuth = false}) async {
     return _dio.delete(
       path,

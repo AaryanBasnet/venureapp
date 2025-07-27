@@ -1,10 +1,13 @@
-import 'package:flutter/material.dart';
-import 'package:venure/core/network/hive_service.dart';
-import 'package:venure/features/profile/data/model/user_profile_model.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
+import 'package:venure/app/constant/hive/hive_table_constant.dart';
+import 'package:venure/features/profile/data/model/user_profile_model.dart';
+import 'package:venure/core/network/hive_service.dart';
 
 class ProfileLocalDataSource {
   final HiveService _hiveService;
+
+  static const String cachedUserKey = 'cached_user';
 
   ProfileLocalDataSource({required HiveService hiveService})
     : _hiveService = hiveService;
@@ -20,21 +23,36 @@ class ProfileLocalDataSource {
     debugPrint("  → Address: ${user.address}");
     debugPrint("  → Avatar: ${user.avatar}");
 
-    await _userBox.put(user.id, user);
+    if (user.id.isEmpty || user.name.isEmpty) {
+      throw Exception("🛑 Refused to cache invalid user profile.");
+    }
+
+    debugPrint("📦 Saving to Hive box: ${_userBox.name}");
+    debugPrint("  → Box isEmpty: ${_userBox.isEmpty}");
+    debugPrint("  → Box length before save: ${_userBox.length}");
+
+    await _userBox.put(cachedUserKey, user);
+    debugPrint("✅ Cached user profile under key: '$cachedUserKey'");
   }
 
   Future<UserProfileModel> getCachedUserProfile() async {
-    debugPrint(
-      "📦 Attempting to load from Hive. Box isEmpty: ${_userBox.isEmpty}",
-    );
+    debugPrint("📦 Attempting to load from Hive with key '$cachedUserKey'.");
+    debugPrint("  → Box isEmpty: ${_userBox.isEmpty}");
 
-    if (_userBox.isEmpty) {
-      throw Exception("No cached user profile");
+    final user = _userBox.get(cachedUserKey);
+
+    if (user == null || user.id.isEmpty || user.name.isEmpty) {
+      throw Exception("❌ Cached user profile is invalid or missing.");
     }
 
-    final user = _userBox.values.first;
     debugPrint("📤 Loaded cached profile: ${user.name} (ID: ${user.id})");
 
     return user;
+  }
+
+  /// Optional: If you want to wipe old corrupted entries once
+  Future<void> clearAllUserProfiles() async {
+    debugPrint("🧹 Clearing all user profile entries...");
+    await _userBox.clear();
   }
 }

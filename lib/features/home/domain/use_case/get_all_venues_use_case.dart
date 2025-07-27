@@ -9,8 +9,13 @@ class GetAllVenuesUseCase extends Equatable {
 
   const GetAllVenuesUseCase(this.repository);
 
-  Future<Either<Failure, List<Venue>>> call() async {
-    return await repository.getAllVenues();
+  Future<Either<Failure, List<Venue>>> call(
+    {int page = 1, int limit = 5}
+  ) async {
+    return await repository.getAllVenues(
+      page: page,
+      limit: limit,
+    );
   }
 
   @override

@@ -35,7 +35,7 @@ class HomeScreenView extends StatelessWidget {
                 const SizedBox(height: 40),
                 // _buildCategoriesSection(),
                 const SizedBox(height: 40),
-                TopPickSection(richBlack: richBlack, context: context),
+                TopPickSection(richBlack: richBlack, parentContext: context),
                 const SizedBox(height: 100),
               ],
             ),

@@ -31,66 +31,91 @@ class ProfileViewModel extends Bloc<ProfileEvent, ProfileState> {
   }
 
   Future<void> _onLoadUserProfile(
-  LoadUserProfile event,
-  Emitter<ProfileState> emit,
-) async {
-  emit(state.copyWith(isLoading: true, error: null));
+    LoadUserProfile event,
+    Emitter<ProfileState> emit,
+  ) async {
+    emit(state.copyWith(isLoading: true, error: null));
 
-  final token = _storageService.token;
-  if (token == null || token.isEmpty) {
-    emit(state.copyWith(isLoading: false, isLoggedIn: false));
-    return;
-  }
+    final token = _storageService.token;
+    if (token == null || token.isEmpty) {
+      emit(state.copyWith(isLoading: false, isLoggedIn: false));
+      return;
+    }
 
-  final result = await getProfileUseCase(token);
+    final result = await getProfileUseCase(token);
 
-  if (emit.isDone) return; // ✅ Prevent emitting after handler is closed
+    if (emit.isDone) return;
 
-  await result.fold(
-    (failure) async {
-      debugPrint("❌ Remote fetch failed: ${failure.message}");
-      try {
-        final cached = await _localDataSource.getCachedUserProfile();
-        emit(
-          state.copyWith(
-            name: cached.name,
-            email: cached.email,
-            phone: cached.phone,
-            address: cached.address,
-            avatar: cached.avatar,
-            isLoggedIn: true,
-            isLoading: false,
-          ),
-        );
-      } catch (e) {
-        emit(state.copyWith(isLoading: false, error: failure.message));
-      }
-    },
-    (profile) async {
-      final model = UserProfileModel(
-        id: profile.id,
-        name: profile.name,
-        email: profile.email,
-        phone: profile.phone,
-        address: profile.address,
-        avatar: profile.avatar,
-      );
-      await _localDataSource.cacheUserProfile(model);
-      emit(
-        state.copyWith(
+    await result.fold(
+      (failure) async {
+        debugPrint("❌ Remote fetch failed: ${failure.message}");
+        try {
+          final cached = await _localDataSource.getCachedUserProfile();
+
+          if (cached.id.isEmpty || cached.name.isEmpty) {
+            throw Exception("⚠️ Cached user data is empty or invalid");
+          }
+
+          emit(
+            state.copyWith(
+              name: cached.name,
+              email: cached.email,
+              phone: cached.phone,
+              address: cached.address,
+              avatar: cached.avatar,
+              isLoggedIn: true,
+              isLoading: false,
+            ),
+          );
+        } catch (e) {
+          emit(
+            state.copyWith(isLoading: false, error: "No valid profile found"),
+          );
+        }
+      },
+      (profile) async {
+        if (profile.id.isEmpty || profile.name.isEmpty) {
+          emit(
+            state.copyWith(
+              isLoading: false,
+              error: "Received empty profile from API",
+            ),
+          );
+          return;
+        }
+
+        final model = UserProfileModel(
+          id: profile.id,
           name: profile.name,
           email: profile.email,
           phone: profile.phone,
           address: profile.address,
           avatar: profile.avatar,
-          isLoggedIn: true,
-          isLoading: false,
-        ),
-      );
-    },
-  );
-}
+        );
 
+        // ⛳ ADD THIS DEBUG LOG
+        debugPrint("📥 Profile from API to cache:");
+        debugPrint("  → ID: ${model.id}");
+        debugPrint("  → Name: ${model.name}");
+        debugPrint("  → Email: ${model.email}");
+        debugPrint("  → Avatar: ${model.avatar}");
+
+        await _localDataSource.cacheUserProfile(model);
+
+        emit(
+          state.copyWith(
+            name: profile.name,
+            email: profile.email,
+            phone: profile.phone,
+            address: profile.address,
+            avatar: profile.avatar,
+            isLoggedIn: true,
+            isLoading: false,
+          ),
+        );
+      },
+    );
+  }
 
   Future<void> _onUpdateUserProfile(
     UpdateUserProfile event,

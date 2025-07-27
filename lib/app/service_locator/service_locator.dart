@@ -56,6 +56,13 @@ import 'package:venure/features/home/domain/use_case/search_venue_usecase.dart';
 import 'package:venure/features/home/domain/use_case/toggle_favorite_usecase.dart';
 import 'package:venure/features/home/presentation/view_model/home_view_model.dart';
 import 'package:venure/features/home/presentation/view_model/search_bloc.dart';
+import 'package:venure/features/notification/data/data_source/remote_data_source/notification_api_service.dart';
+import 'package:venure/features/notification/data/repository/remote_repository/notification_repository_impl.dart';
+import 'package:venure/features/notification/domain/repository/notification_repository.dart';
+import 'package:venure/features/notification/domain/use_case/get_notification.dart';
+import 'package:venure/features/notification/domain/use_case/mark_all_as_read.dart';
+import 'package:venure/features/notification/domain/use_case/mark_as_read.dart';
+import 'package:venure/features/notification/presentation/view_model/notification_view_model.dart';
 import 'package:venure/features/profile/data/data_source/local_data_source/profile_local_data_source.dart';
 import 'package:venure/features/profile/data/data_source/remote_data_source/profile_remote_data_source.dart';
 import 'package:venure/features/profile/data/model/user_profile_model.dart';
@@ -77,6 +84,7 @@ Future<void> initDependencies() async {
   await _initProfileModule();
   await _initChatModule();
   await _initLocalStorageService();
+  await _initNotificationModule();
 }
 
 Future<void> _initCoreServices() async {
@@ -86,6 +94,12 @@ Future<void> _initCoreServices() async {
 
   if (!serviceLocator.isRegistered<SocketService>()) {
     serviceLocator.registerLazySingleton(() => SocketService());
+  }
+
+  if (!serviceLocator.isRegistered<NotificationApiService>()) {
+    serviceLocator.registerLazySingleton(
+      () => NotificationApiService(serviceLocator<ApiService>()),
+    );
   }
 
   // ✅ Add HiveService Singleton
@@ -462,5 +476,45 @@ Future<void> _initLocalStorageService() async {
   if (!serviceLocator.isRegistered<LocalStorageService>()) {
     final localStorageService = await LocalStorageService.getInstance();
     serviceLocator.registerSingleton<LocalStorageService>(localStorageService);
+  }
+}
+
+Future<void> _initNotificationModule() async {
+  // Notification Repository Impl
+  if (!serviceLocator.isRegistered<NotificationRepository>()) {
+    serviceLocator.registerLazySingleton<NotificationRepository>(
+      () =>
+          NotificationRepositoryImpl(serviceLocator<NotificationApiService>()),
+    );
+  }
+
+  // Use Cases
+  if (!serviceLocator.isRegistered<GetNotificationsUseCase>()) {
+    serviceLocator.registerLazySingleton(
+      () => GetNotificationsUseCase(serviceLocator<NotificationRepository>()),
+    );
+  }
+
+  if (!serviceLocator.isRegistered<MarkAsReadUseCase>()) {
+    serviceLocator.registerLazySingleton(
+      () => MarkAsReadUseCase(serviceLocator<NotificationRepository>()),
+    );
+  }
+
+  if (!serviceLocator.isRegistered<MarkAllAsReadUseCase>()) {
+    serviceLocator.registerLazySingleton(
+      () => MarkAllAsReadUseCase(serviceLocator<NotificationRepository>()),
+    );
+  }
+
+  // Bloc/ViewModel
+  if (!serviceLocator.isRegistered<NotificationViewModel>()) {
+    serviceLocator.registerFactory(
+      () => NotificationViewModel(
+        getNotificationsUseCase: serviceLocator<GetNotificationsUseCase>(),
+        markAsReadUseCase: serviceLocator<MarkAsReadUseCase>(),
+        markAllAsReadUseCase: serviceLocator<MarkAllAsReadUseCase>(),
+      ),
+    );
   }
 }

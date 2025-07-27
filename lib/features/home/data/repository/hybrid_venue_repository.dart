@@ -14,16 +14,21 @@ class HybridVenueRepository implements IVenueRepository {
   });
 
   @override
-  Future<Either<Failure, List<Venue>>> getAllVenues() async {
-    final remoteResult = await remoteRepository.getAllVenues();
+  Future<Either<Failure, List<Venue>>> getAllVenues({
+    int page = 1,
+    int limit = 5,
+  }) async {
+    final remoteResult = await remoteRepository.getAllVenues(
+      page: page,
+      limit: limit,
+    );
 
     if (remoteResult.isRight()) {
       final venues = remoteResult.getOrElse(() => []);
       await localRepository.cacheVenues(
         venues,
-      ); // this calls saveAllVenues under the hood
-
-      // ⬇️ Add this to verify venues are actually cached in Hive
+      ); 
+     
       final allCached = await localRepository.getAllVenues();
       allCached.fold(
         (l) => print("❌ Failed to read from Hive after caching: $l"),
@@ -33,7 +38,6 @@ class HybridVenueRepository implements IVenueRepository {
       return Right(venues);
     }
 
-    // ❌ Remote failed, fallback to Hive
     final localResult = await localRepository.getAllVenues();
 
     if (localResult.isRight()) {
@@ -43,10 +47,9 @@ class HybridVenueRepository implements IVenueRepository {
       return localResult;
     }
 
-    return remoteResult; // Return API failure
+    return remoteResult; 
   }
 
-  // Other methods can directly use remote or local based on your logic
   @override
   Future<Either<Failure, Venue>> getVenueById(String id) async {
     final remoteResult = await remoteRepository.getVenueById(id);
