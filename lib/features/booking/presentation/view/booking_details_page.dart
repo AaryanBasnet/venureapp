@@ -45,6 +45,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
   static const Color _lightPeach = Color(0xFFFFE5B4);
   static const Color _charcoal = Color(0xFF2C2C2C);
   static const Color _lightGray = Color(0xFFF9F9F9);
+  
   static const Color _mediumGray = Color(0xFFE0E0E0);
   static const Color _textDark = Color(0xFF1A1A1A);
   static const Color _textLight = Color(0xFF666666);

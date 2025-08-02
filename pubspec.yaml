@@ -51,6 +51,7 @@ dev_dependencies:
   mocktail: ^1.0.4
   bloc_test: ^10.0.0
   test_cov_console: ^0.2.2
+  flutter_launcher_icons: ^0.14.4
 
 flutter:
   uses-material-design: true
@@ -76,3 +77,9 @@ flutter:
           weight: 300
         - asset: assets/fonts/Dosis-ExtraLight.ttf
           weight: 200
+flutter_launcher_icons:
+  android: "launcher_icons"
+  ios: "AppIcon"
+  image_path: "assets/img/app-icon.png"
+  min_sdk_android: 21
+  remove_alpha_ios: true

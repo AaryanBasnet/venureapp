@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venure/app/constant/shared_pref/local_storage_service.dart';
@@ -150,49 +151,52 @@ class _VenureMainScreenState extends State<VenureMainScreen>
     ];
 
     return Container(
-      height: 100,
       decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(
-          top: BorderSide(
-            color: const Color(0xFFE5E5E7).withOpacity(0.6),
-            width: 0.5,
+        color: Colors.white.withOpacity(0.85),
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(24),
+          topRight: Radius.circular(24),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 12,
+            offset: const Offset(0, -2),
           ),
+        ],
+        border: Border(
+          top: BorderSide(color: Colors.grey.withOpacity(0.2), width: 0.5),
         ),
       ),
-      child: Stack(
-        children: [
-          AnimatedPositioned(
-            duration: const Duration(milliseconds: 350),
-            curve: Curves.easeInOutCubic,
-            left:
-                (MediaQuery.of(context).size.width / 4) * selectedIndex +
-                (MediaQuery.of(context).size.width / 4 - 40) / 2,
-            top: 12,
-            child: Container(
-              width: 40,
-              height: 3,
-              decoration: BoxDecoration(
-                color: const Color(0xFF1C1C1E),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-          SafeArea(
+      child: ClipRRect(
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(24),
+          topRight: Radius.circular(24),
+        ),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: SafeArea(
             top: false,
             child: Padding(
-              padding: const EdgeInsets.only(top: 20, bottom: 8),
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: List.generate(items.length, (index) {
                   final isSelected = selectedIndex == index;
-                  final item = items[index];
-                  return _buildNavItem(context, index, item, isSelected);
+                  return Flexible(
+                    // ✅ Prevents overflow
+                    child: _buildNavItem(
+                      context,
+                      index,
+                      items[index],
+                      isSelected,
+                    ),
+                  );
                 }),
               ),
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -210,64 +214,73 @@ class _VenureMainScreenState extends State<VenureMainScreen>
             index,
             context.read<NavigationCubit>().state,
           ),
-      child: Container(
-        width: 64,
-        height: 64,
-        decoration: BoxDecoration(
-          color:
-              isSelected
-                  ? const Color(0xFF1C1C1E).withOpacity(0.06)
-                  : Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: AnimatedBuilder(
-          animation: _selectionAnimation,
-          builder: (context, child) {
-            final scale =
-                isSelected && _selectionAnimation.value > 0
-                    ? 1.0 + (_selectionAnimation.value * 0.1)
-                    : 1.0;
-
-            return Transform.scale(
-              scale: scale,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 200),
-                    transitionBuilder: (child, animation) {
-                      return ScaleTransition(scale: animation, child: child);
-                    },
-                    child: Icon(
-                      isSelected ? item.activeIcon : item.icon,
-                      key: ValueKey(isSelected),
-                      size: 24,
-                      color:
-                          isSelected
-                              ? const Color(0xFF1C1C1E)
-                              : const Color(0xFF8E8E93),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  AnimatedDefaultTextStyle(
-                    duration: const Duration(milliseconds: 200),
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight:
-                          isSelected ? FontWeight.w600 : FontWeight.w500,
-                      color:
-                          isSelected
-                              ? const Color(0xFF1C1C1E)
-                              : const Color(0xFF8E8E93),
-                      letterSpacing: 0.2,
-                    ),
-                    child: Text(item.label),
-                  ),
-                ],
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center, // ✅ Center everything
+        children: [
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeInOut,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 10,
+              vertical: 4,
+            ), // smaller
+            decoration: BoxDecoration(
+              color:
+                  isSelected
+                      ? const Color(0xFFEB5757).withOpacity(0.15)
+                      : Colors.transparent,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: AnimatedScale(
+              scale: isSelected ? 1.15 : 1.0,
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeOutBack,
+              child: Icon(
+                isSelected ? item.activeIcon : item.icon,
+                size: 24,
+                color:
+                    isSelected
+                        ? const Color(0xFFEB5757)
+                        : const Color(0xFF8E8E93),
               ),
-            );
-          },
-        ),
+            ),
+          ),
+          const SizedBox(height: 2),
+          AnimatedOpacity(
+            duration: const Duration(milliseconds: 200),
+            opacity: isSelected ? 1.0 : 0.0,
+            child: Text(
+              item.label,
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 11,
+                color: Color(0xFFEB5757),
+              ),
+            ),
+          ),
+          const SizedBox(height: 2),
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            height: 3,
+            width: isSelected ? 16 : 0,
+            decoration: BoxDecoration(
+              color: const Color(0xFFEB5757),
+              borderRadius: BorderRadius.circular(2),
+              boxShadow:
+                  isSelected
+                      ? [
+                        BoxShadow(
+                          color: const Color(0xFFEB5757).withOpacity(0.5),
+                          blurRadius: 6,
+                          spreadRadius: 1,
+                        ),
+                      ]
+                      : [],
+            ),
+          ),
+        ],
       ),
     );
   }
