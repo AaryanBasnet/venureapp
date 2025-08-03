@@ -90,7 +90,7 @@ void main() {
                 .having((u) => u.phone, 'phone', testPhone)
                 .having((u) => u.password, 'password', testPassword)
                 .having((u) => u.token, 'token', '')
-                .having((u) => u.role, 'role', ''),
+                .having((u) => u.role, 'role', 'Customer'),
           ))).called(1);
     });
 
