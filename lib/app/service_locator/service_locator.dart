@@ -1,10 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
-import 'package:hive/hive.dart';
 import 'package:venure/app/constant/shared_pref/local_storage_service.dart';
 import 'package:venure/core/network/api_service.dart';
 import 'package:venure/core/network/hive_service.dart';
-import 'package:venure/core/network/search_venue_service.dart';
 import 'package:venure/core/network/socket_service.dart';
 import 'package:venure/features/auth/data/data_source/local_data_source/user_local_datasource.dart';
 // import 'package:venure/core/network/hive_service.dart'; //
@@ -43,7 +41,6 @@ import 'package:venure/features/chat/domain/use_case/get_or_create_chat_usecase.
 import 'package:venure/features/chat/presentation/view_model/chat_list_bloc.dart';
 import 'package:venure/features/chat/presentation/view_model/chat_message_bloc.dart';
 import 'package:venure/features/common/presentation/view_model/venue_details_bloc.dart';
-import 'package:venure/features/home/data/data_source/ivenue_data_source.dart';
 import 'package:venure/features/home/data/data_source/local_data_source/venue_local_datasource.dart';
 import 'package:venure/features/home/data/data_source/remote_data_source/venue_remote_datasource.dart';
 import 'package:venure/features/home/data/repository/hybrid_venue_repository.dart';
@@ -65,7 +62,6 @@ import 'package:venure/features/notification/domain/use_case/mark_as_read.dart';
 import 'package:venure/features/notification/presentation/view_model/notification_view_model.dart';
 import 'package:venure/features/profile/data/data_source/local_data_source/profile_local_data_source.dart';
 import 'package:venure/features/profile/data/data_source/remote_data_source/profile_remote_data_source.dart';
-import 'package:venure/features/profile/data/model/user_profile_model.dart';
 import 'package:venure/features/profile/data/repository/profile_repository_impl.dart';
 import 'package:venure/features/profile/domain/repository/profile_repository.dart';
 import 'package:venure/features/profile/domain/use_case/get_profile_usecase.dart';
