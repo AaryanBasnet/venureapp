@@ -8,6 +8,7 @@ class ProfileState extends Equatable {
   final String? avatar; // URL string
   final bool isLoggedIn;
   final bool isLoading;
+  final bool isLoggedOut; // NEW
   final String? error;
 
   const ProfileState({
@@ -18,6 +19,7 @@ class ProfileState extends Equatable {
     this.avatar,
     required this.isLoggedIn,
     required this.isLoading,
+    this.isLoggedOut = false, // NEW default
     this.error,
   });
 
@@ -29,6 +31,7 @@ class ProfileState extends Equatable {
         avatar: null,
         isLoggedIn: false,
         isLoading: false,
+        isLoggedOut: false,
         error: null,
       );
 
@@ -40,6 +43,7 @@ class ProfileState extends Equatable {
     String? avatar,
     bool? isLoggedIn,
     bool? isLoading,
+    bool? isLoggedOut, // NEW
     String? error,
   }) {
     return ProfileState(
@@ -50,11 +54,12 @@ class ProfileState extends Equatable {
       avatar: avatar ?? this.avatar,
       isLoggedIn: isLoggedIn ?? this.isLoggedIn,
       isLoading: isLoading ?? this.isLoading,
+      isLoggedOut: isLoggedOut ?? this.isLoggedOut, // NEW
       error: error,
     );
   }
 
   @override
   List<Object?> get props =>
-      [name, email, phone, address, avatar, isLoggedIn, isLoading, error];
+      [name, email, phone, address, avatar, isLoggedIn, isLoading, isLoggedOut, error];
 }
