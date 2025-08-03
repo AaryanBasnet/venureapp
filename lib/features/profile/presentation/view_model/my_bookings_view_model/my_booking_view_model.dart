@@ -1,7 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venure/features/booking/domain/use_case/cancel_booking_usecase.dart';
 import 'package:venure/features/booking/domain/use_case/get_booking_usecase.dart';
-import 'package:venure/features/profile/domain/entity/my_booking_entity.dart';
 import 'package:venure/features/profile/presentation/view_model/my_bookings_view_model/my_bookings_event.dart';
 import 'package:venure/features/profile/presentation/view_model/my_bookings_view_model/my_bookings_state.dart';
 
