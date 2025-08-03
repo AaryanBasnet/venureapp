@@ -135,9 +135,10 @@ class FavoritesPage extends StatelessWidget {
                             );
                           },
                           onTap: () {
-                            // Navigate to venue detail page
-                            // Navigator.push(context, MaterialPageRoute(builder: (context) => VenueDetailPage(venue: venue)));
-                          },
+                            debugPrint('Tapped on ${venue.venueName}');
+                          }
+
+                            
                         ),
                       );
                       
@@ -192,8 +193,7 @@ class FavoritesPage extends StatelessWidget {
           const SizedBox(height: 32),
           ElevatedButton(
             onPressed: () {
-              // Navigate to home/explore tab
-              // You can use your navigation logic here
+              debugPrint('Explore Venues button tapped');
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.black87,
