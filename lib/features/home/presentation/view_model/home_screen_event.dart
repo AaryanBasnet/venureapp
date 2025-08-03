@@ -4,18 +4,22 @@ import 'package:flutter/material.dart';
 import 'package:equatable/equatable.dart'; // Make sure Equatable is imported
 
 @immutable
-sealed class HomeScreenEvent extends Equatable { // Extend Equatable here too
+class HomeScreenEvent extends Equatable {
+  // Extend Equatable here too
   const HomeScreenEvent();
 
   @override
   List<Object> get props => [];
 }
 
-class LoadVenues extends HomeScreenEvent {} // This will serve as LoadInitialVenues
+class LoadVenues
+    extends HomeScreenEvent {} // This will serve as LoadInitialVenues
 
 class LoadMoreVenues extends HomeScreenEvent {}
 
-class LoadFavorites extends HomeScreenEvent {} // Still useful if favorites can be refreshed independently
+class LoadFavorites
+    extends
+        HomeScreenEvent {} // Still useful if favorites can be refreshed independently
 
 class ToggleFavoriteVenue extends HomeScreenEvent {
   final String venueId;
