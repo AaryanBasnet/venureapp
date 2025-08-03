@@ -5,24 +5,31 @@ part 'message_model.g.dart';
 
 @HiveType(typeId: 6)
 class MessageModel extends MessageEntity {
+  @override
   @HiveField(0)
   final String id;
 
+  @override
   @HiveField(1)
   final String chatId;
 
+  @override
   @HiveField(2)
   final String senderId;
 
+  @override
   @HiveField(3)
   final String receiverId;
 
+  @override
   @HiveField(4)
   final String text;
 
+  @override
   @HiveField(5)
   final DateTime timestamp;
 
+  @override
   @HiveField(6)
   final bool seen;
 
