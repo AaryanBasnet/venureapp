@@ -3,28 +3,47 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:venure/core/common/common_text_form_field.dart';
 
+import 'package:venure/core/common/common_text_form_field.dart';
+import 'package:venure/features/auth/domain/use_case/send_rest_code_usecase.dart';
+import 'package:venure/features/auth/domain/use_case/user_register_usecase.dart';
+import 'package:venure/features/auth/domain/use_case/verify_reset_code_usecase.dart';
+import 'package:venure/features/auth/domain/use_case/reset_password_usecase.dart';
+import 'package:venure/features/auth/presentation/view/forget_password_view/forget_password_screen.dart';
 import 'package:venure/features/auth/presentation/view/login_view.dart';
 import 'package:venure/features/auth/presentation/view/register_wrapper.dart';
-import 'package:venure/features/auth/presentation/view_model/login_view_model/login_view_model.dart';
-import 'package:venure/features/auth/presentation/view_model/login_view_model/login_state.dart';
+import 'package:venure/features/auth/presentation/view_model/forget_password_view_model/forget_password_state.dart';
+import 'package:venure/features/auth/presentation/view_model/forget_password_view_model/forget_password_view_model.dart';
 import 'package:venure/features/auth/presentation/view_model/login_view_model/login_event.dart';
+import 'package:venure/features/auth/presentation/view_model/login_view_model/login_state.dart';
+import 'package:venure/features/auth/presentation/view_model/login_view_model/login_view_model.dart';
+import 'package:venure/features/auth/presentation/view_model/register_view_model/register_event.dart';
 import 'package:venure/features/auth/presentation/view_model/register_view_model/register_state.dart';
 import 'package:venure/features/auth/presentation/view_model/register_view_model/register_view_model.dart';
-import 'package:venure/features/auth/domain/use_case/user_register_usecase.dart';
 
 // --- Mock classes ---
-
 class MockLoginViewModel extends Mock implements LoginViewModel {}
 
 class MockRegisterViewModel extends Mock implements RegisterViewModel {}
 
+class MockForgotPasswordViewModel extends Mock
+    implements ForgotPasswordViewModel {}
+
+class MockSendResetCodeUsecase extends Mock implements SendResetCodeUseCase {}
+
+class MockVerifyResetCodeUsecase extends Mock
+    implements VerifyResetCodeUseCase {}
+
+class MockResetPasswordUsecase extends Mock implements ResetPasswordUseCase {}
+
 class MockUserRegisterUsecase extends Mock implements UserRegisterUsecase {}
 
+class MockNavigatorObserver extends Mock implements NavigatorObserver {}
+
+// --- Fake classes ---
 class FakeLoginEvent extends Fake implements LoginEvent {}
 
-class MockNavigatorObserver extends Mock implements NavigatorObserver {}
+class FakeRegisterEvent extends Fake implements RegisterEvent {}
 
 class FakeRoute extends Fake implements Route<dynamic> {}
 
@@ -33,156 +52,204 @@ void main() {
 
   late MockLoginViewModel mockLoginViewModel;
   late MockRegisterViewModel mockRegisterViewModel;
-  late MockUserRegisterUsecase mockUserRegisterUsecase;
+  late MockForgotPasswordViewModel mockForgotPasswordViewModel;
+  late MockNavigatorObserver mockNavigatorObserver;
 
   setUpAll(() {
     registerFallbackValue(FakeLoginEvent());
+    registerFallbackValue(FakeRegisterEvent());
     registerFallbackValue(FakeRoute());
-
-    // Register mock UserRegisterUsecase with GetIt
-    mockUserRegisterUsecase = MockUserRegisterUsecase();
-    if (!sl.isRegistered<UserRegisterUsecase>()) {
-      sl.registerLazySingleton<UserRegisterUsecase>(() => mockUserRegisterUsecase);
-    }
-  });
-
-  tearDownAll(() {
-    sl.reset(); // Clear all registered dependencies after tests
   });
 
   setUp(() {
+    sl.reset();
+
+    sl.registerLazySingleton<SendResetCodeUseCase>(
+      () => MockSendResetCodeUsecase(),
+    );
+    sl.registerLazySingleton<VerifyResetCodeUseCase>(
+      () => MockVerifyResetCodeUsecase(),
+    );
+    sl.registerLazySingleton<ResetPasswordUseCase>(
+      () => MockResetPasswordUsecase(),
+    );
+    sl.registerLazySingleton<UserRegisterUsecase>(
+      () => MockUserRegisterUsecase(),
+    );
+
     mockLoginViewModel = MockLoginViewModel();
     mockRegisterViewModel = MockRegisterViewModel();
+    mockForgotPasswordViewModel = MockForgotPasswordViewModel();
+    mockNavigatorObserver = MockNavigatorObserver();
 
-    // Mock LoginViewModel state & stream
-    when(() => mockLoginViewModel.state)
-        .thenReturn(const LoginState(isLoading: false, isSuccess: false));
-    when(() => mockLoginViewModel.stream).thenAnswer((_) => const Stream<LoginState>.empty());
+    // Default mock state for LoginViewModel
+    when(
+      () => mockLoginViewModel.state,
+    ).thenReturn(const LoginState(isLoading: false, isSuccess: false));
+    when(
+      () => mockLoginViewModel.stream,
+    ).thenAnswer((_) => const Stream<LoginState>.empty());
 
-    // Mock RegisterViewModel state & stream
+    // Default mock state for RegisterViewModel
     when(() => mockRegisterViewModel.state).thenReturn(RegisterState.initial());
-    when(() => mockRegisterViewModel.stream).thenAnswer((_) => Stream.value(RegisterState.initial()));
+    when(
+      () => mockRegisterViewModel.stream,
+    ).thenAnswer((_) => Stream.value(RegisterState.initial()));
+
+    // Mock any Future<void> methods in RegisterViewModel
+    when(() => mockRegisterViewModel.add(any())).thenReturn(null);
+    when(() => mockRegisterViewModel.close()).thenAnswer((_) async {});
+    
+    // If RegisterViewModel has initialization methods, mock them:
+    // when(() => mockRegisterViewModel.initialize()).thenAnswer((_) async {});
+    // when(() => mockRegisterViewModel.loadData()).thenAnswer((_) async {});
+    
+    // Mock any navigation methods if they exist
+    // when(() => mockRegisterViewModel.navigateBack()).thenAnswer((_) async {});
+    
+    // If there are validation methods:
+    // when(() => mockRegisterViewModel.validateForm()).thenAnswer((_) async {});
+    
+    // If there are API calls:
+    // when(() => mockRegisterViewModel.submitRegistration()).thenAnswer((_) async {});
+
+    // Default mock state for ForgotPasswordViewModel
+    when(
+      () => mockForgotPasswordViewModel.state,
+    ).thenReturn(const ForgotPasswordState());
+    when(
+      () => mockForgotPasswordViewModel.stream,
+    ).thenAnswer((_) => const Stream<ForgotPasswordState>.empty());
   });
 
-  Widget createLoginWidget() {
-    return MaterialApp(
-      home: BlocProvider<LoginViewModel>.value(
-        value: mockLoginViewModel,
-        child: const LoginView(),
+  Widget createTestWidget(Widget child) {
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<LoginViewModel>.value(value: mockLoginViewModel),
+        BlocProvider<RegisterViewModel>.value(value: mockRegisterViewModel),
+        BlocProvider<ForgotPasswordViewModel>.value(
+          value: mockForgotPasswordViewModel,
+        ),
+      ],
+      child: MaterialApp(
+        home: child,
+        navigatorObservers: [mockNavigatorObserver],
       ),
     );
   }
 
-  Widget createLoginWithRegisterNavigationWidget(MockNavigatorObserver mockObserver) {
-    return MaterialApp(
-      home: MultiBlocProvider(
-        providers: [
-          BlocProvider<LoginViewModel>.value(value: mockLoginViewModel),
-          BlocProvider<RegisterViewModel>.value(value: mockRegisterViewModel),
-        ],
-        child: const LoginView(),
-      ),
-      navigatorObservers: [mockObserver],
-      routes: {
-        '/register': (context) => BlocProvider.value(
-              value: mockRegisterViewModel,
-              child: const RegisterWrapper(),
-            ),
-      },
-    );
-  }
+  group('LoginView widget tests', () {
+    testWidgets('renders initial UI elements', (tester) async {
+      await tester.pumpWidget(createTestWidget(const LoginView()));
 
-  testWidgets('renders all LoginView UI elements', (tester) async {
-    await tester.pumpWidget(createLoginWidget());
+      expect(find.byType(Image), findsOneWidget);
+      expect(find.text('VENURE'), findsOneWidget);
+      expect(find.text('Luxury • Redefined'), findsOneWidget);
+      expect(find.widgetWithText(CommonTextFormField, 'Email'), findsOneWidget);
+      expect(
+        find.widgetWithText(CommonTextFormField, 'Password'),
+        findsOneWidget,
+      );
+      expect(find.text('Forgot password?'), findsOneWidget);
+      expect(find.widgetWithText(ElevatedButton, 'Login'), findsOneWidget);
+      expect(find.text("Don't have an account? "), findsOneWidget);
+      expect(find.text('Sign Up'), findsOneWidget);
+    });
 
-    expect(find.text("Sign in to your account!"), findsOneWidget);
-    expect(find.byType(TextFormField), findsNWidgets(2));
-    expect(find.text("Forgot password?"), findsOneWidget);
-    expect(find.text("Login"), findsOneWidget);
-    expect(find.text("Login with Google"), findsOneWidget);
-    expect(find.text("Don't have an account? "), findsOneWidget);
-    expect(find.text("Sign Up!"), findsOneWidget);
-  });
+    testWidgets('dispatches LoginIntoSystemEvent on Login button tap', (
+      tester,
+    ) async {
+      await tester.pumpWidget(createTestWidget(const LoginView()));
 
-  testWidgets('enters email and password and dispatches login event', (tester) async {
-    await tester.pumpWidget(createLoginWidget());
+      const testEmail = 'test@example.com';
+      const testPassword = 'password123';
 
-    const testEmail = 'test@example.com';
-    const testPassword = 'password123';
+      await tester.enterText(
+        find.widgetWithText(CommonTextFormField, 'Email'),
+        testEmail,
+      );
+      await tester.enterText(
+        find.widgetWithText(CommonTextFormField, 'Password'),
+        testPassword,
+      );
+      await tester.pump();
 
-    await tester.enterText(find.byType(CommonTextFormField).at(0), testEmail);
-    await tester.enterText(find.byType(CommonTextFormField).at(1), testPassword);
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
+      await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Login'));
-    await tester.pumpAndSettle();
-
-    verify(() => mockLoginViewModel.add(
+      verify(
+        () => mockLoginViewModel.add(
           any(
             that: isA<LoginIntoSystemEvent>()
                 .having((e) => e.email, 'email', testEmail)
                 .having((e) => e.password, 'password', testPassword),
           ),
-        )).called(1);
-  });
+        ),
+      ).called(1);
+    });
 
-  testWidgets('shows CircularProgressIndicator when loading', (tester) async {
-    when(() => mockLoginViewModel.state)
-        .thenReturn(const LoginState(isLoading: true, isSuccess: false));
-    when(() => mockLoginViewModel.stream)
-        .thenAnswer((_) => Stream.value(const LoginState(isLoading: true, isSuccess: true)));
+    testWidgets('shows loading indicator and disables button during loading', (
+      tester,
+    ) async {
+      when(
+        () => mockLoginViewModel.state,
+      ).thenReturn(const LoginState(isLoading: true, isSuccess: false));
+      when(() => mockLoginViewModel.stream).thenAnswer(
+        (_) =>
+            Stream.value(const LoginState(isLoading: true, isSuccess: false)),
+      );
 
-    await tester.pumpWidget(createLoginWidget());
-    await tester.pump();
+      await tester.pumpWidget(createTestWidget(const LoginView()));
+      await tester.pump();
 
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
-    expect(find.text("Login"), findsNothing);
-  });
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      final ElevatedButton button = tester.widget(find.byType(ElevatedButton));
+      expect(button.onPressed, isNull);
+    });
 
-  testWidgets('Google login button is tappable', (tester) async {
-    await tester.pumpWidget(createLoginWidget());
+    testWidgets(
+      'navigates to ForgotPasswordScreen when "Forgot password?" tapped',
+      (tester) async {
+        await tester.pumpWidget(createTestWidget(const LoginView()));
+        
+        // Reset the mock to clear any previous calls
+        reset(mockNavigatorObserver);
+        
+        await tester.tap(find.text('Forgot password?'));
+        await tester.pumpAndSettle();
 
-    final googleLoginBtn = find.text("Login with Google");
-    expect(googleLoginBtn, findsOneWidget);
+        // Verify only the navigation we triggered
+        verify(() => mockNavigatorObserver.didPush(any(), any())).called(1);
+        expect(find.byType(ForgotPasswordScreen), findsOneWidget);
+      },
+    );
 
-    await tester.tap(googleLoginBtn);
-    await tester.pump();
+    testWidgets('navigates to RegisterWrapper when "Sign Up" tapped', (
+      tester,
+    ) async {
+      // Mock any methods that RegisterWrapper constructor might call
+      when(() => mockRegisterViewModel.add(any())).thenReturn(null);
+      when(() => mockRegisterViewModel.close()).thenAnswer((_) async {});
+      
+      await tester.pumpWidget(
+        createTestWidget(LoginView(registerViewModel: mockRegisterViewModel)),
+      );
+      
+      // Reset the mock to clear any previous calls  
+      reset(mockNavigatorObserver);
 
-    // It's tappable (no action asserted here)
-  });
+      await tester.tap(find.text('Sign Up'));
+      
+      // Use pump() instead of pumpAndSettle() to avoid waiting for animations
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
 
-  testWidgets('Forgot password button is tappable', (tester) async {
-    await tester.pumpWidget(createLoginWidget());
-
-    final forgotBtn = find.text("Forgot password?");
-    expect(forgotBtn, findsOneWidget);
-
-    await tester.tap(forgotBtn);
-    await tester.pump();
-
-    // No navigation asserted, just no crash
-  });
-
-  testWidgets('Sign Up button navigates to RegisterWrapper', (tester) async {
-    final mockObserver = MockNavigatorObserver();
-
-    when(() => mockObserver.didPush(any(), any())).thenAnswer((_) async {});
-    when(() => mockObserver.didPop(any(), any())).thenAnswer((_) async {});
-    when(() => mockObserver.didRemove(any(), any())).thenAnswer((_) async {});
-    when(() => mockObserver.didReplace(oldRoute: any(named: 'oldRoute'), newRoute: any(named: 'newRoute')))
-        .thenAnswer((_) async {});
-
-    await tester.binding.setSurfaceSize(const Size(800, 1200));
-
-    await tester.pumpWidget(createLoginWithRegisterNavigationWidget(mockObserver));
-
-    // Tap "Sign Up!" button to navigate
-    await tester.tap(find.text("Sign Up!"));
-    await tester.pumpAndSettle();
-
-    // Verify navigation happened
-    verify(() => mockObserver.didPush(any(), any())).called(greaterThanOrEqualTo(1));
-
-    // Verify RegisterWrapper is shown
-    expect(find.byType(RegisterWrapper), findsOneWidget);
+      // Verify navigation occurred
+      verify(() => mockNavigatorObserver.didPush(any(), any())).called(1);
+      
+      // Alternative: Check if RegisterWrapper is in the widget tree
+      // This might be more reliable than checking the exact widget type
+      expect(find.byType(RegisterWrapper), findsOneWidget);
+    });
   });
 }
