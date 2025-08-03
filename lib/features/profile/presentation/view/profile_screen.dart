@@ -45,7 +45,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
 
     if (confirmed == true) {
-      context.read<ProfileViewModel>().add(LogoutUser(context));
+      context.read<ProfileViewModel>().add(LogoutUser());
     }
   }
 
@@ -62,7 +62,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (acceleration > shakeThreshold &&
           now - _lastShakeTimestamp > shakeDebounceMs) {
         _lastShakeTimestamp = now;
-        // Dispatch logout event with context from bloc
         _confirmAndLogout();
       }
     });
@@ -103,7 +102,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 32),
                   _buildContactSection(state),
                   const SizedBox(height: 24),
-                  QuickActions(context: context),
+                  const QuickActions(),
                   const SizedBox(height: 24),
                   _buildPlatformFeatures(),
                 ],
