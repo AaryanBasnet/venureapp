@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:venure/app/constant/shared_pref/local_storage_service.dart';
 import 'package:venure/features/auth/domain/entity/user_entity.dart';
 
@@ -17,8 +16,6 @@ Future<void> storeLoginData(Map<String, dynamic> json) async {
   );
 
   final localStorage = await LocalStorageService.getInstance();
-  print('UserEntity userId: ${user.userId}');
   await localStorage.saveUser(user);
-    print('Stored userId: ${localStorage.userId}');
 
 }
