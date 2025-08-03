@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venure/core/common/booking_card.dart';
-import 'package:venure/features/booking/presentation/view_model/booking_state.dart'
-    hide BookingState;
 import 'package:venure/features/profile/presentation/view_model/my_bookings_view_model/my_booking_view_model.dart';
 import 'package:venure/features/profile/presentation/view_model/my_bookings_view_model/my_bookings_event.dart';
 import 'package:venure/features/profile/presentation/view_model/my_bookings_view_model/my_bookings_state.dart';
