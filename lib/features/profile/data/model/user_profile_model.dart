@@ -1,5 +1,4 @@
 import 'package:hive/hive.dart';
-import 'package:venure/app/constant/hive/hive_table_constant.dart';
 import 'package:venure/features/profile/domain/entity/user_profile_entity.dart';
 
 part 'user_profile_model.g.dart';
