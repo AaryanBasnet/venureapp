@@ -18,7 +18,7 @@ class RegisterView extends StatelessWidget {
     final emailController = TextEditingController();
     final phoneController = TextEditingController();
     final passwordController = TextEditingController();
-    final _formKey = GlobalKey<FormState>();
+    final formKey = GlobalKey<FormState>();
 
     return BlocBuilder<RegisterViewModel, RegisterState>(
       builder: (context, state) {
@@ -28,7 +28,7 @@ class RegisterView extends StatelessWidget {
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
               child: Form(
-                key: _formKey,
+                key: formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -126,7 +126,7 @@ class RegisterView extends StatelessWidget {
                             state.isLoading
                                 ? null
                                 : () {
-                                  if (_formKey.currentState!.validate()) {
+                                  if (formKey.currentState!.validate()) {
                                     context.read<RegisterViewModel>().add(
                                       RegisterUserEvent(
                                         name: nameController.text,
@@ -134,7 +134,9 @@ class RegisterView extends StatelessWidget {
                                         email: emailController.text,
                                         password: passwordController.text,
                                         context: context,
-                                        onSuccess: () {},
+                                        onSuccess: () {
+                                          debugPrint("Registration successful");
+                                        },
                                       ),
                                     );
                                   }
