@@ -14,7 +14,7 @@ import 'reset_password_screen.dart';
 class VerifyResetCodeScreen extends StatelessWidget {
   final String email;
 
-  VerifyResetCodeScreen({Key? key, required this.email}) : super(key: key);
+  VerifyResetCodeScreen({super.key, required this.email});
 
   final _codeController = TextEditingController();
 
