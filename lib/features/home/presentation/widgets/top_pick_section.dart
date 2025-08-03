@@ -10,18 +10,6 @@ import 'package:venure/features/common/presentation/view_model/venue_details_eve
 import 'package:venure/features/home/presentation/view_model/home_screen_event.dart';
 import 'package:venure/features/home/presentation/view_model/home_screen_state.dart';
 import 'package:venure/features/home/presentation/view_model/home_view_model.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:venure/app/service_locator/service_locator.dart';
-import 'package:venure/core/common/venue_card.dart';
-import 'package:venure/features/booking/presentation/view/main_booking_page.dart';
-import 'package:venure/features/chat/presentation/view_model/chat_list_bloc.dart';
-import 'package:venure/features/common/presentation/view/venue_details_page.dart';
-import 'package:venure/features/common/presentation/view_model/venue_details_bloc.dart';
-import 'package:venure/features/common/presentation/view_model/venue_details_event.dart';
-import 'package:venure/features/home/presentation/view_model/home_screen_event.dart';
-import 'package:venure/features/home/presentation/view_model/home_screen_state.dart';
-import 'package:venure/features/home/presentation/view_model/home_view_model.dart';
 
 class TopPickSection extends StatelessWidget {
   const TopPickSection({
