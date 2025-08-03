@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:venure/features/chat/domain/entity/chat_entity.dart';
 
-abstract class ChatListState extends Equatable {
+class ChatListState extends Equatable {
   const ChatListState();
   @override
   List<Object?> get props => [];
