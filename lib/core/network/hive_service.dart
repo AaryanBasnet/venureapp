@@ -18,7 +18,7 @@ class HiveService {
   static final HiveService instance = HiveService._privateConstructor();
 
   late Box<UserHiveModel> _userBox;
-  late Box<UserProfileModel> _userProfileBox; // Declare here
+  late Box<UserProfileModel> _userProfileBox; 
 
   late Box<String> _favoritesBox;
   late Box<BookingHiveModel> _bookingBox;
@@ -30,7 +30,6 @@ class HiveService {
     final directory = await getApplicationDocumentsDirectory();
     Hive.init(directory.path);
 
-    // Register all your adapters including nested models
     if (!Hive.isAdapterRegistered(UserHiveModelAdapter().typeId)) {
       Hive.registerAdapter(UserHiveModelAdapter());
     }
@@ -72,6 +71,9 @@ class HiveService {
   }
 
   Box<UserProfileModel> get userProfileBox => _userProfileBox;
+
+
+  
 
   // User Methods
   Future<void> registerUser(UserHiveModel user) async {
