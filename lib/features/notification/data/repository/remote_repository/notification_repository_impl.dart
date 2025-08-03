@@ -20,7 +20,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
               .toList();
       return Right(notifications);
     } catch (e) {
-      return Left(ApiFailure(message: '${e.toString()}'));
+      return Left(ApiFailure(message: e.toString()));
     }
   }
 
@@ -30,7 +30,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
       await service.markAsRead(id);
       return const Right(null);
     } catch (e) {
-      return Left(ApiFailure(message: '${e.toString()}'));
+      return Left(ApiFailure(message: e.toString()));
     }
   }
 
@@ -40,7 +40,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
       await service.markAllAsRead();
       return const Right(null);
     } catch (e) {
-      return Left(ApiFailure(message: '${e.toString()}'));
+      return Left(ApiFailure(message: e.toString()));
     }
   }
 }
