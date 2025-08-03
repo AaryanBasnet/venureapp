@@ -7,15 +7,19 @@ part 'venue_location_model.g.dart';
 @HiveType(typeId: 2)
 @JsonSerializable()
 class VenueLocationModel extends VenueLocation with HiveObjectMixin {
+  @override
   @HiveField(0)
   final String address;
 
+  @override
   @HiveField(1)
   final String city;
 
+  @override
   @HiveField(2)
   final String state;
 
+  @override
   @HiveField(3)
   final String country;
 
