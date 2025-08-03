@@ -1,10 +1,12 @@
 
-class ForgotPasswordState {
+import 'package:equatable/equatable.dart';
+
+class ForgotPasswordState extends Equatable {
   final bool isLoading;
   final bool success;
   final String? errorMessage;
 
-  ForgotPasswordState({
+  const ForgotPasswordState({
     this.isLoading = false,
     this.success = false,
     this.errorMessage,
@@ -23,4 +25,8 @@ class ForgotPasswordState {
   }
 
   factory ForgotPasswordState.initial() => ForgotPasswordState();
+  
+  @override
+  // TODO: implement props
+  List<Object?> get props => [isLoading, success, errorMessage];
 }
