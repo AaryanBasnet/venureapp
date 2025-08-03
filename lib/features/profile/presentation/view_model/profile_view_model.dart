@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venure/app/constant/shared_pref/local_storage_service.dart';
-import 'package:venure/features/auth/presentation/view/login_wrapper.dart';
 import 'package:venure/features/profile/domain/use_case/get_profile_usecase.dart';
 import 'package:venure/features/profile/domain/use_case/update_profile_usecase.dart';
 import 'package:venure/features/profile/domain/use_case/update_profile_params.dart';
@@ -144,6 +143,7 @@ class ProfileViewModel extends Bloc<ProfileEvent, ProfileState> {
         emit(state.copyWith(isLoading: false, error: failure.message));
       },
       (_) {
+        emit(state.copyWith(isLoading: true, error: null));
         add(LoadUserProfile()); // Refresh profile after update
       },
     );
@@ -154,12 +154,7 @@ class ProfileViewModel extends Bloc<ProfileEvent, ProfileState> {
     Emitter<ProfileState> emit,
   ) async {
     await _storageService.clearLoginData();
-    if (event.context.mounted) {
-      Navigator.pushAndRemoveUntil(
-        event.context,
-        MaterialPageRoute(builder: (_) => const LoginWrapper()),
-        (route) => false,
-      );
-    }
+
+    emit(state.copyWith(isLoggedIn: false, isLoggedOut: true));
   }
 }
