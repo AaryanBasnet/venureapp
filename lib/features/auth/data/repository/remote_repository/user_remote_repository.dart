@@ -23,9 +23,8 @@ Future<Either<Failure, UserEntity>> loginUser(
     userData['token'] = loginResponse['token'];
     final userEntity = UserEntity.fromJson(userData);
     return Right(userEntity);
-  } catch (e, stackTrace) {
-    print("Remote login exception: $e");
-    print(stackTrace);
+  } catch (e) {
+    
     return Left(ApiFailure(message: e.toString()));
   }
 }
