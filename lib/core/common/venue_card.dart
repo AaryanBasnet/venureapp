@@ -2,7 +2,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:venure/core/utils/url_utils.dart';
 import 'package:venure/features/home/domain/entity/venue_entity.dart';
-import 'package:venure/features/common/presentation/view/venue_details_page.dart';
 
 class VenueCard extends StatelessWidget {
   final Venue venue;
