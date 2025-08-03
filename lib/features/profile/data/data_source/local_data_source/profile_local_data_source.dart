@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
-import 'package:venure/app/constant/hive/hive_table_constant.dart';
 import 'package:venure/features/profile/data/model/user_profile_model.dart';
 import 'package:venure/core/network/hive_service.dart';
 
