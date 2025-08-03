@@ -8,9 +8,7 @@ import 'package:venure/features/profile/presentation/view_model/profile_event.da
 import 'package:venure/features/profile/presentation/view_model/profile_view_model.dart';
 
 class QuickActions extends StatelessWidget {
-  const QuickActions({super.key, required this.context});
-
-  final BuildContext context;
+  const QuickActions({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +37,7 @@ class QuickActions extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          // Bookings Button
+          // Bookings
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
@@ -47,11 +45,9 @@ class QuickActions extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder:
-                        (_) => MyBookingsScreen(
-                          getBookingsUseCase:
-                              serviceLocator<GetMyBookingsUseCase>(),
-                        ),
+                    builder: (_) => MyBookingsScreen(
+                      getBookingsUseCase: serviceLocator<GetMyBookingsUseCase>(),
+                    ),
                   ),
                 );
               },
@@ -78,11 +74,10 @@ class QuickActions extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder:
-                        (_) => BlocProvider.value(
-                          value: profileViewModel,
-                          child: const EditProfileScreen(),
-                        ),
+                    builder: (_) => BlocProvider.value(
+                      value: profileViewModel,
+                      child: const EditProfileScreen(),
+                    ),
                   ),
                 );
               },
@@ -125,28 +120,26 @@ class QuickActions extends StatelessWidget {
               onPressed: () async {
                 final shouldLogout = await showDialog<bool>(
                   context: context,
-                  builder:
-                      (context) => AlertDialog(
-                        title: const Text("Confirm Logout"),
-                        content: const Text("Are you sure you want to logout?"),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.of(context).pop(false),
-                            child: const Text("Cancel"),
-                          ),
-                          TextButton(
-                            onPressed: () => Navigator.of(context).pop(true),
-                            child: const Text("Yes"),
-                          ),
-                        ],
+                  builder: (context) => AlertDialog(
+                    title: const Text("Confirm Logout"),
+                    content: const Text("Are you sure you want to logout?"),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: const Text("Cancel"),
                       ),
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        child: const Text("Yes"),
+                      ),
+                    ],
+                  ),
                 );
 
                 if (shouldLogout == true) {
-                  profileViewModel.add(LogoutUser(context));
+                  profileViewModel.add(LogoutUser());
                 }
               },
-
               icon: const Icon(Icons.logout, color: Colors.red),
               label: const Text("Logout", style: TextStyle(color: Colors.red)),
               style: OutlinedButton.styleFrom(
