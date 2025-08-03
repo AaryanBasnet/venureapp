@@ -33,13 +33,14 @@ class UserProfileModel extends HiveObject {
   });
 
   factory UserProfileModel.fromJson(Map<String, dynamic> json) {
+    final user = json['user'] ?? json;
     return UserProfileModel(
-      id: json['_id'] ?? '',
-      name: json['name'] ?? '',
-      email: json['email'] ?? '',
-      phone: json['phone'] ?? '',
-      address: json['address'] ?? '',
-      avatar: json['avatar'] ?? '',
+      id: user['_id'] ?? '',
+      name: user['name'] ?? '',
+      email: user['email'] ?? '',
+      phone: user['phone'] ?? '',
+      address: user['address'] ?? '',
+      avatar: user['avatar'] ?? '',
     );
   }
 

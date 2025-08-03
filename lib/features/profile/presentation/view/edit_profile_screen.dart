@@ -41,7 +41,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             radius: 50,
                             backgroundImage: FileImage(_avatarFile!),
                           )
-                          : (state.avatar != null
+                          : (state.avatar != null && state.avatar!.isNotEmpty
                               ? CircleAvatar(
                                 radius: 50,
                                 backgroundImage: NetworkImage(
