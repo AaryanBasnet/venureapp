@@ -1,15 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:venure/core/error/failure.dart';
 import 'package:venure/features/auth/domain/use_case/reset_password_usecase.dart';
 
 import 'package:venure/features/auth/domain/use_case/send_rest_code_usecase.dart';
 import 'package:venure/features/auth/domain/use_case/verify_reset_code_usecase.dart';
 import 'package:venure/features/auth/presentation/view_model/forget_password_view_model/forget_password_event.dart';
 import 'package:venure/features/auth/presentation/view_model/forget_password_view_model/forget_password_state.dart';
-
-
-
-
 
 class ForgotPasswordViewModel
     extends Bloc<ForgotPasswordEvent, ForgotPasswordState> {
