@@ -99,7 +99,6 @@ class BookingViewModel extends Bloc<BookingEvent, BookingState> {
         return;
       }
 
-      // 🔁 1. Get both clientSecret & paymentIntentId from backend
       final result = await _paymentService.createPaymentIntent(
         amount: totalPrice,
         venueId: venueId,
@@ -111,10 +110,8 @@ class BookingViewModel extends Bloc<BookingEvent, BookingState> {
       final String clientSecret = result['clientSecret'];
       final String paymentIntentId = result['paymentIntentId'];
 
-      // 🔁 2. Save paymentIntentId in state
       emit(state.copyWith(paymentIntentId: paymentIntentId));
 
-      // 🔁 3. Initialize Stripe payment sheet
       await Stripe.instance.initPaymentSheet(
         paymentSheetParameters: SetupPaymentSheetParameters(
           paymentIntentClientSecret: clientSecret,
@@ -122,10 +119,8 @@ class BookingViewModel extends Bloc<BookingEvent, BookingState> {
         ),
       );
 
-      // 🔁 4. Present payment sheet to user
       await Stripe.instance.presentPaymentSheet();
 
-      // 🔁 5. Update payment status to success
       emit(state.copyWith(paymentStatus: PaymentStatus.success));
     } on StripeException catch (e) {
       emit(
