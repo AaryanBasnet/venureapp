@@ -20,10 +20,10 @@ class GetOrCreateChatParamsWithUser extends GetOrCreateChatParams {
   final String currentUserId;
 
   GetOrCreateChatParamsWithUser({
-    required String participantId,
-    required String venueId,
+    required super.participantId,
+    required super.venueId,
     required this.currentUserId,
-  }) : super(participantId: participantId, venueId: venueId);
+  });
 }
 
 // Use case requiring currentUserId (so using the extended params)
