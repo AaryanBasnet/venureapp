@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
 
 abstract class ProfileEvent {}
 
@@ -20,7 +19,5 @@ class UpdateUserProfile extends ProfileEvent {
   });
 }
 
-class LogoutUser extends ProfileEvent {
-  final BuildContext context;
-  LogoutUser(this.context);
-}
+class LogoutUser extends ProfileEvent {}
+
