@@ -13,7 +13,7 @@ class VenueLocalDataSource implements IVenueDataSource {
   Future<List<Venue>> getAllVenues(
     {int page = 1, int limit = 10}
   ) async {
-    final models = await _hiveService.getAllVenues(
+    final models = _hiveService.getAllVenues(
       
     );
     return models.map((model) => model.toEntity()).toList();
@@ -59,7 +59,7 @@ class VenueLocalDataSource implements IVenueDataSource {
 
   @override
   Future<List<Venue>> getFavoriteVenues() async {
-    final favoriteIds = await _hiveService.getFavoriteVenueIds();
+    final favoriteIds = _hiveService.getFavoriteVenueIds();
     final allVenues = await getAllVenues();
 
     return allVenues.where((venue) => favoriteIds.contains(venue.id)).toList();
