@@ -12,7 +12,7 @@ class UserLocalDatasource implements IUserDataSource {
   @override
   Future<Map<String, dynamic>> loginUser(String email, String password) async {
     try {
-      final loginUser = await _hiveService.loginUser(email, password);
+      final loginUser = _hiveService.loginUser(email, password);
 
       if (loginUser != null) {
         // Save current userId locally for offline access
